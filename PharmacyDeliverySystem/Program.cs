@@ -1,7 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using PharmacyDeliverySystem.Data; 
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register the DbContext (PharmacyDeliveryContext) in the dependency injection container.
+// This makes it possible to use the database (PharmacyDelivery) through Entity Framework Core.
+builder.Services.AddDbContext<PharmacyDeliveryContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
@@ -27,3 +37,5 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+
