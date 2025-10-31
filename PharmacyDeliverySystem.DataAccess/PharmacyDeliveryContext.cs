@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Data;
+namespace PharmacyDeliverySystem.DataAccess;
 
 public partial class PharmacyDeliveryContext : DbContext
 {
@@ -138,7 +138,7 @@ public partial class PharmacyDeliveryContext : DbContext
 
             entity.Property(e => e.Price).HasColumnType("decimal(20, 0)");
             entity.Property(e => e.Quantity).HasMaxLength(20);
-            entity.Property(e => e.Statuss).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(20);
 
             entity.HasOne(d => d.Pharm).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PharmId)

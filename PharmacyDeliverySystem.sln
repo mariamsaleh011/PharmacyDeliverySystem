@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem", "PharmacyDeliverySystem\PharmacyDeliverySystem.csproj", "{6709DFDF-5849-4221-9D41-9076E2C51DDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem.Business", "PharmacyDeliverySystem.Business\PharmacyDeliverySystem.Business.csproj", "{03A3A9AE-7BB8-4AF3-8272-E8490572B087}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem.Models", "PharmacyDeliverySystem.Models\PharmacyDeliverySystem.Models.csproj", "{7C2EF28C-534E-44AD-93D5-33386A7ED9A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem.DataAccess", "PharmacyDeliverySystem.DataAccess\PharmacyDeliverySystem.DataAccess.csproj", "{FAEA8644-3242-491B-AD65-1D8ED22EA463}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{6709DFDF-5849-4221-9D41-9076E2C51DDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6709DFDF-5849-4221-9D41-9076E2C51DDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6709DFDF-5849-4221-9D41-9076E2C51DDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03A3A9AE-7BB8-4AF3-8272-E8490572B087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03A3A9AE-7BB8-4AF3-8272-E8490572B087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03A3A9AE-7BB8-4AF3-8272-E8490572B087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03A3A9AE-7BB8-4AF3-8272-E8490572B087}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C2EF28C-534E-44AD-93D5-33386A7ED9A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C2EF28C-534E-44AD-93D5-33386A7ED9A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C2EF28C-534E-44AD-93D5-33386A7ED9A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C2EF28C-534E-44AD-93D5-33386A7ED9A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

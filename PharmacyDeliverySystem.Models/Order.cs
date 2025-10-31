@@ -11,7 +11,7 @@ public partial class Order
 
     public string? Quantity { get; set; }
 
-    public string? Statuss { get; set; }
+    public string? Status { get; set; }
 
     public int? PharmId { get; set; }
 

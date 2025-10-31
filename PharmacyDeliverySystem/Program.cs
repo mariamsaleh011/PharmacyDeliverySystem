@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PharmacyDeliverySystem.Data; 
+using PharmacyDeliverySystem.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
