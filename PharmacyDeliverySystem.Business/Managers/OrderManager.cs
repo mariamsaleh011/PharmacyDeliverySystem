@@ -7,7 +7,7 @@ namespace PharmacyDeliverySystem.Business;
 
 public class OrderManager : IOrderManager
 {
-    private readonly PharmacyDeliveryContext  context;
+    private readonly PharmacyDeliveryContext context;
 
     public OrderManager(PharmacyDeliveryContext context)
     {
@@ -15,10 +15,10 @@ public class OrderManager : IOrderManager
     }
     //Include is used for loading related objects (via foreign keys or navigation collections) in one query.
     //FirstOrDefault
-         // Purpose: Finds the first item in a collection/query that matches a condition - Return Type: A single object (or null).
+    // Purpose: Finds the first item in a collection/query that matches a condition - Return Type: A single object (or null).
     //Where
-         //Purpose: Finds all items matching a condition; can be zero, one, or many - Return Type: An IEnumerable<T> (a collection/sequence).
-    
+    //Purpose: Finds all items matching a condition; can be zero, one, or many - Return Type: An IEnumerable<T> (a collection/sequence).
+
     public IEnumerable<Order> GetAllOrders()
     {
         return context.Orders
@@ -31,13 +31,13 @@ public class OrderManager : IOrderManager
     public Order? GetOrderById(int id)
     {
         return context.Orders
-            .Include (o => o.Pharm)
-            .Include (o => o.Run)
-            .Include (o => o.Customers)
+            .Include(o => o.Pharm)
+            .Include(o => o.Run)
+            .Include(o => o.Customers)
             .Include(o => o.Order_Invoice)
             .Include(o => o.OrderProducts)
                    .ThenInclude(op => op.Pro)
-            .FirstOrDefault(o =>o.OrderID == id);
+            .FirstOrDefault(o => o.OrderID == id);
     }
 
     public IEnumerable<Order> GetOrdersByCustomer(int customerId)
@@ -66,7 +66,7 @@ public class OrderManager : IOrderManager
 
     public decimal GetOrderTotal(int orderId)
     {
-        var order= context.Orders
+        var order = context.Orders
                 .Include(o => o.OrderProducts)
                 .FirstOrDefault(o => o.OrderID == orderId);
 

@@ -7,7 +7,7 @@ public partial class Chat
 {
     public int chatId { get; set; }
 
-    public string? Statuss { get; set; }
+    public string? Status { get; set; }
 
     public string? Channel { get; set; }
 

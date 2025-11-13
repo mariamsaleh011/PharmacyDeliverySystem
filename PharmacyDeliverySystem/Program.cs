@@ -12,6 +12,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<PharmacyDeliveryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Registration of the Managers (Business Layer)
+builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
+
 
 var app = builder.Build();
 
