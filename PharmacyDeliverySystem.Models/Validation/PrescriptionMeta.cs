@@ -1,5 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace PharmacyDeliverySystem.Models.Validation
 {
@@ -12,6 +11,7 @@ namespace PharmacyDeliverySystem.Models.Validation
         public const string Fulfilled = "Fulfilled";
     }
 
+    // هذا مجرد Metadata class — NOT linked by ModelMetadataType
     public class PrescriptionMeta
     {
         [Key]
@@ -27,7 +27,7 @@ namespace PharmacyDeliverySystem.Models.Validation
 
         [StringLength(120)]
         public string? Name { get; set; }
-        
+
         [Required, Range(1, int.MaxValue)]
         public int CustomerID { get; set; }
 
@@ -37,7 +37,7 @@ namespace PharmacyDeliverySystem.Models.Validation
         public int? OrderID { get; set; }
     }
 
-	//connect the Prescription class with this class
-	[ModelMetadataType(typeof(PrescriptionMeta))]
-    public partial class Prescription { }
+    // ❌ تم إزالة ModelMetadataType لأنه يسبب كسر في الـBuild داخل Models
+    // ❌ لا نربط PrescriptionMeta بـ Prescription داخل مشروع Models
+    // لو محتاج تربطهم، هنعمله داخل الـWeb Project فقط (ViewModels أو Metadata DI)
 }

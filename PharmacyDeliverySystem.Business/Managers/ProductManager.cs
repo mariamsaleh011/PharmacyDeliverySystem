@@ -1,41 +1,46 @@
-using PharmacyDeliverySystem.Models;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
+using PharmacyDeliverySystem.Models;
 
-
-namespace PharmacyDeliverySystem.Business;
-
-public class ProductManager : IProductManager
+namespace PharmacyDeliverySystem.Business.Managers
 {
-	private readonly PharmacyDeliveryContext context;
-	public ProductManager(PharmacyDeliveryContext context)
-	{
-		context = context;
-	}
-	public IEnumerable<PRODUCT> GetAllProducts()
-	{
-		return this.context.PRODUCTs.ToList();
-	}
+    public class ProductManager : IProductManager
+    {
+        private readonly PharmacyDeliveryContext _context;
 
-	public PRODUCT? GetProductById(int id)
-	{
-		return this.context.PRODUCTs.Find(id);
-	}
+        public ProductManager(PharmacyDeliveryContext context)
+        {
+            _context = context;
+        }
 
-	public void AddProduct(PRODUCT product)
-	{
-		this.context.PRODUCTs.Add(product);
-		this.context.SaveChanges();
-	}
+        public IEnumerable<Product> GetAll()
+            => _context.Products.AsNoTracking().ToList();
 
-	public void UpdateProduct(PRODUCT product)
-	{
-		this.context.PRODUCTs.Update(product);
-		this.context.SaveChanges();
-	}
+        public Product? GetById(int id)
+            => _context.Products.Find(id);
 
-	public void DeleteProduct(int id)
-	{
-		this.context.PRODUCTs.Remove(this.context.PRODUCTs.Find(id));
-		this.context.SaveChanges();
-	}
+        public void Add(Product product)
+        {
+            _context.Products.Add(product);
+            _context.SaveChanges();
+        }
+
+        public void Update(Product product)
+        {
+            _context.Products.Update(product);
+            _context.SaveChanges();
+        }
+
+        public void Delete(int id)
+        {
+            var entity = _context.Products.Find(id);
+            if (entity == null) return;
+
+            _context.Products.Remove(entity);
+            _context.SaveChanges();
+        }
+    }
 }

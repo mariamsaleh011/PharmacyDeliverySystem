@@ -1,75 +1,92 @@
 using Microsoft.AspNetCore.Mvc;
-using PharmacyDeliverySystem.Business;
-using PharmacyDeliverySystem.DataAccess;
+using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Controllers;
-
-public class ProductController : Controller
+namespace PharmacyDeliverySystem.Controllers
 {
-    private readonly IProductManager  productManager;
+    public class ProductController : Controller
+    {
+        private readonly IProductManager _productManager;
 
-    public ProductController(IProductManager  productManager)
-    {
-        this.productManager = productManager;
-    }
-
-    public IActionResult Index()
-    {
-        var products = productManager.GetAllProducts();
-        return View(products);
-    }
-
-    public IActionResult Details(int id)
-    {
-        var product = productManager.GetProductById(id);
-        return View(product);
-    }
-    //empty form
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public IActionResult Create(PRODUCT product)
-    {
-        if (ModelState.IsValid)
+        public ProductController(IProductManager productManager)
         {
-            productManager.AddProduct(product);
-            return RedirectToAction("Index");
+            _productManager = productManager;
         }
 
-        return View(product);
-    }
+        // GET: /Product
+        public IActionResult Index()
+        {
+            var products = _productManager.GetAll();
+            return View(products);
+        }
 
-   
-    //exiting data_form
-    public IActionResult Edit(int id)
-    {
-        var product = productManager.GetProductById(id);
-        return View(product);
-    }
-    [HttpPost]
-    public IActionResult Edit(PRODUCT product)
-    {
-         if (ModelState.IsValid) 
-         {
-            productManager.UpdateProduct(product);
-            return RedirectToAction("Index");
-         }
-         return View(product);
-    }
-    //confirmation page to the user before actually deleting.
-    public IActionResult Delete(int id)
-    {
-        var product = productManager.GetProductById(id);
-        return View(product);
-    }
-    [HttpPost, ActionName("DeleteProduct")]
-    public IActionResult DeleteConfirmed(int id)
-    {
-        productManager.DeleteProduct(id);
-        return RedirectToAction("Index");
+        // GET: /Product/Details/5
+        public IActionResult Details(int id)
+        {
+            var product = _productManager.GetById(id);
+            if (product == null)
+                return NotFound();
+
+            return View(product);
+        }
+
+        // GET: /Product/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: /Product/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Product product)
+        {
+            if (!ModelState.IsValid)
+                return View(product);
+
+            _productManager.Add(product);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Product/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var product = _productManager.GetById(id);
+            if (product == null)
+                return NotFound();
+
+            return View(product);
+        }
+
+        // POST: /Product/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Product product)
+        {
+            if (!ModelState.IsValid)
+                return View(product);
+
+            _productManager.Update(product);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Product/Delete/5
+        public IActionResult Delete(int id)
+        {
+            var product = _productManager.GetById(id);
+            if (product == null)
+                return NotFound();
+
+            return View(product);
+        }
+
+        // POST: /Product/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            _productManager.Delete(id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

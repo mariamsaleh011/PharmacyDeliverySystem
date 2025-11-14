@@ -1,3 +1,18 @@
+//using System.Collections.Generic;
+//using PharmacyDeliverySystem.Models;
+
+//namespace PharmacyDeliverySystem.Business.Interfaces
+//{
+//    public interface IOrderManager 
+//    {
+//        IEnumerable<Order> GetAll();
+//        Order? GetById(int id);
+//        IEnumerable<Order> GetByCustomer(int customerId);
+//        void Add(Order order);
+//        void Update(Order order);
+//        void Delete(int id);
+//    }
+//}
 using PharmacyDeliverySystem.Models;
 
 
@@ -17,3 +32,4 @@ public interface IOrderManager
     void UpdateOrder(Order order);
     void CancelOrder(int id);
 }
+

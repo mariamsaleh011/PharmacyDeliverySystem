@@ -1,14 +1,14 @@
+using System.Collections.Generic;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Business;
-
-
-public interface IProductManager
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
-    IEnumerable<PRODUCT> GetAllProducts();
-     PRODUCT? GetProductById(int id);
-     void AddProduct(PRODUCT product);
-     void UpdateProduct(PRODUCT product);
-     void DeleteProduct(int id);
-     
+    public interface IProductManager
+    {
+        IEnumerable<Product> GetAll();
+        Product? GetById(int id);
+        void Add(Product product);
+        void Update(Product product);
+        void Delete(int id);
+    }
 }

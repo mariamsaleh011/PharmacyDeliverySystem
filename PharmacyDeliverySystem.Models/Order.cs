@@ -1,35 +1,46 @@
-﻿using System;
+﻿using PharmacyDeliverySystem.Models;
+using System;
 using System.Collections.Generic;
 
-namespace PharmacyDeliverySystem.Models;
-
-public partial class Order
+namespace PharmacyDeliverySystem.Models
 {
-    public int OrderID { get; set; }
 
-    public decimal? Price { get; set; }
+    public partial class Order
+    {
+        public int OrderId { get; set; }
 
-    public string? Quantity { get; set; }
+        public decimal? Price { get; set; }
 
-    public string? Status { get; set; }
+        public string? Quantity { get; set; }
 
-    public int? PharmId { get; set; }
+        public string? Status { get; set; }
 
-    public int? RunId { get; set; }
+        public int? PharmId { get; set; }
 
-    public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
+        public int? RunId { get; set; }
 
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+        public string? PdfUrl { get; set; }
 
-    public virtual Order_Invoice? Order_Invoice { get; set; }
+        public int? InvoiceNo { get; set; }
 
-    public virtual Pharmacy? Pharm { get; set; }
+        public decimal? TotalPrice { get; set; }
 
-    public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+        public string? PaymentId { get; set; }
 
-    public virtual ICollection<Returnn> Returnns { get; set; } = new List<Returnn>();
+        public int? CustomerId { get; set; }
 
-    public virtual DeliveryRun? Run { get; set; }
+        public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
-    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+        public virtual Customer? Customer { get; set; }
+
+        public virtual Payment? Payment { get; set; }
+
+        public virtual Pharmacy? Pharm { get; set; }
+
+        public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+
+        public virtual DeliveryRun? Run { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+
+    }
 }

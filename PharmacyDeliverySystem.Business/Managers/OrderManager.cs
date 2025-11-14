@@ -1,118 +1,104 @@
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+using PharmacyDeliverySystem.Business;              
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Business;
-
-public class OrderManager : IOrderManager
+namespace PharmacyDeliverySystem.Business.Managers
 {
-    private readonly PharmacyDeliveryContext context;
-
-    public OrderManager(PharmacyDeliveryContext context)
+    public class OrderManager : IOrderManager
     {
-        this.context = context;
-    }
-    //Include is used for loading related objects (via foreign keys or navigation collections) in one query.
-    //FirstOrDefault
-    // Purpose: Finds the first item in a collection/query that matches a condition - Return Type: A single object (or null).
-    //Where
-    //Purpose: Finds all items matching a condition; can be zero, one, or many - Return Type: An IEnumerable<T> (a collection/sequence).
+        private readonly PharmacyDeliveryContext _context;
 
-    public IEnumerable<Order> GetAllOrders()
-    {
-        return context.Orders
-            .Include(o => o.Pharm)
-            .Include(o => o.Run)
-            .Include(o => o.Customers)
-            .ToList();
-    }
-
-    public Order? GetOrderById(int id)
-    {
-        return context.Orders
-            .Include(o => o.Pharm)
-            .Include(o => o.Run)
-            .Include(o => o.Customers)
-            .Include(o => o.Order_Invoice)
-            .Include(o => o.OrderProducts)
-                   .ThenInclude(op => op.Pro)
-            .FirstOrDefault(o => o.OrderID == id);
-    }
-
-    public IEnumerable<Order> GetOrdersByCustomer(int customerId)
-    {
-        return context.Orders
-            .Where(o => o.Customers.Any(c => c.CustomerID == customerId))
-            .ToList();
-    }
-
-    public IEnumerable<Order> GetOrdersByPharmacy(int pharmacyId)
-    {
-        return context.Orders
-            .Where(o => o.PharmId == pharmacyId)
-            .Include(o => o.Pharm)
-            .Include(o => o.Customers)
-            .ToList();
-    }
-
-    public IEnumerable<Order> GetOrdersByStatus(string status)
-    {
-        return context.Orders
-            .Where(o => o.Status == status)
-            .Include(o => o.Customers)
-            .ToList();
-    }
-
-    public decimal GetOrderTotal(int orderId)
-    {
-        var order = context.Orders
-                .Include(o => o.OrderProducts)
-                .FirstOrDefault(o => o.OrderID == orderId);
-
-        return order?.Price ?? 0;
-
-    }
-
-    public void UpdateOrderStatus(int orderId, string newStatus)
-    {
-        var order = context.Orders.Find(orderId);
-        if (order != null)
+        public OrderManager(PharmacyDeliveryContext context)
         {
+            _context = context;
+        }
+
+        
+        private IQueryable<Order> IncludeAll()
+            => _context.Orders
+                       .Include(o => o.Customer)
+                       .Include(o => o.Payment)
+                       .Include(o => o.Pharm)
+                       .Include(o => o.Run)
+                       .Include(o => o.OrderItems);
+
+
+        public IEnumerable<Order> GetAllOrders()
+            => IncludeAll()
+               .AsNoTracking()
+               .ToList();
+
+        public Order? GetOrderById(int id)
+            => IncludeAll()
+               .FirstOrDefault(o => o.OrderId == id);
+
+        public IEnumerable<Order> GetOrdersByCustomer(int customerId)
+            => IncludeAll()
+               .Where(o => o.CustomerId == customerId)
+               .AsNoTracking()
+               .ToList();
+
+        public IEnumerable<Order> GetOrdersByPharmacy(int pharmacyId)
+            => IncludeAll()
+               .Where(o => o.PharmId == pharmacyId)
+               .AsNoTracking()
+               .ToList();
+
+        public IEnumerable<Order> GetOrdersByStatus(string status)
+            => IncludeAll()
+               .Where(o => o.Status == status)
+               .AsNoTracking()
+               .ToList();
+
+        public decimal GetOrderTotal(int orderId)
+        {
+            var order = IncludeAll().FirstOrDefault(o => o.OrderId == orderId);
+            if (order == null)
+                return 0m;
+
+            return order.TotalPrice ?? 0;
+        }
+
+        public void UpdateOrderStatus(int orderId, string newStatus)
+        {
+            var order = _context.Orders.Find(orderId);
+            if (order == null) return;
+
             order.Status = newStatus;
-            context.SaveChanges();
+            _context.SaveChanges();
         }
-    }
 
-    public void AssignOrderToDeliveryRun(int orderId, int runId)
-    {
-        var order = context.Orders.Find(orderId);
-        if (order != null)
+        public void AssignOrderToDeliveryRun(int orderId, int runId)
         {
+            var order = _context.Orders.Find(orderId);
+            if (order == null) return;
+
             order.RunId = runId;
-            context.SaveChanges();
+            _context.SaveChanges();
         }
-    }
 
-    public void CreateOrder(Order order)
-    {
-        context.Orders.Add(order);
-        context.SaveChanges();
-    }
-
-    public void UpdateOrder(Order order)
-    {
-        context.Orders.Update(order);
-        context.SaveChanges();
-    }
-
-    public void CancelOrder(int id)
-    {
-        var order = context.Orders.Find(id);
-        if (order != null)
+        public void CreateOrder(Order order)
         {
-            order.Status = "Canceled";
-            context.SaveChanges();
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+        }
+
+        public void UpdateOrder(Order order)
+        {
+            _context.Orders.Update(order);
+            _context.SaveChanges();
+        }
+
+        public void CancelOrder(int id)
+        {
+            var order = _context.Orders.Find(id);
+            if (order == null) return;
+
+            _context.Orders.Remove(order);
+            _context.SaveChanges();
         }
     }
 }

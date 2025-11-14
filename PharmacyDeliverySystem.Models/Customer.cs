@@ -1,23 +1,26 @@
-﻿using System;
+﻿using PharmacyDeliverySystem.Models;
+using System;
 using System.Collections.Generic;
 
-namespace PharmacyDeliverySystem.Models;
-
-public partial class Customer
+namespace PharmacyDeliverySystem.Models
 {
-    public int CustomerID { get; set; }
 
-    public string FullName { get; set; } = null!;
+    public partial class Customer
+    {
+        public int CustomerId { get; set; }
 
-    public string PhoneNumber { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
-    public string Address { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
 
-    public virtual ICollection<CustomerChat> CustomerChats { get; set; } = new List<CustomerChat>();
+        public string Address { get; set; } = null!;
 
-    public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+        public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
-    public virtual ICollection<QRConfirmation> QRConfirmations { get; set; } = new List<QRConfirmation>();
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+        public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+
+        public virtual ICollection<QrConfirmation> QrConfirmations { get; set; } = new List<QrConfirmation>();
+    }
 }

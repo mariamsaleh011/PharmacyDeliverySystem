@@ -1,6 +1,6 @@
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Business
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
 	public interface IPrescriptionManager
 	{
