@@ -20,6 +20,9 @@ builder.Services.AddScoped<ICustomerManager, CustomerManager>();
 builder.Services.AddScoped<IOrderManager, OrderManager>();
 builder.Services.AddScoped<IProductManager, ProductManager>();
 builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
+builder.Services.AddScoped<IReturnManager, ReturnManager>();
+builder.Services.AddScoped<IRefundManager, RefundManager>();
+
 
 var app = builder.Build();
 
