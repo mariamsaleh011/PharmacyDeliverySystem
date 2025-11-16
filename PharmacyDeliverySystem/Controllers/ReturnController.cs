@@ -40,9 +40,9 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var entity = new Return
+            var entity = new Returnn
             {
-                OrderId = vm.OrderId,
+                OrderID = vm.OrderId,
                 Reason = vm.Reason,
                 Status = vm.Status
             };
@@ -61,7 +61,7 @@ namespace PharmacyDeliverySystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Return model)
+        public IActionResult Edit(Returnn model)
         {
             if (!ModelState.IsValid)
                 return View(model);

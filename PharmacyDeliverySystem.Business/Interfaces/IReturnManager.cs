@@ -4,12 +4,12 @@ namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IReturnManager
     {
-        IEnumerable<Return> GetAll();
-        Return? GetById(int id);
-        IEnumerable<Return> GetByOrder(int orderId);
+        IEnumerable<Returnn> GetAll();
+        Returnn? GetById(int id);
+        IEnumerable<Returnn> GetByOrder(int orderId);
 
-        void Add(Return entity);
-        void Update(Return entity);
+        void Add(Returnn entity);
+        void Update(Returnn entity);
         void SetStatus(int id, string status);
         void Delete(int id);
     }

@@ -14,30 +14,30 @@ namespace PharmacyDeliverySystem.Business.Managers
             _ctx = ctx;
         }
 
-        public IEnumerable<Return> GetAll()
+        public IEnumerable<Returnn> GetAll()
             => _ctx.Returns
                    .Include(r => r.Order)
                    .AsNoTracking()
                    .ToList();
 
-        public Return? GetById(int id)
+        public Returnn? GetById(int id)
             => _ctx.Returns
                    .Include(r => r.Order)
                    .FirstOrDefault(r => r.ReturnId == id);
 
-        public IEnumerable<Return> GetByOrder(int orderId)
+        public IEnumerable<Returnn> GetByOrder(int orderId)
             => _ctx.Returns
-                   .Where(r => r.OrderId == orderId)
+                   .Where(r => r.OrderID == orderId)
                    .AsNoTracking()
                    .ToList();
 
-        public void Add(Return entity)
+        public void Add(Returnn entity)
         {
             _ctx.Returns.Add(entity);
             _ctx.SaveChanges();
         }
 
-        public void Update(Return entity)
+        public void Update(Returnn entity)
         {
             _ctx.Returns.Update(entity);
             _ctx.SaveChanges();

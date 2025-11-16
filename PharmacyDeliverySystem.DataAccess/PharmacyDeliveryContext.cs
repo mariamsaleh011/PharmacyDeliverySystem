@@ -254,7 +254,7 @@ namespace PharmacyDeliverySystem.DataAccess
 
                 entity.ToTable("Return");
 
-                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+                entity.Property(e => e.OrderID).HasColumnName("OrderID");
                 entity.Property(e => e.Reason).HasMaxLength(200);
                 entity.Property(e => e.Status).HasMaxLength(20);
             });
