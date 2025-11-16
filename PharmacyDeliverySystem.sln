@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem", "PharmacyDeliverySystem\PharmacyDeliverySystem.csproj", "{6709DFDF-5849-4221-9D41-9076E2C51DDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmacyDeliverySystem.Business", "PharmacyDeliverySystem.Business\PharmacyDeliverySystem.Business.csproj", "{03A3A9AE-7BB8-4AF3-8272-E8490572B087}"
@@ -30,5 +33,11 @@ Global
 		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAEA8644-3242-491B-AD65-1D8ED22EA463}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {33E5C15A-77EB-4247-AA6E-7A0A5E0B24BC}
 	EndGlobalSection
 EndGlobal

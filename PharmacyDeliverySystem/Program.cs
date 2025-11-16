@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using PharmacyDeliverySystem.Business;
+using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.Business.Managers;
+// Business layer & DataAccess
 using PharmacyDeliverySystem.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -11,6 +14,14 @@ builder.Services.AddControllersWithViews();
 // This makes it possible to use the database (PharmacyDelivery) through Entity Framework Core.
 builder.Services.AddDbContext<PharmacyDeliveryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Registration of the Managers (Business Layer)
+builder.Services.AddScoped<ICustomerManager, CustomerManager>();
+builder.Services.AddScoped<IOrderManager, OrderManager>();
+builder.Services.AddScoped<IProductManager, ProductManager>();
+builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
+builder.Services.AddScoped<IReturnManager, ReturnManager>();
+builder.Services.AddScoped<IRefundManager, RefundManager>();
 
 
 var app = builder.Build();
@@ -35,7 +46,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
 app.Run();
-
-

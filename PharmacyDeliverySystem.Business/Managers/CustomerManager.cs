@@ -5,7 +5,7 @@ namespace PharmacyDeliverySystem.Business;
 
 public class CustomerManager : ICustomerManager
 {
-    private readonly PharmacyDeliveryContext  context;
+    private readonly PharmacyDeliveryContext context;
 
     public CustomerManager(PharmacyDeliveryContext context)
     {
@@ -23,7 +23,7 @@ public class CustomerManager : ICustomerManager
 
     public void AddCustomer(Customer customer)
     {
-         this.context.Customers.Add(customer);
+        this.context.Customers.Add(customer);
     }
 
     public void UpdateCustomer(Customer customer)

@@ -1,21 +1,28 @@
-﻿using System;
+﻿using PharmacyDeliverySystem.Models;
+using System;
 using System.Collections.Generic;
 
-namespace PharmacyDeliverySystem.Models;
-
-public partial class Chat
+namespace PharmacyDeliverySystem.Models
 {
-    public int chatId { get; set; }
 
-    public string? Statuss { get; set; }
+    public partial class Chat
+    {
+        public int ChatId { get; set; }
 
-    public string? Channel { get; set; }
+        public string? Status { get; set; }
 
-    public int? OrderID { get; set; }
+        public string? Channel { get; set; }
 
-    public virtual ICollection<CustomerChat> CustomerChats { get; set; } = new List<CustomerChat>();
+        public int? OrderId { get; set; }
 
-    public virtual Order? Order { get; set; }
+        public int? CustomerId { get; set; }
 
-    public virtual ICollection<PharmacyChat> PharmacyChats { get; set; } = new List<PharmacyChat>();
+        public int? PharmacyId { get; set; }
+
+        public virtual Customer? Customer { get; set; }
+
+        public virtual Order? Order { get; set; }
+
+        public virtual Pharmacy? Pharmacy { get; set; }
+    }
 }
