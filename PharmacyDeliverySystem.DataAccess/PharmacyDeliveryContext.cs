@@ -35,7 +35,7 @@ namespace PharmacyDeliverySystem.DataAccess
 
         public virtual DbSet<Refund> Refunds { get; set; }
 
-        public virtual DbSet<Return> Returns { get; set; }
+        public virtual DbSet<Returnn> Returns { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -248,7 +248,7 @@ namespace PharmacyDeliverySystem.DataAccess
                     .HasConstraintName("FK__Refund__PayId__619B8048");
             });
 
-            modelBuilder.Entity<Return>(entity =>
+            modelBuilder.Entity<Returnn>(entity =>
             {
                 entity.HasKey(e => e.ReturnId).HasName("PK__Returnn__F445E9A86A4CD3B7");
 
