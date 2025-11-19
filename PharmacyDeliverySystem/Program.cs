@@ -22,6 +22,12 @@ builder.Services.AddScoped<IProductManager, ProductManager>();
 builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
 builder.Services.AddScoped<IReturnManager, ReturnManager>();
 builder.Services.AddScoped<IRefundManager, RefundManager>();
+builder.Services.AddScoped<IChatManager, ChatManager>();
+builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
+builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
+
+
+
 
 
 var app = builder.Build();
