@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business;
 using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.ViewModels;
+using PharmacyDeliverySystem.ViewModels.Chat;
+using System;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -16,18 +19,12 @@ namespace PharmacyDeliverySystem.Controllers
         }
 
         // =============================
-        //          CHAT CRUD
+        // CHAT CRUD
         // =============================
 
-        // Get all chats
         [HttpGet]
-        public IActionResult GetAllChats()
-        {
-            var chats = _manager.GetAllChats();
-            return Ok(chats);
-        }
+        public IActionResult GetAllChats() => Ok(_manager.GetAllChats());
 
-        // Get chat by ID
         [HttpGet("{id}")]
         public IActionResult GetChatById(int id)
         {
@@ -36,30 +33,44 @@ namespace PharmacyDeliverySystem.Controllers
             return Ok(chat);
         }
 
-        // Create new chat
         [HttpPost]
-        public IActionResult CreateChat([FromBody] Chat chat)
+        public IActionResult CreateChat([FromBody] ChatViewModels.ChatInputViewModel model)
         {
-            if (chat == null) return BadRequest("Chat data is required");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var chat = new Chat
+            {
+                Status = model.Status,
+                Channel = model.Channel,
+                OrderId = model.OrderId,
+                CustomerId = model.CustomerId,
+                PharmacyId = model.PharmacyId
+            };
 
             _manager.AddChat(chat);
             return Ok(new { Message = "Chat created successfully", chat });
         }
 
-        // Update Chat
         [HttpPut("{id}")]
-        public IActionResult UpdateChat(int id, [FromBody] Chat updatedChat)
+        public IActionResult UpdateChat(int id, [FromBody] ChatViewModels.ChatInputViewModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var existingChat = _manager.GetChatById(id);
             if (existingChat == null) return NotFound("Chat not found");
 
-            updatedChat.ChatId = id;
-            _manager.UpdateChat(updatedChat);
+            existingChat.Status = model.Status;
+            existingChat.Channel = model.Channel;
+            existingChat.OrderId = model.OrderId;
+            existingChat.CustomerId = model.CustomerId;
+            existingChat.PharmacyId = model.PharmacyId;
 
-            return Ok(new { Message = "Chat updated successfully", updatedChat });
+            _manager.UpdateChat(existingChat);
+            return Ok(new { Message = "Chat updated successfully", existingChat });
         }
 
-        // Delete Chat
         [HttpDelete("{id}")]
         public IActionResult DeleteChat(int id)
         {
@@ -70,31 +81,27 @@ namespace PharmacyDeliverySystem.Controllers
             return Ok("Chat deleted successfully");
         }
 
-
         // =============================
-        //          MESSAGES
+        // MESSAGES
         // =============================
 
-        // Get messages for chat
         [HttpGet("{chatId}/messages")]
-        public IActionResult GetMessages(int chatId)
-        {
-            var messages = _manager.GetMessages(chatId);
-            return Ok(messages);
-        }
+        public IActionResult GetMessages(int chatId) => Ok(_manager.GetMessages(chatId));
 
-        // Add message to chat
         [HttpPost("{chatId}/messages")]
-        public IActionResult AddMessage(int chatId, [FromBody] ChatMessage msg)
+        public IActionResult AddMessage(int chatId, [FromBody] ChatViewModels.ChatMessageInputViewModel model)
         {
-            if (msg == null || string.IsNullOrEmpty(msg.MessageText))
-                return BadRequest("Message text is required.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            msg.ChatId = chatId;
-            msg.SentAt = DateTime.Now;
+            var msg = new ChatMessage
+            {
+                ChatId = chatId,
+                MessageText = model.MessageText,
+                SentAt = model.SentAt ?? DateTime.Now
+            };
 
             _manager.AddMessage(msg);
-
             return Ok(new { Message = "Message sent successfully", msg });
         }
     }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.ViewModels;
+using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -19,17 +21,24 @@ namespace PharmacyDeliverySystem.Controllers
         // 1) Create new Delivery Run
         // =============================
         [HttpPost("create")]
-        public IActionResult CreateRun([FromBody] DeliveryRun run)
+        public IActionResult CreateRun([FromBody] DeliveryRunViewModels.CreateDeliveryRunViewModel model)
         {
-            if (run == null || run.RiderId <= 0)
-                return BadRequest("Invalid DeliveryRun data.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             try
             {
+                var run = new DeliveryRun
+                {
+                    RiderId = model.RiderId,
+                    StartAt = System.DateTime.Now,
+                    Orders = model.OrderIds.Select(id => new Order { OrderId = id }).ToList()
+                };
+
                 _runManager.CreateRun(run);
                 return Ok(new { Message = "Delivery Run Created Successfully", run });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -38,15 +47,18 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         // 2) Complete a Delivery Run
         // =============================
-        [HttpPost("complete/{runId}")]
-        public IActionResult CompleteRun(int runId)
+        [HttpPost("complete")]
+        public IActionResult CompleteRun([FromBody] DeliveryRunViewModels.CompleteRunViewModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                _runManager.CompleteRun(runId);
+                _runManager.CompleteRun(model.RunId);
                 return Ok(new { Message = "Run completed successfully" });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -66,14 +78,17 @@ namespace PharmacyDeliverySystem.Controllers
         // 4) Add Order to Run
         // =============================
         [HttpPost("add-order")]
-        public IActionResult AddOrderToRun(int runId, int orderId)
+        public IActionResult AddOrderToRun([FromBody] DeliveryRunViewModels.AddOrderToRunViewModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                _runManager.AddOrderToRun(runId, orderId);
+                _runManager.AddOrderToRun(model.RunId, model.OrderId);
                 return Ok(new { Message = "Order added to run successfully" });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -85,12 +100,15 @@ namespace PharmacyDeliverySystem.Controllers
         [HttpGet("confirmed/{runId}")]
         public IActionResult AllOrdersConfirmed(int runId)
         {
+            if (runId <= 0)
+                return BadRequest("Invalid RunId");
+
             try
             {
                 bool confirmed = _runManager.AllOrdersConfirmed(runId);
                 return Ok(new { RunId = runId, AllConfirmed = confirmed });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
-using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.ViewModels;
+using PharmacyDeliverySystem.ViewModels.QR;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -16,44 +17,36 @@ namespace PharmacyDeliverySystem.Controllers
         }
 
         // إنشاء QR للعميل في Run معين
-        public class CreateQrRequest
-        {
-            public int CustomerId { get; set; }
-            public int RunId { get; set; }
-        }
-
         [HttpPost("create")]
-        public IActionResult CreateQr([FromBody] CreateQrRequest req)
+        public IActionResult CreateQr([FromBody] QrConfirmationViewModels.CreateQrRequest model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                var qr = _manager.CreateQrForCustomer(req.CustomerId, req.RunId);
+                var qr = _manager.CreateQrForCustomer(model.CustomerId, model.RunId);
                 return Ok(new { Message = "QR created successfully", qr });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
         // Scan QR
-        public class ScanQrRequest
-        {
-            public string? ScannedBy { get; set; }
-        }
-
         [HttpPost("scan/{qrId}")]
-        public IActionResult ScanQr(int qrId, [FromBody] ScanQrRequest req)
+        public IActionResult ScanQr(int qrId, [FromBody] QrConfirmationViewModels.ScanQrRequest model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                if (string.IsNullOrEmpty(req.ScannedBy))
-                    return BadRequest("ScannedBy is required");
-
-                _manager.ScanQr(qrId, req.ScannedBy);
+                _manager.ScanQr(qrId, model.ScannedBy);
                 return Ok(new { Message = "QR scanned successfully." });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -63,12 +56,15 @@ namespace PharmacyDeliverySystem.Controllers
         [HttpGet("run/{runId}/all-scanned")]
         public IActionResult AllScanned(int runId)
         {
+            if (runId <= 0)
+                return BadRequest("Invalid RunId");
+
             try
             {
                 var result = _manager.AllQrScanned(runId);
                 return Ok(new { RunId = runId, AllScanned = result });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -78,12 +74,15 @@ namespace PharmacyDeliverySystem.Controllers
         [HttpGet("customer/{customerId}")]
         public IActionResult GetByCustomer(int customerId)
         {
+            if (customerId <= 0)
+                return BadRequest("Invalid CustomerId");
+
             try
             {
                 var list = _manager.GetQrByCustomer(customerId);
                 return Ok(list);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
