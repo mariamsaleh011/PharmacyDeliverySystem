@@ -37,6 +37,9 @@ namespace PharmacyDeliverySystem.DataAccess
 
         public virtual DbSet<Return> Returns { get; set; }
 
+        public virtual DbSet<ChatMessage> ChatMessages { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chat>(entity =>
@@ -250,13 +253,20 @@ namespace PharmacyDeliverySystem.DataAccess
 
             modelBuilder.Entity<Return>(entity =>
             {
-                entity.HasKey(e => e.ReturnId).HasName("PK__Returnn__F445E9A86A4CD3B7");
+                entity.HasKey(e => e.ReturnId)
+                      .HasName("PK_Returnn_F445E9A86A4CD3B7");
 
                 entity.ToTable("Return");
 
                 entity.Property(e => e.OrderId).HasColumnName("OrderID");
                 entity.Property(e => e.Reason).HasMaxLength(200);
                 entity.Property(e => e.Status).HasMaxLength(20);
+
+
+                entity.HasOne(r => r.Order)
+                      .WithMany(o => o.Returns)   // تأكد إن Order فيه: public ICollection<Return> Returns { get; set; }
+                      .HasForeignKey(r => r.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             OnModelCreatingPartial(modelBuilder);
