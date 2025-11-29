@@ -1,3 +1,5 @@
+﻿// ملف: PharmacyDeliverySystem.Business.Managers/ProductManager.cs
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +19,26 @@ namespace PharmacyDeliverySystem.Business.Managers
         }
 
         public IEnumerable<Product> GetAll()
-            => _context.Products.AsNoTracking().ToList();
+        {
+            // 💡 تحسين: إذا كان لديك علاقة (Relationship) مع Pharmacy، استخدم Include لجلبها مع المنتجات.
+            // إذا لم يكن هناك حاجة لـ Pharmacy في هذا السياق، يمكن تركها كما هي.
+            return _context.Products
+                  // .Include(p => p.Pharm) // أضف هذا إذا كنت تحتاج بيانات الصيدلية
+                  .AsNoTracking()
+                  .ToList();
+        }
 
         public Product? GetById(int id)
-            => _context.Products.Find(id);
+        {
+            // 💡 تحسين: استخدام SingleOrDefault/FirstOrDefault أفضل من Find() 
+            // إذا كنا نريد استخدام Includes في المستقبل. Find() يعمل فقط بالـ Primary Key.
+            return _context.Products
+                 // .Include(p => p.Pharm) // أضف هذا إذا كنت تحتاج بيانات الصيدلية
+                 .AsNoTracking() // عادةً لا نحتاج التتبع في قراءة التفاصيل
+                 .FirstOrDefault(p => p.ProId == id);
+        }
+
+        // ... دوال Add، Update، Delete تبقى كما هي لأنها تعمل على الكائن بالكامل
 
         public void Add(Product product)
         {

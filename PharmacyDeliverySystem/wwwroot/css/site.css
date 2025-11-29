@@ -1,31 +1,460 @@
-html {
-  font-size: 14px;
+﻿:root {
+    --brand: #008080;
+    --brand-600: #006666;
+    --bg: #f9f9f9;
+    --card: #ffffff;
+    --text: #222222;
+    --muted: #666666;
+    --shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+[data-theme="dark"] {
+    --bg: #0f1214;
+    --card: #151a1e;
+    --text: #f1f5f9;
+    --muted: #9aa4af;
+    --shadow: 0 6px 16px rgba(0,0,0,0.35);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+* {
+    box-sizing: border-box;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Cairo", sans-serif;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* -------- Layout عام -------- */
+
+main {
+    padding: 20px 3%;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* -------- Topbar / Navbar موحد -------- */
+
+.topbar {
+    background: var(--card);
+    color: var(--text);
+    padding: 10px 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 60;
+}
+
+.topbar-inner {
+    display: grid;
+    grid-template-columns: 180px 1.2fr auto;
+    align-items: center;
+    column-gap: 16px;
+    padding: 0 3%;
+}
+
+/* لوجو */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    color: var(--brand);
+}
+
+.logo-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--brand), #34d399);
+}
+
+/* اسم الصيدلية – span جوة الاسم */
+.logo span {
+    color: var(--text);
+}
+
+/* Searchbar في النص */
+
+.searchbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 12px;
+    border-radius: 999px;
+}
+
+[data-theme="dark"] .searchbar {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+}
+
+.searchbar svg {
+    width: 18px;
+    height: 18px;
+}
+
+.searchbar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+}
+
+/* Actions + Links */
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+/* Links */
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .main-nav a {
+        text-decoration: none;
+        color: var(--text);
+        font-size: 14px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+        .main-nav a:hover {
+            background: rgba(0,0,0,0.06);
+        }
+
+[data-theme="dark"] .main-nav a:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+/* Language + Login + Theme + Cart */
+
+.top-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lang-select {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.3);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+}
+
+    .lang-select:focus {
+        outline: none;
+        border-color: var(--brand);
+    }
+
+.login-btn {
+    border: 1px solid var(--brand);
+    color: var(--brand);
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Icon buttons (theme / cart) */
+
+.icon-btn {
+    position: relative;
+    background-color: white;
+    color: var(--brand);
+    border: none;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+    .icon-btn:hover {
+        background-color: var(--brand);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .icon-btn .badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ef4444;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 3px 6px;
+        border-radius: 999px;
+    }
+
+/* -------- Sections عامة -------- */
+
+section {
+    padding-left: 3%;
+    padding-right: 3%;
+}
+
+/* -------- Contact -------- */
+
+.contact-section {
+    background-color: #00b3b3;
+    color: white;
+    padding: 50px 3%;
+    text-align: center;
+}
+
+.contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background-color: white;
+    color: #00b3b3;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+    .contact-btn:hover {
+        background-color: #008080;
+        color: white;
+        transform: translateY(-3px);
+    }
+
+[data-theme="dark"] .contact-section {
+    background-color: #1e1e1e;
+}
+
+[data-theme="dark"] .contact-btn {
+    background-color: #444;
+    color: #00b3b3;
+}
+
+    [data-theme="dark"] .contact-btn:hover {
+        background-color: #00b3b3;
+        color: white;
+    }
+
+/* -------- Footer -------- */
+
+.main-footer {
+    background-color: var(--brand);
+    color: white;
+    text-align: center;
+    padding: 15px 3%;
+    margin-top: 40px;
+}
+
+/* -------- Scroll to top -------- */
+
+#toTop {
+    position: fixed;
+    bottom: 25px;
+    right: 50%;
+    transform: translateX(50%);
+    background-color: var(--brand);
+    color: white;
+    border: 3px solid white;
+    padding: 10px 15px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    z-index: 50;
+}
+
+    #toTop:hover {
+        background-color: var(--brand-600);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+
+[data-theme="dark"] #toTop {
+    border-color: var(--card);
+}
+
+/* -------- Drawer / Cart -------- */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    display: none;
+    z-index: 90;
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 320px;
+    height: 100%;
+    background-color: var(--card);
+    color: var(--text);
+    box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+    transition: right 0.3s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+}
+
+    .drawer.open {
+        right: 0;
+    }
+
+.drawer-header,
+.drawer-footer {
+    padding: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.drawer-footer {
+    border-top: 1px solid rgba(0,0,0,0.1);
+    border-bottom: none;
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.cart-item-name {
+    font-weight: 600;
+}
+
+.cart-item-meta {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.qty-controls button {
+    margin-left: 4px;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: var(--brand);
+    color: white;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+    .qty-controls button:hover {
+        background-color: var(--brand-600);
+    }
+
+.drawer-footer button {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+    .drawer-footer button:first-child {
+        background-color: var(--brand);
+        color: white;
+    }
+
+    .drawer-footer button:last-child {
+        background-color: #ef4444;
+        color: white;
+    }
+
+.drawer-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.empty-cart-text {
+    color: var(--muted);
+}
+
+/* -------- Responsive -------- */
+
+@media (max-width: 992px) {
+    .topbar-inner {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+    }
+
+    .topbar-right {
+        justify-content: space-between;
+        flex-wrap: wrap;
+        row-gap: 6px;
+    }
+
+    main {
+        padding: 16px 3%;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .searchbar {
+        order: 3;
+    }
+
+    .topbar-right {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .top-actions {
+        justify-content: center;
+    }
+}
+
+/* -------- Fix MVC default footer (كان ثابت تحت الشاشة) -------- */
+.footer {
+    position: static !important;
+    bottom: auto;
+    width: 100%;
+    white-space: normal;
 }

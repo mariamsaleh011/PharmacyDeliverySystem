@@ -1,20 +1,25 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using PharmacyDeliverySystem.Business.Interfaces;
+using System.Collections.Generic;
 using PharmacyDeliverySystem.Models;
+using System.Diagnostics;
 
 namespace PharmacyDeliverySystem.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    private readonly IProductManager _productManager;
+    public HomeController(IProductManager productManager)
     {
-        _logger = logger;
+        _productManager = productManager;
     }
 
     public IActionResult Index()
     {
+        var offersProducts = _productManager.GetAll();
+
+        ViewBag.OffersProducts = offersProducts;
+
         return View();
     }
 

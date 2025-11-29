@@ -1,50 +1,177 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - PharmacyDeliverySystem</title>
+
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/PharmacyDeliverySystem.styles.css" asp-append-version="true"/>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- ستايل عام للموقع (فيه التوب بار، السلة، زر الرجوع لأعلى، الثيم، ... ) -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- ستايلات الـ Razor اللي السكافولد بيولدها -->
+    <link rel="stylesheet" href="~/PharmacyDeliverySystem.styles.css" asp-append-version="true" />
+
+    @RenderSection("Head", required: false)
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PharmacyDeliverySystem</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                </ul>
+    <!-- Topbar / Navbar الموحد لكل الصفحات -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <!-- Logo -->
+            <div class="logo">
+                <div class="logo-mark" aria-hidden="true"></div>
+                <div>Pharmacy<span>Marts</span></div>
+            </div>
+
+            <!-- Searchbar -->
+            <div class="searchbar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input id="searchInput"
+                       type="text"
+                       data-lang-key="searchPlaceholder"
+                       placeholder="ابحث في الباقات والمنتجات..."
+                       aria-label="بحث" />
+            </div>
+
+            <!-- Nav + Actions -->
+            <div class="topbar-right">
+                <!-- روابط الصفحات الأساسية -->
+                <nav class="main-nav">
+                    <a asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index"
+                       data-lang-key="nav_home">
+                        الرئيسية
+                    </a>
+
+                    <a asp-controller="Drugs"
+                       asp-action="Index"
+                       data-lang-key="nav_drugs">
+                        الأدوية
+                    </a>
+
+                    <a asp-controller="BabyCare"
+                       asp-action="Index"
+                       data-lang-key="nav_baby">
+                        عناية الأطفال
+                    </a>
+
+                    <a asp-controller="MenCare"
+                       asp-action="Index"
+                       data-lang-key="nav_men">
+                        عناية الرجال
+                    </a>
+
+                    <a asp-controller="Chat"
+                       asp-action="Index"
+                       data-lang-key="nav_chat">
+                        Chat مع الصيدلي
+                    </a>
+
+                    <a asp-area=""
+                       asp-controller="Home"
+                       asp-action="Privacy"
+                       data-lang-key="nav_privacy">
+                        Privacy
+                    </a>
+                </nav>
+
+                <!-- أكشنز: لغة + لوجين + ثيم + سلة -->
+                <div class="top-actions">
+                    <select id="langSelect" class="lang-select" aria-label="Language">
+                        <option value="en" data-lang-key="lang_en">EN</option>
+                        <option value="ar" data-lang-key="lang_ar">AR</option>
+                    </select>
+
+                    <a class="login-btn nav-link"
+                       asp-controller="CustomerAuth"
+                       asp-action="Login"
+                       data-lang-key="loginButton">
+                        Login
+                    </a>
+
+                    <button id="themeToggle"
+                            class="icon-btn"
+                            type="button"
+                            title="الوضع"
+                            aria-label="تبديل الوضع"
+                            data-lang-key="themeToggle">
+                        ☾
+                    </button>
+
+                    <button id="cartBtn"
+                            class="icon-btn"
+                            type="button"
+                            title="السلة"
+                            aria-label="فتح السلة">
+                        🛒
+                        <span id="cartCount" class="badge" aria-live="polite">0</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </nav>
-</header>
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
+    </header>
 
-<footer class="border-top footer text-muted">
+    <!-- محتوى الصفحات -->
     <div class="container">
-        &copy; 2025 - PharmacyDeliverySystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
-</footer>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Footer (قدر الإمكان خلي شكله زي ما تحب في CSS) -->
+    <footer class="border-top footer text-muted main-footer">
+        <div class="container">
+            <span data-lang-key="footer_text">
+                &copy; 2025 - PharmacyDeliverySystem - جميع الحقوق محفوظة
+            </span>
+            |
+            <a asp-area=""
+               asp-controller="Home"
+               asp-action="Privacy"
+               data-lang-key="nav_privacy">
+                Privacy
+            </a>
+        </div>
+    </footer>
+
+    <!-- زر الرجوع لأعلى (في نص الصفحة) -->
+    <button id="toTop" type="button" title="أعلى الصفحة">↑</button>
+
+    <!-- Overlay + Drawer بتوع السلة -->
+    <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
+
+    <aside id="drawer" class="drawer" aria-label="سلة المشتريات" aria-live="polite">
+        <div class="drawer-header">
+            <strong data-lang-key="cart_title">سلة المشتريات</strong>
+            <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="إغلاق">✕</button>
+        </div>
+        <div id="cartList" class="drawer-body"></div>
+        <div class="drawer-footer">
+            <div class="drawer-total-row">
+                <span data-lang-key="cart_total_label">الإجمالي:</span>
+                <strong id="cartTotal">0 ج.م</strong>
+            </div>
+            <button type="button" onclick="checkout()" data-lang-key="cart_checkout">إتمام الشراء</button>
+            <button type="button" onclick="clearCart()" data-lang-key="cart_clear">تفريغ السلة</button>
+        </div>
+    </aside>
+
+    <!-- سكربتات البوتستراب والجافاسكريبت -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- سكربت الموقع العام (الثيم + اللغة + السلة + السيرش + toTop ...) -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
