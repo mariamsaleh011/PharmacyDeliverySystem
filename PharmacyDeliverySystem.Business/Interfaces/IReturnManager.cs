@@ -1,15 +1,16 @@
+using System.Collections.Generic;
 using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IReturnManager
     {
-        IEnumerable<Returnn> GetAll();
-        Returnn? GetById(int id);
-        IEnumerable<Returnn> GetByOrder(int orderId);
+        IEnumerable<Return> GetAll();
+        Return? GetById(int id);
+        IEnumerable<Return> GetByOrder(int orderId);
 
-        void Add(Returnn entity);
-        void Update(Returnn entity);
+        void Add(Return entity);
+        void Update(Return entity);
         void SetStatus(int id, string status);
         void Delete(int id);
     }
