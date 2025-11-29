@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Models
 {
-
     public partial class Customer
     {
         public int CustomerId { get; set; }
@@ -16,6 +15,7 @@ namespace PharmacyDeliverySystem.Models
         public string Address { get; set; } = null!;
 
         public string Email { get; set; } = null!;
+
         public string PasswordHash { get; set; } = null!;
 
         public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();

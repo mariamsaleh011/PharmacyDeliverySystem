@@ -38,8 +38,6 @@ namespace PharmacyDeliverySystem.Business.Managers
                  .FirstOrDefault(p => p.ProId == id);
         }
 
-        // ... دوال Add، Update، Delete تبقى كما هي لأنها تعمل على الكائن بالكامل
-
         public void Add(Product product)
         {
             _context.Products.Add(product);

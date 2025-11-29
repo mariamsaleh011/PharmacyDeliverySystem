@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Models
 {
-
     public partial class Order
     {
         public int OrderId { get; set; }
@@ -40,8 +39,9 @@ namespace PharmacyDeliverySystem.Models
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 
         public virtual DeliveryRun? Run { get; set; }
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
-        public virtual ICollection<Return> Returns { get; set; } = new List<Return>();
 
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+
+        public virtual ICollection<Return> Returns { get; set; } = new List<Return>();
     }
 }

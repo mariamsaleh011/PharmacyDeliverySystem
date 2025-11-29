@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using PharmacyDeliverySystem.Business;
 using PharmacyDeliverySystem.Business.Interfaces;
@@ -26,18 +26,23 @@ builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
 builder.Services.AddScoped<IReturnManager, ReturnManager>();
 builder.Services.AddScoped<IRefundManager, RefundManager>();
 
+// Managers الموجودة في main
+builder.Services.AddScoped<IChatManager, ChatManager>();
+builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
+builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
+
 // 🔐 Cookie Authentication
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";    // صفحة اللوجين
-        options.LogoutPath = "/CustomerAuth/Logout";  // صفحة اللوج آوت
-        options.AccessDeniedPath = "/Home/Index";     // لو مش مسموح له يدخل
+        options.LoginPath = "/CustomerAuth/Login";    
+        options.LogoutPath = "/CustomerAuth/Logout";  
+        options.AccessDeniedPath = "/Home/Index";      
         options.Cookie.Name = "PharmacyAuthCookie";
     });
 
-// 👈 إضافة Authorization (مهم)
+// 👈 Authorization
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -52,11 +57,10 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-// ✅ لازم Authentication الأول وبعدين Authorization
+// الترتيب الصحيح
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Static files عبر Aspire
 app.MapStaticAssets();
 
 app.MapControllerRoute(

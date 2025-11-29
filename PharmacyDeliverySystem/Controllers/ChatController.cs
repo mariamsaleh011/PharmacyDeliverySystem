@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Authorize(Roles = "Customer")]   // ممكن على مستوى الكنترولر كله
-    public class ChatController : Controller
+    [Authorize(Roles = "Customer")]
+    public class ChatPageController : Controller
     {
         public IActionResult Index()
         {
-            return View("Chat");   // أو View(); لو اسم الفيو Index
+            return View("Chat");
         }
 
         public IActionResult Chat()
