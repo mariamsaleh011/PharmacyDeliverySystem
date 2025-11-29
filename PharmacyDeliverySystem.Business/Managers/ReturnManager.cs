@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
@@ -14,30 +17,30 @@ namespace PharmacyDeliverySystem.Business.Managers
             _ctx = ctx;
         }
 
-        public IEnumerable<Returnn> GetAll()
+        public IEnumerable<Return> GetAll()
             => _ctx.Returns
                    .Include(r => r.Order)
                    .AsNoTracking()
                    .ToList();
 
-        public Returnn? GetById(int id)
+        public Return? GetById(int id)
             => _ctx.Returns
                    .Include(r => r.Order)
                    .FirstOrDefault(r => r.ReturnId == id);
 
-        public IEnumerable<Returnn> GetByOrder(int orderId)
+        public IEnumerable<Return> GetByOrder(int orderId)
             => _ctx.Returns
-                   .Where(r => r.OrderID == orderId)
+                   .Where(r => r.OrderId == orderId)
                    .AsNoTracking()
                    .ToList();
 
-        public void Add(Returnn entity)
+        public void Add(Return entity)
         {
             _ctx.Returns.Add(entity);
             _ctx.SaveChanges();
         }
 
-        public void Update(Returnn entity)
+        public void Update(Return entity)
         {
             _ctx.Returns.Update(entity);
             _ctx.SaveChanges();

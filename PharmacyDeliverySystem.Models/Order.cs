@@ -41,8 +41,6 @@ namespace PharmacyDeliverySystem.Models
 
         public virtual DeliveryRun? Run { get; set; }   
         public virtual ICollection<OrderItem> OrderItems { get; set; }
-        public virtual ICollection<Returnn> Returns { get; set; } = new List<Returnn>();
-
         public virtual ICollection<Return> Returns { get; set; } = new List<Return>();
     }
 }
