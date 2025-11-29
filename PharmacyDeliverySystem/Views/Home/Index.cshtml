@@ -1,8 +1,10 @@
 ﻿@{
     ViewData["Title"] = "الرئيسية";
     Layout = "_Layout";
-    // 💡 يجب وضع الـ Model/List هنا ليعمل Intellisense بشكل أفضل
-    List<PharmacyDeliverySystem.Models.Product> offerList = ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
+
+    // الليست اللي جايه من الكنترولر
+    List<PharmacyDeliverySystem.Models.Product> offerList =
+        ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
 }
 
 @section Head {
@@ -60,29 +62,33 @@
 
         @if (offerList != null && offerList.Any())
         {
-            // البدء في حلقة التكرار لعرض المنتجات الديناميكية
             foreach (var product in offerList)
             {
                 <div class="product" data-name="@product.Name" data-proid="@product.ProId">
 
-                    @* استخدام خاصية ImageUrl - يجب أن تكون متوفرة في Model أو Mock Data *@
                     <img src="@product.ImageUrl" alt="عرض @product.Name" class="product-img" />
 
                     <h3 data-lang-key="offer_title">@product.Name</h3>
 
-                    @* استخدام خاصية Description أو Dosage كبديل للوصف *@
-                    <p data-lang-key="offer_desc">@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+                    <p data-lang-key="offer_desc">
+                        @((product.Description ?? product.Dosage) ?? "منتج متوفر")
+                    </p>
 
-                    @* استخدام خاصيتي Price و OldPrice للعرض *@
                     <p class="price">
                         @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
                         {
-                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                            <span class="old-price">
+                                @product.OldPrice.Value.ToString("0.00 ج.م")
+                            </span>
                         }
                         @product.Price.ToString("0.00 ج.م")
                     </p>
 
-                    <button class="btn add-to-cart" data-product-id="@product.ProId" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+                    <button class="btn add-to-cart"
+                            data-product-id="@product.ProId"
+                            data-lang-key="btn_add_to_cart">
+                        أضف للسلة
+                    </button>
                 </div>
             }
         }
@@ -120,4 +126,3 @@
         </div>
     </div>
 </section>
-
