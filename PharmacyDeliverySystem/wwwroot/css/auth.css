@@ -1,0 +1,101 @@
+﻿:root {
+    --brand: #008080;
+    --brand-600: #006666;
+    --bg: #0b0f13;
+    --card: #10151c;
+    --text: #f9fafb;
+    --muted: #9ca3af;
+    --shadow: 0 12px 35px rgba(0,0,0,0.6);
+}
+
+/* الغلاف العام للصفحة – يخلي الفورم في نص الشاشة */
+.auth-page {
+    min-height: calc(100vh - 120px); /* يقل شوية عشان النّافبار + الفوتر */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+}
+
+/* الكارت بتاع اللوجين */
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    color: var(--text);
+    border-radius: 18px;
+    padding: 24px 28px 28px;
+    box-shadow: var(--shadow);
+}
+
+/* العنوان والسب تايتل */
+.auth-title {
+    margin: 0 0 4px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    margin: 0 0 18px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* جروب كل فيلد */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.auth-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.auth-group input {
+    width: 100%;
+    border-radius: 999px;
+    border: 1px solid #1f2937;
+    padding: 10px 14px;
+    font-size: 14px;
+    background: #020617;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .auth-group input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+    }
+
+/* زرار الـ Login */
+.auth-submit {
+    margin-top: 6px;
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 0;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+    .auth-submit:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(37,99,235,0.5);
+    }
+
+/* موبايل */
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 20px 18px 22px;
+        border-radius: 14px;
+    }
+}

@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "الأدوية";
+    Layout = "_Layout";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/drugs.css" asp-append-version="true" />
+}
+
+<section class="products">
+    <h2 data-lang-key="drugs_title">الأدوية المتاحة</h2>
+
+    <div class="product-grid">
+
+        <div class="product" data-name="باراسيتامول 1000" data-price="25">
+            <img src="~/images/drugs/paracetamol_1000mg_capsules.jpg" alt="باراسيتامول" class="product-img" />
+            <h3 data-lang-key="drug_paracetamol_title">باراسيتامول 1000 مجم</h3>
+            <p data-lang-key="drug_paracetamol_desc">مسكن للصداع وآلام الجسم.</p>
+            <p class="price" data-lang-key="drug_paracetamol_price">السعر: 25 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="كونجستال" data-price="35">
+            <img src="~/images/drugs/congestal_tablets.jpg" alt="كونجستال" class="product-img" />
+            <h3 data-lang-key="drug_congestal_title">كونجستال</h3>
+            <p data-lang-key="drug_congestal_desc">لعلاج نزلات البرد والإنفلونزا.</p>
+            <p class="price" data-lang-key="drug_congestal_price">السعر: 35 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="أوجمنتين" data-price="80">
+            <img src="~/images/drugs/augmentin_1g_tablets.jpg" alt="أوجمنتين" class="product-img" />
+            <h3 data-lang-key="drug_augmentin_title">أوجمنتين</h3>
+            <p data-lang-key="drug_augmentin_desc">مضاد حيوي واسع المدى.</p>
+            <p class="price" data-lang-key="drug_augmentin_price">السعر: 80 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="بانادول" data-price="30">
+            <img src="~/images/drugs/panadol_500mg_tablets.jpg" alt="بانادول" class="product-img" />
+            <h3 data-lang-key="drug_panadol_title">بانادول</h3>
+            <p data-lang-key="drug_panadol_desc">مسكن وخافض للحرارة.</p>
+            <p class="price" data-lang-key="drug_panadol_price">السعر: 30 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="سيتال" data-price="28">
+            <img src="~/images/drugs/cetal_paracetamol_syrup.jpg" alt="سيتال" class="product-img" />
+            <h3 data-lang-key="drug_cetal_title">سيتال شراب</h3>
+            <p data-lang-key="drug_cetal_desc">لتخفيف آلام الحمى والبرد.</p>
+            <p class="price" data-lang-key="drug_cetal_price">السعر: 28 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="فلورست" data-price="32">
+            <img src="~/images/drugs/flurest_n_tablets.jpg" alt="فلورست" class="product-img" />
+            <h3 data-lang-key="drug_flurest_title">فلورست</h3>
+            <p data-lang-key="drug_flurest_desc">علاج احتقان الأنف ونزلات البرد.</p>
+            <p class="price" data-lang-key="drug_flurest_price">السعر: 32 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    @* مفيش جافاسكريبت خاص هنا؛ السلة والبحث والترجمة والثيم شغالين من site.js *@
+}

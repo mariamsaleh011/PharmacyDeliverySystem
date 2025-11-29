@@ -2,7 +2,6 @@
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 
-
 namespace PharmacyDeliverySystem.Business.Managers
 {
 

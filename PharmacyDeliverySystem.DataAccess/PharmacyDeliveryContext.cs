@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.DataAccess
 {
-
     public partial class PharmacyDeliveryContext : DbContext
     {
         public PharmacyDeliveryContext(DbContextOptions<PharmacyDeliveryContext> options)
@@ -37,6 +36,9 @@ namespace PharmacyDeliverySystem.DataAccess
         public virtual DbSet<Refund> Refunds { get; set; }
 
         public virtual DbSet<Returnn> Returns { get; set; }
+
+        // ⭐ مضافة من نسخة main
+        public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -225,12 +227,12 @@ namespace PharmacyDeliverySystem.DataAccess
                 entity.Property(e => e.ScannedBy).HasMaxLength(20);
 
                 entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.QrConfirmations)   
+                    .WithMany(p => p.QrConfirmations)
                     .HasForeignKey(d => d.CustomerId)
                     .HasConstraintName("FK__QRConfirm__Custo__6C190EBB");
 
                 entity.HasOne(d => d.DeliveryRun)
-                    .WithMany(p => p.QrConfirmations)   
+                    .WithMany(p => p.QrConfirmations)
                     .HasForeignKey(d => d.DeliveryRunId)
                     .HasConstraintName("FK_QRConfirmation_DeliveryRun");
             });
@@ -251,13 +253,19 @@ namespace PharmacyDeliverySystem.DataAccess
 
             modelBuilder.Entity<Returnn>(entity =>
             {
-                entity.HasKey(e => e.ReturnId).HasName("PK__Returnn__F445E9A86A4CD3B7");
+                entity.HasKey(e => e.ReturnId)
+                      .HasName("PK_Returnn_F445E9A86A4CD3B7");
 
                 entity.ToTable("Return");
 
                 entity.Property(e => e.OrderID).HasColumnName("OrderID");
                 entity.Property(e => e.Reason).HasMaxLength(200);
                 entity.Property(e => e.Status).HasMaxLength(20);
+
+                entity.HasOne(r => r.Order)
+                      .WithMany(o => o.Returns)   // تأكد إن Order فيه: public ICollection<Return> Returns { get; set; }
+                      .HasForeignKey(r => r.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             OnModelCreatingPartial(modelBuilder);

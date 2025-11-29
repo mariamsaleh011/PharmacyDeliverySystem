@@ -10,33 +10,18 @@ namespace PharmacyDeliverySystem.Business.Managers
 
         public ChatManager(PharmacyDeliveryContext context)
         {
-            this._context = context;
+            _context = context;
         }
 
         // Chats
-        public IEnumerable<Chat> GetAllChats() => _context.Chats.ToList();
-        public Chat? GetChatById(int id) => _context.Chats.Find(id);
-        public void AddChat(Chat chat) { _context.Chats.Add(chat); _context.SaveChanges(); }
-        public void UpdateChat(Chat chat) { _context.Chats.Update(chat); _context.SaveChanges(); }
-        public void DeleteChat(int id)
+        public IEnumerable<Chat> GetAllChats()
         {
-            var chat = _context.Chats.Find(id);
-            if (chat != null) { _context.Chats.Remove(chat); _context.SaveChanges(); }
+            return _context.Chats.ToList();
         }
 
-        // Messages
-        public IEnumerable<ChatMessage> GetMessages(int chatId)
+        public Chat? GetChatById(int id)
         {
-            return _context.ChatMessages
-                .Where(m => m.ChatId == chatId)
-                .OrderBy(m => m.SentAt)
-                .ToList();
-        }
-
-        public void AddMessage(ChatMessage message)
-        {
-            _context.ChatMessages.Add(message);
-            _context.SaveChanges();
+            return _context.Chats.FirstOrDefault(x => x.Id == id);
         }
     }
 }

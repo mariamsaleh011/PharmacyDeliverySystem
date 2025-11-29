@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Men Care";
+    Layout = "_Layout";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/men-care.css" asp-append-version="true" />
+}
+
+<section class="products">
+    <h2 data-lang-key="men_title">منتجات العناية بالرجال</h2>
+
+    <div class="product-grid">
+
+        <div class="product" data-name="Nivea Men Shaving Gel" data-price="150">
+            <img src="~/images/men_care/nivea_men_shaving_gel.jpg"
+                 alt="Nivea Men Shaving Gel" class="product-img" />
+            <h3 data-lang-key="men_nivea_gel_title">Nivea Men Shaving Gel</h3>
+            <p data-lang-key="men_nivea_gel_desc">جيل حلاقة نيفيا للرجال لنعومة البشرة أثناء الحلاقة.</p>
+            <p class="price" data-lang-key="men_nivea_gel_price">السعر: 150 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="Gillette Fusion5 Blades" data-price="220">
+            <img src="~/images/men_care/gillette_fusion5_blades.jpg"
+                 alt="Gillette Fusion5" class="product-img" />
+            <h3 data-lang-key="men_gillette_title">Gillette Fusion5 Blades</h3>
+            <p data-lang-key="men_gillette_desc">شفرات حلاقة جيليت فيوجن 5 لنعومة ودقة عالية.</p>
+            <p class="price" data-lang-key="men_gillette_price">السعر: 220 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="L'Oreal Men Expert Barber Club Oil" data-price="250">
+            <img src="~/images/men_care/loreal_barberclub_beard_oil.jpg"
+                 alt="L'Oreal Men Expert Barber Club" class="product-img" />
+            <h3 data-lang-key="men_loreal_oil_title">L'Oréal Men Expert Barber Club Oil</h3>
+            <p data-lang-key="men_loreal_oil_desc">زيت للّحية والوجه من لوريال لتغذية الشعر والبشرة.</p>
+            <p class="price" data-lang-key="men_loreal_oil_price">السعر: 250 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="Xtend Beard Oil" data-price="180">
+            <img src="~/images/men_care/xtend_beard_oil.jpg"
+                 alt="Xtend Beard Oil" class="product-img" />
+            <h3 data-lang-key="men_xtend_oil_title">Xtend Beard Oil</h3>
+            <p data-lang-key="men_xtend_oil_desc">زيت لتنعيم وترطيب اللحية ومنع التقصف.</p>
+            <p class="price" data-lang-key="men_xtend_oil_price">السعر: 180 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="Old Spice Original Deo Stick" data-price="130">
+            <img src="~/images/men_care/old_spice_original_deo_stick.jpg"
+                 alt="Old Spice Original Deo" class="product-img" />
+            <h3 data-lang-key="men_oldspice_title">Old Spice Original Deo Stick</h3>
+            <p data-lang-key="men_oldspice_desc">مزيل عرق أولد سبايس برائحة قوية تدوم طويلاً.</p>
+            <p class="price" data-lang-key="men_oldspice_price">السعر: 130 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+        <div class="product" data-name="Head & Shoulders Classic Clean" data-price="115">
+            <img src="~/images/men_care/head_shoulders_classic_clean.jpg"
+                 alt="Head & Shoulders" class="product-img" />
+            <h3 data-lang-key="men_head_shoulders_title">Head & Shoulders Classic Clean</h3>
+            <p data-lang-key="men_head_shoulders_desc">شامبو هيد أند شولدرز للقشرة وتنظيف فروة الرأس.</p>
+            <p class="price" data-lang-key="men_head_shoulders_price">السعر: 115 جنيه</p>
+            <button class="btn add-to-cart" data-lang-key="btn_add_to_cart">أضف للسلة</button>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    @* مافيش جافاسكريبت محلي – السلة والثيم واللغة من site.js *@
+}
