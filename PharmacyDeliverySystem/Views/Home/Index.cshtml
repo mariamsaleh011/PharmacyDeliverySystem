@@ -1,8 +1,128 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "الرئيسية";
+    Layout = "_Layout";
+
+    // الليست اللي جايه من الكنترولر
+    List<PharmacyDeliverySystem.Models.Product> offerList =
+        ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Head {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<section class="hero">
+    <div class="hero-content">
+        <h2 class="headline" data-lang-key="hero_title">
+            المنصة <span class="accent">الشاملة</span> لتوريد كل احتياجات
+            <span class="accent">الصيدلية</span> بتاعتك
+        </h2>
+        <p data-lang-key="hero_subtitle">
+            دور واطلب اللي محتاجه بسهولة، واحنا هنوصّلهولك بسرعة
+        </p>
+        <button type="button" onclick="orderNow()" data-lang-key="hero_cta">
+            اطلب الآن
+        </button>
+    </div>
+</section>
+
+<section class="categories">
+    <h3 data-lang-key="categories_title">تسوق حسب الفئة</h3>
+    <div class="cat-grid">
+
+        <a asp-controller="Drugs" asp-action="Index" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="10" width="7" height="11" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="18" rx="2"></rect>
+            </svg>
+            <div class="cat-title" data-lang-key="cat_drugs">Drugs</div>
+        </a>
+
+        <a asp-controller="BabyCare" asp-action="Index" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="3"></circle>
+                <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
+            </svg>
+            <div class="cat-title" data-lang-key="cat_baby">Baby Care</div>
+        </a>
+
+        <a class="cat-card" asp-controller="MenCare" asp-action="Index">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
+            </svg>
+            <div class="cat-title" data-lang-key="cat_men">Men Care</div>
+        </a>
+    </div>
+</section>
+
+<section class="offers-section" id="offers">
+    <h2 data-lang-key="offers_title">العروض الخاصة</h2>
+    <div class="product-grid">
+
+        @if (offerList != null && offerList.Any())
+        {
+            foreach (var product in offerList)
+            {
+                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+
+                    <img src="@product.ImageUrl" alt="عرض @product.Name" class="product-img" />
+
+                    <h3 data-lang-key="offer_title">@product.Name</h3>
+
+                    <p data-lang-key="offer_desc">
+                        @((product.Description ?? product.Dosage) ?? "منتج متوفر")
+                    </p>
+
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">
+                                @product.OldPrice.Value.ToString("0.00 ج.م")
+                            </span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+
+                    <button class="btn add-to-cart"
+                            data-product-id="@product.ProId"
+                            data-lang-key="btn_add_to_cart">
+                        أضف للسلة
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>لا توجد عروض خاصة متاحة حالياً. يرجى مراجعة قاعدة البيانات.</p>
+        }
+
+    </div>
+</section>
+
+<section class="health-tips">
+    <h2 data-lang-key="health_title">💡 نصائح صحية</h2>
+    <button id="dailyTipBtn" class="btn" data-lang-key="health_tip_cta">نصيحة اليوم</button>
+    <p id="dailyTip" style="margin-top:15px;font-weight:600;"></p>
+</section>
+
+<section class="contact-section">
+    <div class="container">
+        <h2 data-lang-key="contact_title">تواصل معنا</h2>
+        <p data-lang-key="contact_subtitle">يمكنك التواصل معنا عبر أي من القنوات التالية:</p>
+        <div class="contact-links">
+            <a href="mailto:momoahead89@gmail.com" class="contact-btn">
+                <span>📧</span><span data-lang-key="contact_email">البريد الإلكتروني</span>
+            </a>
+            <a href="#" target="_blank" class="contact-btn">
+                <span>📘</span><span data-lang-key="contact_facebook">فيسبوك</span>
+            </a>
+            <a href="https://www.instagram.com/PharmacyMarts" target="_blank" class="contact-btn">
+                <span>📸</span><span data-lang-key="contact_instagram">انستجرام</span>
+            </a>
+            <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">
+                <span>💬</span><span data-lang-key="contact_whatsapp">واتساب</span>
+            </a>
+        </div>
+    </div>
+</section>
