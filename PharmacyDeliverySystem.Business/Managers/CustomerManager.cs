@@ -1,7 +1,9 @@
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.Business.Interfaces;
 
-namespace PharmacyDeliverySystem.Business;
+
+namespace PharmacyDeliverySystem.Business.Managers;
 
 public class CustomerManager : ICustomerManager
 {

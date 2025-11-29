@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Business
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IOrderItemManager
     {

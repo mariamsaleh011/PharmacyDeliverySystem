@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Models
@@ -7,9 +7,9 @@ namespace PharmacyDeliverySystem.Models
     {
         public int ReturnId { get; set; }
 
-        public string? Status { get; set; }
+    public string? Status { get; set; }
 
-        public string? Reason { get; set; }
+    public string? Reason { get; set; }
 
         public int? OrderId { get; set; }
 

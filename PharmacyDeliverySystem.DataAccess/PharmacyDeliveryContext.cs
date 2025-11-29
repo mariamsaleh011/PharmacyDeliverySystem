@@ -13,6 +13,7 @@ namespace PharmacyDeliverySystem.DataAccess
         }
 
         public virtual DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         public virtual DbSet<Customer> Customers { get; set; }
 
@@ -34,7 +35,7 @@ namespace PharmacyDeliverySystem.DataAccess
 
         public virtual DbSet<Refund> Refunds { get; set; }
 
-        public virtual DbSet<Return> Returns { get; set; }
+        public virtual DbSet<Returnn> Returns { get; set; }
 
         // ⭐ مضافة من نسخة main
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
@@ -250,14 +251,14 @@ namespace PharmacyDeliverySystem.DataAccess
                     .HasConstraintName("FK__Refund__PayId__619B8048");
             });
 
-            modelBuilder.Entity<Return>(entity =>
+            modelBuilder.Entity<Returnn>(entity =>
             {
                 entity.HasKey(e => e.ReturnId)
                       .HasName("PK_Returnn_F445E9A86A4CD3B7");
 
                 entity.ToTable("Return");
 
-                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+                entity.Property(e => e.OrderID).HasColumnName("OrderID");
                 entity.Property(e => e.Reason).HasMaxLength(200);
                 entity.Property(e => e.Status).HasMaxLength(20);
 

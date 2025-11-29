@@ -1,8 +1,5 @@
-﻿// ملف: PharmacyDeliverySystem.Business.Managers/ProductManager.cs
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;

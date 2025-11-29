@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PharmacyDeliverySystem.Models;
 
-namespace PharmacyDeliverySystem.Business
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IChatManager
     {
