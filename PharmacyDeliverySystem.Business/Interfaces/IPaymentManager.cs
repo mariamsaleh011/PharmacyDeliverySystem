@@ -1,7 +1,7 @@
 ﻿using PharmacyDeliverySystem.Models;
 using System.Collections.Generic;
 
-namespace PharmacyDeliverySystem.Business
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IPaymentManager
     {

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.DataAccess
 {
-
     public partial class PharmacyDeliveryContext : DbContext
     {
         public PharmacyDeliveryContext(DbContextOptions<PharmacyDeliveryContext> options)
@@ -15,30 +14,22 @@ namespace PharmacyDeliverySystem.DataAccess
 
         public virtual DbSet<Chat> Chats { get; set; }
 
-        public virtual DbSet<Customer> Customers { get; set; }
-
-        public virtual DbSet<DeliveryRun> DeliveryRuns { get; set; }
-
-        public virtual DbSet<Order> Orders { get; set; }
-
-        public virtual DbSet<OrderItem> OrderItems { get; set; }
-
-        public virtual DbSet<Payment> Payments { get; set; }
-
-        public virtual DbSet<Pharmacy> Pharmacies { get; set; }
-
-        public virtual DbSet<Prescription> Prescriptions { get; set; }
-
-        public virtual DbSet<Product> Products { get; set; }
-
-        public virtual DbSet<QrConfirmation> QrConfirmations { get; set; }
-
-        public virtual DbSet<Refund> Refunds { get; set; }
-
-        public virtual DbSet<Return> Returns { get; set; }
-
+        // ✅ واحد بس لـ ChatMessages
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
+        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<DeliveryRun> DeliveryRuns { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<OrderItem> OrderItems { get; set; }
+        public virtual DbSet<Payment> Payments { get; set; }
+        public virtual DbSet<Pharmacy> Pharmacies { get; set; }
+        public virtual DbSet<Prescription> Prescriptions { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<QrConfirmation> QrConfirmations { get; set; }
+        public virtual DbSet<Refund> Refunds { get; set; }
+
+        // ✅ استخدمنا Return مش Returnn
+        public virtual DbSet<Return> Returns { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -227,12 +218,12 @@ namespace PharmacyDeliverySystem.DataAccess
                 entity.Property(e => e.ScannedBy).HasMaxLength(20);
 
                 entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.QrConfirmations)   
+                    .WithMany(p => p.QrConfirmations)
                     .HasForeignKey(d => d.CustomerId)
                     .HasConstraintName("FK__QRConfirm__Custo__6C190EBB");
 
                 entity.HasOne(d => d.DeliveryRun)
-                    .WithMany(p => p.QrConfirmations)   
+                    .WithMany(p => p.QrConfirmations)
                     .HasForeignKey(d => d.DeliveryRunId)
                     .HasConstraintName("FK_QRConfirmation_DeliveryRun");
             });
@@ -251,10 +242,11 @@ namespace PharmacyDeliverySystem.DataAccess
                     .HasConstraintName("FK__Refund__PayId__619B8048");
             });
 
+            // ✅ Mapping الصحيح لـ Return
             modelBuilder.Entity<Return>(entity =>
             {
                 entity.HasKey(e => e.ReturnId)
-                      .HasName("PK_Returnn_F445E9A86A4CD3B7");
+                      .HasName("PK_Returnn_F445E9A86A4CD3B7"); // اسم الكونسترينت مش فارق للكود
 
                 entity.ToTable("Return");
 
@@ -262,9 +254,8 @@ namespace PharmacyDeliverySystem.DataAccess
                 entity.Property(e => e.Reason).HasMaxLength(200);
                 entity.Property(e => e.Status).HasMaxLength(20);
 
-
                 entity.HasOne(r => r.Order)
-                      .WithMany(o => o.Returns)   // تأكد إن Order فيه: public ICollection<Return> Returns { get; set; }
+                      .WithMany(o => o.Returns)  // لازم تبقي موجودة في Order
                       .HasForeignKey(r => r.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
             });

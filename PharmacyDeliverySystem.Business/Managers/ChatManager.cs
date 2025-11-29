@@ -1,43 +1,70 @@
 ﻿using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
-using System.Collections.Generic;
-using System.Linq;
+using PharmacyDeliverySystem.Business.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace PharmacyDeliverySystem.Business
+namespace PharmacyDeliverySystem.Business.Managers
 {
     public class ChatManager : IChatManager
     {
-        private readonly PharmacyDeliveryContext context;
+        private readonly PharmacyDeliveryContext _context;
 
         public ChatManager(PharmacyDeliveryContext context)
         {
-            this.context = context;
+            _context = context;
         }
 
-        // Chats
-        public IEnumerable<Chat> GetAllChats() => context.Chats.ToList();
-        public Chat? GetChatById(int id) => context.Chats.Find(id);
-        public void AddChat(Chat chat) { context.Chats.Add(chat); context.SaveChanges(); }
-        public void UpdateChat(Chat chat) { context.Chats.Update(chat); context.SaveChanges(); }
+        // ==============================
+        //            Chats
+        // ==============================
+
+        public IEnumerable<Chat> GetAllChats()
+        {
+            return _context.Chats.ToList();
+        }
+
+        public Chat? GetChatById(int id)
+        {
+            return _context.Chats.FirstOrDefault(x => x.ChatId == id);
+        }
+
+        public void AddChat(Chat chat)
+        {
+            _context.Chats.Add(chat);
+            _context.SaveChanges();
+        }
+
+        public void UpdateChat(Chat chat)
+        {
+            _context.Chats.Update(chat);
+            _context.SaveChanges();
+        }
+
         public void DeleteChat(int id)
         {
-            var chat = context.Chats.Find(id);
-            if (chat != null) { context.Chats.Remove(chat); context.SaveChanges(); }
+            var chat = _context.Chats.FirstOrDefault(x => x.ChatId == id);
+            if (chat != null)
+            {
+                _context.Chats.Remove(chat);
+                _context.SaveChanges();
+            }
         }
 
-        // Messages
+        // ==============================
+        //          Chat Messages
+        // ==============================
+
         public IEnumerable<ChatMessage> GetMessages(int chatId)
         {
-            return context.ChatMessages
-                .Where(m => m.ChatId == chatId)
-                .OrderBy(m => m.SentAt)
-                .ToList();
+            return _context.ChatMessages
+                           .Where(m => m.ChatId == chatId)
+                           .ToList();
         }
 
         public void AddMessage(ChatMessage message)
         {
-            context.ChatMessages.Add(message);
-            context.SaveChanges();
+            _context.ChatMessages.Add(message);
+            _context.SaveChanges();
         }
     }
 }

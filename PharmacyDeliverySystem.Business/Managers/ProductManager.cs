@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;              // ⭐ ضيف السطر ده
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
@@ -17,10 +17,20 @@ namespace PharmacyDeliverySystem.Business.Managers
         }
 
         public IEnumerable<Product> GetAll()
-            => _context.Products.AsNoTracking().ToList();
+        {
+            return _context.Products
+                // .Include(p => p.Pharm)   // لو احتجت بيانات الصيدلية
+                .AsNoTracking()
+                .ToList();
+        }
 
         public Product? GetById(int id)
-            => _context.Products.Find(id);
+        {
+            return _context.Products
+                // .Include(p => p.Pharm)
+                .AsNoTracking()
+                .FirstOrDefault(p => p.ProId == id);
+        }
 
         public void Add(Product product)
         {
