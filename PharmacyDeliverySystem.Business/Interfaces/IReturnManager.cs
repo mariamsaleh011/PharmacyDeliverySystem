@@ -1,4 +1,4 @@
-﻿using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Business.Interfaces
 {

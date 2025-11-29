@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using PharmacyDeliverySystem.Business;
+using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers;
@@ -42,7 +42,7 @@ public class CustomerController : Controller
     // GET : show edit form
     public IActionResult Edit(int id)
     {
-        var customer = this.customerManager.GetCustomerById(id); 
+        var customer = this.customerManager.GetCustomerById(id);
         return View(customer);
     }
     [HttpPost] //POST : update new customer

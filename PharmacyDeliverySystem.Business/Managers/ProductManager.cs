@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;

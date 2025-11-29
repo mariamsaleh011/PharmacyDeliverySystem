@@ -14,6 +14,7 @@ namespace PharmacyDeliverySystem.DataAccess
         }
 
         public virtual DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         public virtual DbSet<Customer> Customers { get; set; }
 
