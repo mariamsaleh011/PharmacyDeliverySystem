@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
-
 using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PaymentController : ControllerBase
+    public class PaymentController : Controller
     {
         private readonly IPaymentManager _manager;
 
@@ -17,45 +14,102 @@ namespace PharmacyDeliverySystem.Controllers
             _manager = manager;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Payment>> GetAll()
+        // GET: Payment
+        public IActionResult Index()
         {
-            return Ok(_manager.GetAllPayments());
+            var payments = _manager.GetAllPayments();
+            return View(payments); // returns Views/Payment/Index.cshtml
         }
 
-        [HttpGet("{payId}")]
-        public ActionResult<Payment> Get(string payId)
+        // GET: Payment/Details/{payId}
+        public IActionResult Details(string payId)
         {
+            if (string.IsNullOrEmpty(payId))
+                return BadRequest();
+
             var payment = _manager.GetPaymentById(payId);
-            if (payment == null) return NotFound();
-            return Ok(payment);
+            if (payment == null)
+                return NotFound();
+
+            return View(payment); // returns Views/Payment/Details.cshtml
         }
 
-        [HttpGet("ByStatus/{status}")]
-        public ActionResult<IEnumerable<Payment>> GetByStatus(string status)
+        // GET: Payment/Create
+        public IActionResult Create()
         {
-            return Ok(_manager.GetPaymentsByStatus(status));
+            return View(); // returns Views/Payment/Create.cshtml
         }
 
+        // POST: Payment/Create
         [HttpPost]
-        public ActionResult Create([FromBody] Payment payment)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Payment payment)
         {
-            _manager.CreatePayment(payment);
-            return CreatedAtAction(nameof(Get), new { payId = payment.PayId }, payment);
+            if (ModelState.IsValid)
+            {
+                _manager.CreatePayment(payment);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(payment);
         }
 
-        [HttpPut]
-        public ActionResult Update([FromBody] Payment payment)
+        // GET: Payment/Edit/{payId}
+        public IActionResult Edit(string payId)
         {
-            _manager.UpdatePayment(payment);
-            return NoContent();
+            if (string.IsNullOrEmpty(payId))
+                return BadRequest();
+
+            var payment = _manager.GetPaymentById(payId);
+            if (payment == null)
+                return NotFound();
+
+            return View(payment); // returns Views/Payment/Edit.cshtml
         }
 
-        [HttpDelete("{payId}")]
-        public ActionResult Delete(string payId)
+        // POST: Payment/Edit/{payId}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Payment payment)
+        {
+            if (ModelState.IsValid)
+            {
+                _manager.UpdatePayment(payment);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(payment);
+        }
+
+        // GET: Payment/Delete/{payId}
+        public IActionResult Delete(string payId)
+        {
+            if (string.IsNullOrEmpty(payId))
+                return BadRequest();
+
+            var payment = _manager.GetPaymentById(payId);
+            if (payment == null)
+                return NotFound();
+
+            return View(payment); // returns Views/Payment/Delete.cshtml
+        }
+
+        // POST: Payment/Delete/{payId}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(string payId)
         {
             _manager.DeletePayment(payId);
-            return NoContent();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Optional: Filter by status
+        // GET: Payment/ByStatus/{status}
+        public IActionResult ByStatus(string status)
+        {
+            if (string.IsNullOrEmpty(status))
+                return BadRequest();
+
+            var payments = _manager.GetPaymentsByStatus(status);
+            return View("Index", payments); // reuse Index.cshtml to show filtered results
         }
     }
 }

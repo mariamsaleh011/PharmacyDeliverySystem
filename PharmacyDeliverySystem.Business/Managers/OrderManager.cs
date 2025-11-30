@@ -1,9 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
+
 namespace PharmacyDeliverySystem.Business.Managers
 {
     public class OrderManager : IOrderManager
@@ -15,7 +16,6 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context = context;
         }
 
-        
         private IQueryable<Order> IncludeAll()
             => _context.Orders
                        .Include(o => o.Customer)
@@ -24,15 +24,11 @@ namespace PharmacyDeliverySystem.Business.Managers
                        .Include(o => o.Run)
                        .Include(o => o.OrderItems);
 
-
         public IEnumerable<Order> GetAllOrders()
-            => IncludeAll()
-               .AsNoTracking()
-               .ToList();
+            => IncludeAll().AsNoTracking().ToList();
 
         public Order? GetOrderById(int id)
-            => IncludeAll()
-               .FirstOrDefault(o => o.OrderId == id);
+            => IncludeAll().FirstOrDefault(o => o.OrderId == id);
 
         public IEnumerable<Order> GetOrdersByCustomer(int customerId)
             => IncludeAll()
@@ -98,6 +94,17 @@ namespace PharmacyDeliverySystem.Business.Managers
 
             _context.Orders.Remove(order);
             _context.SaveChanges();
+        }
+
+        // ✅ IMPORTANT - NEW METHOD
+        public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
+        {
+            if (orderIds == null || !orderIds.Any())
+                return new List<Order>();
+
+            return IncludeAll()
+                   .Where(o => orderIds.Contains(o.OrderId))
+                   .ToList();
         }
     }
 }

@@ -1,91 +1,48 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
-using PharmacyDeliverySystem.ViewModels;
-using PharmacyDeliverySystem.ViewModels.QR;
+using PharmacyDeliverySystem.Models;
+using QRCoder;
+using System.IO;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class QrConfirmationController : ControllerBase
+    public class QrConfirmationController : Controller
     {
-        private readonly IQrConfirmationManager _manager;
+        private readonly IQrConfirmationManager _qrManager;
 
-        public QrConfirmationController(IQrConfirmationManager manager)
+        public QrConfirmationController(IQrConfirmationManager qrManager)
         {
-            _manager = manager;
+            _qrManager = qrManager;
         }
 
-        // إنشاء QR للعميل في Run معين
-        [HttpPost("create")]
-        public IActionResult CreateQr([FromBody] QrConfirmationViewModels.CreateQrRequest model)
+        public IActionResult InvoiceDetails(int orderId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var qrConfirmation = _qrManager.GetQrByOrder(orderId);
 
-            try
-            {
-                var qr = _manager.CreateQrForCustomer(model.CustomerId, model.RunId);
-                return Ok(new { Message = "QR created successfully", qr });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+            if (qrConfirmation == null || qrConfirmation.Order == null)
+                return NotFound();
 
-        // Scan QR
-        [HttpPost("scan/{qrId}")]
-        public IActionResult ScanQr(int qrId, [FromBody] QrConfirmationViewModels.ScanQrRequest model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var order = qrConfirmation.Order;
 
-            try
-            {
-                _manager.ScanQr(qrId, model.ScannedBy);
-                return Ok(new { Message = "QR scanned successfully." });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+            // Total amount placeholder (no total in models)
+            decimal totalAmount = 0;
 
-        // Check if all QR’s in a Run scanned
-        [HttpGet("run/{runId}/all-scanned")]
-        public IActionResult AllScanned(int runId)
-        {
-            if (runId <= 0)
-                return BadRequest("Invalid RunId");
+            string qrText = $"OrderID:{order.OrderId}; Customer:{order.Customer.Name}; Total:{totalAmount:C}; QR:{qrConfirmation.Code}";
 
-            try
-            {
-                var result = _manager.AllQrScanned(runId);
-                return Ok(new { RunId = runId, AllScanned = result });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+            using var qrGenerator = new QRCodeGenerator();
+            var qrData = qrGenerator.CreateQrCode(qrText, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new QRCode(qrData);
+            using var bitmap = qrCode.GetGraphic(20);
 
-        // جلب كل QR لعميل معين
-        [HttpGet("customer/{customerId}")]
-        public IActionResult GetByCustomer(int customerId)
-        {
-            if (customerId <= 0)
-                return BadRequest("Invalid CustomerId");
+            using var stream = new MemoryStream();
+            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            string qrBase64 = $"data:image/png;base64,{System.Convert.ToBase64String(stream.ToArray())}";
 
-            try
-            {
-                var list = _manager.GetQrByCustomer(customerId);
-                return Ok(list);
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            ViewBag.QRCodeImage = qrBase64;
+            ViewBag.TotalAmount = totalAmount;
+
+            return View(order);
         }
     }
 }
+ 

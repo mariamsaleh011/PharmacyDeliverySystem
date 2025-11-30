@@ -6,112 +6,82 @@ using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class DeliveryRunController : ControllerBase
+    public class DeliveryRunController : Controller
     {
+        private readonly IOrderManager _orderManager;
         private readonly IDeliveryRunManager _runManager;
 
-        public DeliveryRunController(IDeliveryRunManager runManager)
+        public DeliveryRunController(IOrderManager orderManager, IDeliveryRunManager runManager)
         {
+            _orderManager = orderManager;
             _runManager = runManager;
         }
 
         // =============================
-        // 1) Create new Delivery Run
+        // 1) GET: Create Delivery Run
         // =============================
-        [HttpPost("create")]
-        public IActionResult CreateRun([FromBody] DeliveryRunViewModels.CreateDeliveryRunViewModel model)
+        public IActionResult Create()
+        {
+            var pendingOrders = _orderManager.GetPendingOrders(); // Orders with Status = "Pending"
+            var model = new DeliveryRunViewModels.CreateDeliveryRunViewModel
+            {
+                OrderIds = pendingOrders.Select(o => o.OrderId).ToList()
+            };
+            ViewBag.PendingOrders = pendingOrders; // لعرض أسماء العملاء في View
+            return View(model);
+        }
+
+        // =============================
+        // 2) POST: Create Delivery Run
+        // =============================
+        [HttpPost]
+        public IActionResult Create(DeliveryRunViewModels.CreateDeliveryRunViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
             {
-                var run = new DeliveryRun
-                {
-                    RiderId = model.RiderId,
-                    StartAt = System.DateTime.Now,
-                    Orders = model.OrderIds.Select(id => new Order { OrderId = id }).ToList()
-                };
+                ViewBag.PendingOrders = _orderManager.GetPendingOrders();
+                return View(model);
+            }
 
-                _runManager.CreateRun(run);
-                return Ok(new { Message = "Delivery Run Created Successfully", run });
-            }
-            catch (System.Exception ex)
+            var selectedOrders = _orderManager.GetOrdersByIds(model.OrderIds);
+
+            var run = new DeliveryRun
             {
-                return BadRequest(ex.Message);
+                RiderId = model.RiderId,
+                StartAt = System.DateTime.Now,
+                Orders = selectedOrders
+            };
+
+            _runManager.CreateRun(run);
+
+            foreach (var order in selectedOrders)
+            {
+                order.Status = "OnDelivery";
+                order.RunId = run.RunId;
+                _orderManager.UpdateOrder(order);
             }
+
+            return RedirectToAction("Index");
         }
 
         // =============================
-        // 2) Complete a Delivery Run
+        // 3) GET: Active Runs
         // =============================
-        [HttpPost("complete")]
-        public IActionResult CompleteRun([FromBody] DeliveryRunViewModels.CompleteRunViewModel model)
+        public IActionResult Index()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                _runManager.CompleteRun(model.RunId);
-                return Ok(new { Message = "Run completed successfully" });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var activeRuns = _runManager.GetActiveRuns();
+            return View(activeRuns);
         }
 
         // =============================
-        // 3) Get Active Runs
+        // 4) POST: Complete Run
         // =============================
-        [HttpGet("active")]
-        public IActionResult GetActiveRuns()
+        [HttpPost]
+        public IActionResult Complete(int runId)
         {
-            var runs = _runManager.GetActiveRuns();
-            return Ok(runs);
-        }
-
-        // =============================
-        // 4) Add Order to Run
-        // =============================
-        [HttpPost("add-order")]
-        public IActionResult AddOrderToRun([FromBody] DeliveryRunViewModels.AddOrderToRunViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                _runManager.AddOrderToRun(model.RunId, model.OrderId);
-                return Ok(new { Message = "Order added to run successfully" });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        // =============================
-        // 5) Check if all Orders in Run confirmed with QR
-        // =============================
-        [HttpGet("confirmed/{runId}")]
-        public IActionResult AllOrdersConfirmed(int runId)
-        {
-            if (runId <= 0)
-                return BadRequest("Invalid RunId");
-
-            try
-            {
-                bool confirmed = _runManager.AllOrdersConfirmed(runId);
-                return Ok(new { RunId = runId, AllConfirmed = confirmed });
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _runManager.CompleteRun(runId);
+            return RedirectToAction("Index");
         }
     }
 }
+

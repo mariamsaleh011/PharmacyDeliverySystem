@@ -8,6 +8,7 @@ namespace PharmacyDeliverySystem.Models
     {
         public int OrderId { get; set; }
 
+
         public decimal? Price { get; set; }
 
         public string? Quantity { get; set; }
@@ -27,6 +28,7 @@ namespace PharmacyDeliverySystem.Models
         public string? PaymentId { get; set; }
 
         public int? CustomerId { get; set; }
+
 
         public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
