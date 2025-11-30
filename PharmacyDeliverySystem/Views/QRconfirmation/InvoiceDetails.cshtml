@@ -1,0 +1,68 @@
+﻿@model PharmacyDeliverySystem.Models.Order
+@{
+    ViewBag.Title = "Invoice Details";
+    decimal totalAmount = ViewBag.TotalAmount ?? 0;
+}
+
+<div style="width: 800px; margin: auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
+    <h2>Invoice</h2>
+
+    <p><strong>Order ID:</strong> @Model.OrderId</p>
+    <p><strong>Customer:</strong> @Model.Customer?.Name</p>
+    <p><strong>Status:</strong> @Model.Status</p>
+    <p><strong>Total Amount:</strong> @totalAmount.ToString("C")</p>
+
+    <h3>Items</h3>
+    @if (Model.OrderItems != null && Model.OrderItems.Any())
+    {
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #ccc; padding: 8px;">Product</th>
+                    <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 8px;">@item.Product?.Name</td>
+                        <td style="border: 1px solid #ccc; padding: 8px;">@item.Quantity</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No items to display.</p>
+    }
+
+    <h3>QR Code</h3>
+    @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
+    {
+        <img id="qrCodeImage" src="@ViewBag.QRCodeImage" alt="QR Code" style="width: 200px; height: 200px;" />
+        <br />
+        <button onclick="downloadQRCode()" style="margin-top: 10px; padding: 8px 12px;">Download QR Code</button>
+    }
+
+    <br /><br />
+    <button onclick="printInvoice()" style="padding: 8px 12px;">Print Invoice</button>
+</div>
+
+<script>
+    function printInvoice() {
+        var printContents = document.body.innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+
+    function downloadQRCode() {
+        var link = document.createElement('a');
+        link.href = document.getElementById('qrCodeImage').src;
+        link.download = 'QRCode.png';
+        link.click();
+    }
+</script>

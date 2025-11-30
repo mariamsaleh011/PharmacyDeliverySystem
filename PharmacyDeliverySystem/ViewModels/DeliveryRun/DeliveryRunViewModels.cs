@@ -14,7 +14,7 @@ namespace PharmacyDeliverySystem.ViewModels.DeliveryRun
 
             [Required(ErrorMessage = "لازم تحدد أوردر واحد على الأقل")]
             [MinLength(1, ErrorMessage = "لازم يكون فيه أوردر واحد على الأقل")]
-            public List<int> OrderIds { get; set; } = new List<int>();   // ⭐ تم الإصلاح
+            public List<int> OrderIds { get; set; } = new List<int>();
         }
 
         public class AddOrderToRunViewModel

@@ -5,9 +5,7 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class OrderItemController : ControllerBase
+    public class OrderItemController : Controller
     {
         private readonly IOrderItemManager _manager;
 
@@ -16,69 +14,114 @@ namespace PharmacyDeliverySystem.Controllers
             _manager = manager;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<OrderItem>> GetAll()
+        // GET: OrderItem
+        public IActionResult Index()
         {
             var items = _manager.GetAllOrderItems();
-            return Ok(items);
+            return View(items); // Views/OrderItem/Index.cshtml
         }
 
-        [HttpGet("{orderId}/{productId}")]
-        public ActionResult<OrderItem> Get(int orderId, int productId)
+        // GET: OrderItem/Details/{orderId}/{productId}
+        public IActionResult Details(int orderId, int productId)
         {
             var item = _manager.GetOrderItem(orderId, productId);
             if (item == null)
                 return NotFound();
-            return Ok(item);
+
+            return View(item); // Views/OrderItem/Details.cshtml
         }
 
-        [HttpGet("ByOrder/{orderId}")]
-        public ActionResult<IEnumerable<OrderItem>> GetByOrder(int orderId)
+        // GET: OrderItem/Create
+        public IActionResult Create()
         {
-            var items = _manager.GetItemsByOrder(orderId);
-            return Ok(items);
+            return View(); // Views/OrderItem/Create.cshtml
         }
 
-        [HttpGet("ByProduct/{productId}")]
-        public ActionResult<IEnumerable<OrderItem>> GetByProduct(int productId)
-        {
-            var items = _manager.GetItemsByProduct(productId);
-            return Ok(items);
-        }
-
+        // POST: OrderItem/Create
         [HttpPost]
-        public ActionResult Create([FromBody] OrderItem item)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(OrderItem item)
         {
-            _manager.CreateOrderItem(item);
-            return CreatedAtAction(nameof(Get), new { orderId = item.OrderId, productId = item.ProductId }, item);
+            if (ModelState.IsValid)
+            {
+                _manager.CreateOrderItem(item);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(item);
         }
 
-        [HttpPut]
-        public ActionResult Update([FromBody] OrderItem item)
+        // GET: OrderItem/Edit/{orderId}/{productId}
+        public IActionResult Edit(int orderId, int productId)
         {
-            _manager.UpdateOrderItem(item);
-            return NoContent();
+            var item = _manager.GetOrderItem(orderId, productId);
+            if (item == null)
+                return NotFound();
+
+            return View(item); // Views/OrderItem/Edit.cshtml
         }
 
-        [HttpDelete("{orderId}/{productId}")]
-        public ActionResult Delete(int orderId, int productId)
+        // POST: OrderItem/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(OrderItem item)
+        {
+            if (ModelState.IsValid)
+            {
+                _manager.UpdateOrderItem(item);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(item);
+        }
+
+        // GET: OrderItem/Delete/{orderId}/{productId}
+        public IActionResult Delete(int orderId, int productId)
+        {
+            var item = _manager.GetOrderItem(orderId, productId);
+            if (item == null)
+                return NotFound();
+
+            return View(item); // Views/OrderItem/Delete.cshtml
+        }
+
+        // POST: OrderItem/Delete/{orderId}/{productId}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int orderId, int productId)
         {
             _manager.DeleteOrderItem(orderId, productId);
-            return NoContent();
+            return RedirectToAction(nameof(Index));
         }
 
-        [HttpPatch("UpdateQuantity/{orderId}/{productId}/{quantity}")]
-        public ActionResult UpdateQuantity(int orderId, int productId, int quantity)
+        // GET: OrderItem/ByOrder/{orderId}
+        public IActionResult ByOrder(int orderId)
+        {
+            var items = _manager.GetItemsByOrder(orderId);
+            return View("Index", items); // reuse Index view
+        }
+
+        // GET: OrderItem/ByProduct/{productId}
+        public IActionResult ByProduct(int productId)
+        {
+            var items = _manager.GetItemsByProduct(productId);
+            return View("Index", items); // reuse Index view
+        }
+
+        // POST: OrderItem/UpdateQuantity
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateQuantity(int orderId, int productId, int quantity)
         {
             _manager.UpdateItemQuantity(orderId, productId, quantity);
-            return NoContent();
+            return RedirectToAction(nameof(Details), new { orderId, productId });
         }
 
-        [HttpPatch("UpdateStatus/{orderId}/{productId}/{status}")]
-        public ActionResult UpdateStatus(int orderId, int productId, string status)
+        // POST: OrderItem/UpdateStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateStatus(int orderId, int productId, string status)
         {
             _manager.UpdateItemStatus(orderId, productId, status);
-            return NoContent();
+            return RedirectToAction(nameof(Details), new { orderId, productId });
         }
     }
 }

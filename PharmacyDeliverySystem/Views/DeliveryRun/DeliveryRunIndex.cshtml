@@ -1,0 +1,36 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.DeliveryRun>
+
+@{
+    ViewData["Title"] = "Delivery Runs";
+}
+
+<h2>Delivery Runs</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Run ID</th>
+            <th>Rider</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Orders</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var run in Model)
+        {
+            <tr>
+                <td>@run.RunId</td>
+                <td>@run.RiderId</td>
+                <td>@run.StartAt</td>
+                <td>@(run.EndAt == null ? "Active" : run.EndAt.ToString())</td>
+                <td>
+                    <a class="btn btn-sm btn-info"
+                       href="/DeliveryRun/Details/@run.RunId">
+                       View Orders
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

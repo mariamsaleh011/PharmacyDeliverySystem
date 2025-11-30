@@ -5,9 +5,7 @@ using System.Collections.Generic;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PharmacyController : ControllerBase
+    public class PharmacyController : Controller
     {
         private readonly IPharmacyManager _manager;
 
@@ -16,46 +14,84 @@ namespace PharmacyDeliverySystem.Controllers
             _manager = manager;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Pharmacy>> GetAll()
+        // GET: Pharmacy
+        public IActionResult Index()
         {
-            return Ok(_manager.GetAllPharmacies());
+            var pharmacies = _manager.GetAllPharmacies();
+            return View(pharmacies); // Views/Pharmacy/Index.cshtml
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<Pharmacy> Get(int id)
+        // GET: Pharmacy/Details/{id}
+        public IActionResult Details(int id)
         {
             var pharmacy = _manager.GetById(id);
             if (pharmacy == null) return NotFound();
-            return Ok(pharmacy);
+            return View(pharmacy); // Views/Pharmacy/Details.cshtml
         }
 
-        [HttpGet("ByName/{name}")]
-        public ActionResult<IEnumerable<Pharmacy>> GetByName(string name)
+        // GET: Pharmacy/Create
+        public IActionResult Create()
         {
-            return Ok(_manager.GetByName(name));
+            return View(); // Views/Pharmacy/Create.cshtml
         }
 
+        // POST: Pharmacy/Create
         [HttpPost]
-        public ActionResult Create([FromBody] Pharmacy pharmacy)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Pharmacy pharmacy)
         {
-            _manager.Create(pharmacy);
-            return Ok(pharmacy);
+            if (ModelState.IsValid)
+            {
+                _manager.Create(pharmacy);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(pharmacy);
         }
 
-        [HttpPut]
-        public ActionResult Update([FromBody] Pharmacy pharmacy)
+        // GET: Pharmacy/Edit/{id}
+        public IActionResult Edit(int id)
         {
-            _manager.Update(pharmacy);
-            return NoContent();
+            var pharmacy = _manager.GetById(id);
+            if (pharmacy == null) return NotFound();
+            return View(pharmacy); // Views/Pharmacy/Edit.cshtml
         }
 
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        // POST: Pharmacy/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Pharmacy pharmacy)
+        {
+            if (ModelState.IsValid)
+            {
+                _manager.Update(pharmacy);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(pharmacy);
+        }
+
+        // GET: Pharmacy/Delete/{id}
+        public IActionResult Delete(int id)
+        {
+            var pharmacy = _manager.GetById(id);
+            if (pharmacy == null) return NotFound();
+            return View(pharmacy); // Views/Pharmacy/Delete.cshtml
+        }
+
+        // POST: Pharmacy/Delete/{id}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
         {
             _manager.Delete(id);
-            return NoContent();
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Pharmacy/ByName/{name}
+        public IActionResult ByName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return BadRequest();
+            var pharmacies = _manager.GetByName(name);
+            return View("Index", pharmacies); // reuse Index view
         }
     }
 }
-

@@ -1,17 +1,17 @@
 ﻿using PharmacyDeliverySystem.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PharmacyDeliverySystem.Business.Interfaces
 {
     public interface IQrConfirmationManager
     {
         QrConfirmation CreateQrForCustomer(int customerId, int runId);
+        QrConfirmation CreateQrForOrder(int orderId);
         void ScanQr(int qrId, string scannedBy);
-        bool AllQrScanned(int runId);
+        QrConfirmation GetQrById(int qrId);
+        QrConfirmation GetQrByOrder(int orderId);
+        bool AllOrdersConfirmed(int runId);
+        void CompleteRun(int runId);
         IEnumerable<QrConfirmation> GetQrByCustomer(int customerId);
     }
 }

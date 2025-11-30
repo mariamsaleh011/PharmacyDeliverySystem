@@ -1,21 +1,33 @@
+﻿using PharmacyDeliverySystem.Models;
+using System.Collections.Generic;
 
-using PharmacyDeliverySystem.Models;
-
-
-namespace PharmacyDeliverySystem.Business.Interfaces;
-
-public interface IOrderManager
+namespace PharmacyDeliverySystem.Business.Interfaces
 {
-    IEnumerable<Order> GetAllOrders();
-    Order? GetOrderById(int id);
-    IEnumerable<Order> GetOrdersByCustomer(int customerId);
-    IEnumerable<Order> GetOrdersByPharmacy(int pharmacyId);
-    IEnumerable<Order> GetOrdersByStatus(string status);
-    decimal GetOrderTotal(int orderId);
-    void UpdateOrderStatus(int orderId, string newStatus);
-    void AssignOrderToDeliveryRun(int orderId, int runId);
-    void CreateOrder(Order order);
-    void UpdateOrder(Order order);
-    void CancelOrder(int id);
-}
+    public interface IOrderManager
+    {
+        IEnumerable<Order> GetAllOrders();
 
+        Order? GetOrderById(int id);
+
+        IEnumerable<Order> GetOrdersByCustomer(int customerId);
+
+        IEnumerable<Order> GetOrdersByPharmacy(int pharmacyId);
+
+        IEnumerable<Order> GetOrdersByStatus(string status);
+
+        decimal GetOrderTotal(int orderId);
+
+        void UpdateOrderStatus(int orderId, string newStatus);
+
+        void AssignOrderToDeliveryRun(int orderId, int runId);
+
+        void CreateOrder(Order order);
+
+        void UpdateOrder(Order order);
+
+        void CancelOrder(int id);
+
+        // ✅ New method (Important for DeliveryRun)
+        IEnumerable<Order> GetOrdersByIds(List<int> orderIds);
+    }
+}
