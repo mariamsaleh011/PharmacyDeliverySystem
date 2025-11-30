@@ -36,4 +36,21 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    public IActionResult Search(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return RedirectToAction("Index");
+
+        var allProducts = _productManager.GetAll();  // ← بيجيب كل المنتجات
+
+        var results = allProducts
+                        .Where(p => p.Name.StartsWith(query) ||
+                                    p.Description.StartsWith(query) ||
+                                    p.DrugType.StartsWith(query)) // لو عايزة كمان يبحث بالكاتيجوري
+                        .ToList();
+
+        return View("SearchResults", results);
+    }
+
 }

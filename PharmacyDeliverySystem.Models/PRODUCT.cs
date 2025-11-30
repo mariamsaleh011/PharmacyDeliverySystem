@@ -28,5 +28,6 @@ namespace PharmacyDeliverySystem.Models
         public int? PharmId { get; set; }
 
         public virtual Pharmacy? Pharm { get; set; }
+        public string? DrugType { get; set; }
     }
 }

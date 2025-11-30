@@ -5,25 +5,26 @@ using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers;
 
-public class BabyCareController : Controller
+public class MenCareController : Controller
 {
-    private readonly ILogger<BabyCareController> _logger;
+    private readonly ILogger<MenCareController> _logger;
     private readonly IProductManager _productManager;
 
-    public BabyCareController(ILogger<BabyCareController> logger, IProductManager productManager)
+    public MenCareController(ILogger<MenCareController> logger, IProductManager productManager)
     {
         _logger = logger;
         _productManager = productManager;
     }
 
+    // صفحة Men Care
     public IActionResult Index()
     {
-        // جلب المنتجات الخاصة بـ Baby Care
-        var babyCareProducts = _productManager.GetAll()
-                                    .Where(p => p.DrugType == "baby care")
-                                    .ToList();
+        // جلب المنتجات الخاصة بـ Men Care
+        var menCareProducts = _productManager.GetAll()
+                                 .Where(p => p.DrugType == "men care")
+                                 .ToList();
 
-        ViewBag.BabyCareProducts = babyCareProducts;
+        ViewBag.MenCareProducts = menCareProducts;
 
         return View();
     }

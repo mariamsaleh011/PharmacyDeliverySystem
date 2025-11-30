@@ -5,12 +5,12 @@ using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers;
 
-public class BabyCareController : Controller
+public class DrugsController : Controller
 {
-    private readonly ILogger<BabyCareController> _logger;
+    private readonly ILogger<DrugsController> _logger;
     private readonly IProductManager _productManager;
 
-    public BabyCareController(ILogger<BabyCareController> logger, IProductManager productManager)
+    public DrugsController(ILogger<DrugsController> logger, IProductManager productManager)
     {
         _logger = logger;
         _productManager = productManager;
@@ -18,12 +18,12 @@ public class BabyCareController : Controller
 
     public IActionResult Index()
     {
-        // جلب المنتجات الخاصة بـ Baby Care
-        var babyCareProducts = _productManager.GetAll()
-                                    .Where(p => p.DrugType == "baby care")
-                                    .ToList();
+        // جلب جميع المنتجات أو المنتجات الخاصة بالـ Drugs
+        var drugsProducts = _productManager.GetAll()
+                                .Where(p => p.DrugType == "drugs")
+                                .ToList();
 
-        ViewBag.BabyCareProducts = babyCareProducts;
+        ViewBag.DrugsProducts = drugsProducts;
 
         return View();
     }
