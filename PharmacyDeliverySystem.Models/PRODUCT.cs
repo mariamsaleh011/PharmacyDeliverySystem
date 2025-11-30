@@ -45,5 +45,6 @@ namespace PharmacyDeliverySystem.Models
 
         // الـ navigation اللي كانت عندك
         public virtual Pharmacy? Pharm { get; set; }
+        public string? DrugType { get; set; }
     }
 }

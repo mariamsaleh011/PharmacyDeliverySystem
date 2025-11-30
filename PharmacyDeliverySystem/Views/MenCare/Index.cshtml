@@ -1,0 +1,35 @@
+﻿@{
+    var menCareProducts = ViewBag.MenCareProducts as List<PharmacyDeliverySystem.Models.Product>;
+}
+
+<link rel="stylesheet" href="~/css/men-care.css" asp-append-version="true" />
+
+<div class="products">
+    <h2>منتجات العناية بالرجال</h2>
+
+    @if (menCareProducts != null && menCareProducts.Any())
+    {
+        <div class="product-grid">
+            @foreach (var product in menCareProducts)
+            {
+                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                    <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
+                    <h3>@product.Name</h3>
+                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">أضف للسلة</button>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>لا توجد منتجات عناية الرجال متاحة حالياً.</p>
+    }
+</div>
