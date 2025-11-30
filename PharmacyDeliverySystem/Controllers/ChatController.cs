@@ -5,7 +5,7 @@ using PharmacyDeliverySystem.ViewModels.Chat;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Authorize(Roles = "customer")]
+    [Authorize(Roles = "Customer")]
     public class ChatController : Controller
     {
         private readonly IChatManager _chatManager;
