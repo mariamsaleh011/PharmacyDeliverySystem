@@ -64,7 +64,10 @@
         {
             foreach (var product in offerList)
             {
-                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
 
                     <img src="@product.ImageUrl" alt="عرض @product.Name" class="product-img" />
 
@@ -99,6 +102,7 @@
 
     </div>
 </section>
+
 
 <section class="health-tips">
     <h2 data-lang-key="health_title">💡 نصائح صحية</h2>

@@ -12,7 +12,10 @@
         <div class="product-grid">
             @foreach (var product in menCareProducts)
             {
-                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
                     <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
                     <h3>@product.Name</h3>
                     <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>

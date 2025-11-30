@@ -2,36 +2,38 @@
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
+using System.Linq;
 
-namespace PharmacyDeliverySystem.Controllers;
-
-public class MenCareController : Controller
+namespace PharmacyDeliverySystem.Controllers
 {
-    private readonly ILogger<MenCareController> _logger;
-    private readonly IProductManager _productManager;
-
-    public MenCareController(ILogger<MenCareController> logger, IProductManager productManager)
+    public class MenCareController : Controller
     {
-        _logger = logger;
-        _productManager = productManager;
-    }
+        private readonly ILogger<MenCareController> _logger;
+        private readonly IProductManager _productManager;
 
-    // صفحة Men Care
-    public IActionResult Index()
-    {
-        // جلب المنتجات الخاصة بـ Men Care
-        var menCareProducts = _productManager.GetAll()
+        public MenCareController(ILogger<MenCareController> logger, IProductManager productManager)
+        {
+            _logger = logger;
+            _productManager = productManager;
+        }
+
+        public IActionResult Index()
+        {
+            var menCareProducts = _productManager.GetAll()
                                  .Where(p => p.DrugType == "men care")
                                  .ToList();
 
-        ViewBag.MenCareProducts = menCareProducts;
+            ViewBag.MenCareProducts = menCareProducts;
+            return View();
+        }
 
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
     }
 }
