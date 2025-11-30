@@ -538,6 +538,7 @@ if (cartBtn) {
 }
 async function checkout() {
     const items = readCart();
+
     if (!items.length) {
         const msg = translations[currentLang]?.cart_empty_alert || translations.en.cart_empty_alert;
         alert(msg);
@@ -545,33 +546,44 @@ async function checkout() {
     }
 
     try {
-        // حول الـ items لصيغة مناسبة للـ backend
-        const cartItems = items.map(item => ({
-            ProductId: getProductIdByName(item.name), // محتاجين نجيب الـ ID
-            Name: item.name,
-            Price: item.price,
-            Qty: item.qty
-        }));
+        // ✅ ده الشكل اللي الـ CheckoutViewModel مستنيه
+        const model = {
+            customerId: 1, // TODO: لما تربطي بالـ Login هتجيبيه من المستخدم الحقيقي
+            items: items.map(item => ({
+                productId: item.productId || getProductIdByName(item.name),
+                productName: item.name,
+                quantity: item.qty,
+                price: item.price
+            }))
+        };
 
-        // ابعت للـ backend
-        const response = await fetch('/Product/Checkout', {
+        // ✅ نبعته للـ OrderController.Checkout
+        const response = await fetch('/Order/Checkout', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                'Content-Type': 'application/json'
+                // مفيش ValidateAntiForgeryToken على الأكشن، فمش محتاجين التوكن هنا
             },
-            body: JSON.stringify(cartItems)
+            body: JSON.stringify(model)
         });
+
+        if (!response.ok) {
+            throw new Error('HTTP error ' + response.status);
+        }
 
         const result = await response.json();
 
-        if (result.success) {
+        if (result.success && result.redirectUrl) {
             const okMsg = translations[currentLang]?.cart_success_alert || translations.en.cart_success_alert;
             alert(okMsg);
+
             clearCart();
             toggleCart(false);
+
+            // نروح على صفحة الفاتورة + QR
+            window.location.href = result.redirectUrl;
         } else {
-            alert(result.message || 'حدث خطأ أثناء الطلب');
+            alert(result.message || 'حدث خطأ أثناء إتمام الطلب');
         }
     } catch (error) {
         console.error('Checkout error:', error);

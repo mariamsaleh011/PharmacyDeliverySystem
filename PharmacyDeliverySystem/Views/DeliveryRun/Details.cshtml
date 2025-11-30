@@ -1,0 +1,55 @@
+﻿@model PharmacyDeliverySystem.Models.DeliveryRun
+
+@{
+    ViewData["Title"] = "Delivery Run Orders";
+}
+
+<h2>Delivery Run @Model.RunId</h2>
+
+<p>
+    <strong>Rider:</strong> @Model.RiderId <br />
+    <strong>Start:</strong> @Model.StartAt <br />
+    <strong>End:</strong> @(Model.EndAt == null ? "Active" : Model.EndAt.ToString())
+</p>
+
+<h3>Orders in this Run</h3>
+
+@if (Model.Orders == null || !Model.Orders.Any())
+{
+    <p>No orders in this run.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Invoice</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Orders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.Customer?.Name</td>
+                    <td>@order.Status</td>
+                    <td>@order.TotalPrice</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           asp-controller="QrConfirmation"
+                           asp-action="InvoiceDetails"
+                           asp-route-orderId="@order.OrderId">
+                            View Invoice
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Back to Runs</a>

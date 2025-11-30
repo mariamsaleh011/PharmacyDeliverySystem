@@ -1,18 +1,22 @@
-﻿using PharmacyDeliverySystem.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-namespace PharmacyDeliverySystem.Models;
 
-public class ChatMessage
+namespace PharmacyDeliverySystem.Models
 {
-    [Key]
-    public int MessageId { get; set; }
-    public int ChatId { get; set; }
-    public string SenderType { get; set; }
-    public string MessageText { get; set; }
-    public DateTime SentAt { get; set; }
+    public class ChatMessage
+    {
+        [Key]
+        public int MessageId { get; set; }
 
-    public virtual Chat? Chat { get; set; }  // Navigation للـ Chat
+        public int ChatId { get; set; }
+
+        // ✅ قيم افتراضية عشان مايبقوش null
+        public string SenderType { get; set; } = string.Empty;
+
+        public string MessageText { get; set; } = string.Empty;
+
+        public DateTime SentAt { get; set; }
+
+        public virtual Chat? Chat { get; set; }  // Navigation للـ Chat
+    }
 }
-

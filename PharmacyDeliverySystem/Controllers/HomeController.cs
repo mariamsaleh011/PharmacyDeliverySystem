@@ -49,11 +49,14 @@ namespace PharmacyDeliverySystem.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return RedirectToAction("Index");
 
+            var lowerQuery = query.ToLower();
+
             var results = _productManager.GetAll()
                          .Where(p =>
-                                p.Name.ToLower().Contains(query.ToLower()) ||
-                                (p.Description != null && p.Description.ToLower().Contains(query.ToLower())) ||
-                                p.DrugType.ToLower().Contains(query.ToLower()))
+                                (p.Name ?? string.Empty).ToLower().Contains(lowerQuery) ||
+                                (!string.IsNullOrEmpty(p.Description) &&
+                                    p.Description!.ToLower().Contains(lowerQuery)) ||
+                                (p.DrugType ?? string.Empty).ToLower().Contains(lowerQuery))
                          .ToList();
 
             return View("SearchResults", results);

@@ -4,7 +4,7 @@ namespace PharmacyDeliverySystem.ViewModels
 {
     public class InvoiceViewModel
     {
-        public Order Order { get; set; }
-        public QrConfirmation Qr { get; set; } // Only from QrConfirmation
+        public PharmacyDeliverySystem.Models.Order Order { get; set; } = null!;
+        public QrConfirmation Qr { get; set; } = null!; // 👈 ضيف = null!
     }
 }

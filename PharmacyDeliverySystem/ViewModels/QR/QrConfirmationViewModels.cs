@@ -21,7 +21,7 @@ namespace PharmacyDeliverySystem.ViewModels.QR
         {
             [Required(ErrorMessage = "ScannedBy مطلوب")]
             [StringLength(100, ErrorMessage = "ScannedBy لا يمكن أن يزيد عن 100 حرف")]
-            public string ScannedBy { get; set; }
+            public string ScannedBy { get; set; } = null!; // 👈 ضيف
         }
     }
 }
