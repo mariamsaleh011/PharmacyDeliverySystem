@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSave: document.getElementById('saveProductBtn'),
         table: document.getElementById('productsTable'),
         search: document.getElementById('prodSearch'),
-        // fields
         id: document.getElementById('prodId'),
         name: document.getElementById('prodName'),
         desc: document.getElementById('prodDesc'),
@@ -20,14 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
         imageInput: document.getElementById('prodImage'),
         imagePreview: document.getElementById('imagePreview'),
         modalTitle: document.getElementById('modalTitle'),
-        // confirm delete
         confirmModal: document.getElementById('confirmModal'),
         cancelConfirmBtn: document.getElementById('cancelConfirmBtn'),
         confirmDeleteActionBtn: document.getElementById('confirmDeleteActionBtn'),
         deleteItemName: document.getElementById('deleteItemName'),
         deleteForm: document.getElementById('deleteForm'),
         deleteIdInput: document.getElementById('deleteId'),
-        toastContainer: document.getElementById('toastContainer')
+        toastContainer: document.getElementById('toastContainer'),
+        // optional additional fields
+        prodBarcode: document.getElementById('prodBarcode'),
+        prodBrand: document.getElementById('prodBrand'),
+        prodVat: document.getElementById('prodVat'),
+        prodDosage: document.getElementById('prodDosage'),
+        prodDrugType: document.getElementById('prodDrugType'),
+        prodPharmId: document.getElementById('prodPharmId'),
     };
 
     const DEFAULT_IMG = '/images/image-placeholder.png';
@@ -37,7 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
         els.modalTitle.textContent = isEdit ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد';
         els.modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        els.form.action = isEdit ? '/Product/Edit' : '/Product/Create';
+        // use data attributes to get correct server-side url
+        if (els.form) {
+            els.form.action = isEdit ? els.form.getAttribute('data-edit-url') : els.form.getAttribute('data-create-url');
+        }
     }
 
     function closeModal() {
@@ -82,9 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     els.btnCancel?.addEventListener('click', closeModal);
-    // close on X button
     document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
-    // close on overlay
     window.addEventListener('click', (e) => {
         if (e.target === els.modal) closeModal();
         if (e.target === els.confirmModal) closeConfirmModal();
@@ -103,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         els.qty.value = row.querySelector('.prod-qty')?.textContent?.trim() || 0;
 
-        // الحالة (نقرأها من data-active لو حابّة تستخدميها)
         const active = row.getAttribute('data-active');
         if (els.active && active !== null) {
             els.active.value = active;
@@ -117,10 +122,17 @@ document.addEventListener('DOMContentLoaded', () => {
             resetImagePreview();
         }
 
-        els.form.action = '/Product/Edit';
+        // clear optional inputs (if not available in the table, left blank)
+        if (els.prodBarcode) els.prodBarcode.value = '';
+        if (els.prodBrand) els.prodBrand.value = '';
+        if (els.prodVat) els.prodVat.value = '';
+        if (els.prodDosage) els.prodDosage.value = '';
+        if (els.prodDrugType) els.prodDrugType.value = '';
+        if (els.prodPharmId) els.prodPharmId.value = '';
+
+        els.form.action = els.form.getAttribute('data-edit-url');
     }
 
-    // table actions
     els.table?.addEventListener('click', (e) => {
         const btnEdit = e.target.closest('.edit-btn');
         const btnDelete = e.target.closest('.delete-btn');
@@ -154,13 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!els.deleteIdInput.value) return;
         els.confirmDeleteActionBtn.disabled = true;
         els.confirmDeleteActionBtn.textContent = 'جارٍ الحذف...';
-        els.deleteForm.submit(); // POST عادي لـ /Product/Delete
+        els.deleteForm.submit();
     });
 
     // disable double submit
     els.form?.addEventListener('submit', () => {
-        els.btnSave.disabled = true;
-        els.btnSave.textContent = 'جارٍ الحفظ...';
+        if (els.btnSave) {
+            els.btnSave.disabled = true;
+            els.btnSave.textContent = 'جارٍ الحفظ...';
+        }
     });
 
     // client-side search
@@ -173,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // optional toast
     function showToast(msg, type = 'info') {
         if (!els.toastContainer) return;
         const t = document.createElement('div');

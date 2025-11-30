@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<dynamic>
-
 @{
     ViewData["Title"] = "إدارة المنتجات";
-    Layout = "~/Views/Shared/_Layout.cshtml";   // خليه ياخد نفس Layout بتاع الموقع
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -11,18 +10,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    <!-- خط كايرو -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/product-admin.css" asp-append-version="true" />
 </head>
 <body>
-
     <div class="admin-wrapper">
         <section class="prod-card">
             <header class="prod-card__header">
                 <div class="header-title">
                     <div class="icon-box">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        <!-- SVG -->
                     </div>
                     <div>
                         <h1>إدارة المنتجات</h1>
@@ -59,31 +56,15 @@
                         {
                             foreach (var p in Model)
                             {
-                                string rawId = "";
-                                string rawName = "";
-                                string rawDesc = "";
-                                string rawImg = "";
-
-                                decimal price = 0;
-                                decimal oldPrice = 0;
-                                int quantity = 0;
-                                bool isActive = false;
+                                string rawId = ""; string rawName = ""; string rawDesc = ""; string rawImg = "";
+                                decimal price = 0; decimal oldPrice = 0; int quantity = 0; bool isActive = false;
 
                                 try { rawId = Convert.ToString(p.Id); } catch { }
                                 try { rawName = Convert.ToString(p.Name); } catch { }
                                 try { rawDesc = Convert.ToString(p.Description); } catch { }
                                 try { rawImg = Convert.ToString(p.ImageUrl); } catch { }
-
                                 try { price = Convert.ToDecimal(p.Price); } catch { }
-                                try
-                                {
-                                    var op = p.OldPrice;
-                                    if (op != null && !Convert.IsDBNull(op))
-                                    {
-                                        oldPrice = Convert.ToDecimal(op);
-                                    }
-                                }
-                                catch { }
+                                try { var op = p.OldPrice; if (op != null && !Convert.IsDBNull(op)) oldPrice = Convert.ToDecimal(op); } catch { }
                                 try { quantity = Convert.ToInt32(p.Quantity); } catch { }
                                 try { isActive = Convert.ToBoolean(p.IsActive); } catch { }
 
@@ -95,13 +76,13 @@
                                                 <img src="@rawImg" alt="@rawName" class="prod-thumb"
                                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                                 <div class="img-placeholder" style="display:none;">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                                                    <!-- placeholder svg -->
                                                 </div>
                                             }
                                             else
                                             {
                                                 <div class="img-placeholder">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                                    <!-- placeholder svg -->
                                                 </div>
                                             }
                                         </div>
@@ -137,14 +118,28 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon edit-btn" title="تعديل">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+
+                                            <!-- زر التعديل -->
+                                            <button type="button" class="btn-icon edit-btn" title="تعديل" aria-label="تعديل">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 20l-4 1 1-4L16.5 3.5z"></path>
+                                                </svg>
                                             </button>
-                                            <button type="button" class="btn-icon delete-btn" title="حذف">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+
+                                            <!-- زر الحذف -->
+                                            <button type="button" class="btn-icon delete-btn" title="حذف" aria-label="حذف">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
                                             </button>
+
                                         </div>
                                     </td>
+
                                 </tr>
                             }
                         }
@@ -165,13 +160,15 @@
         </section>
     </div>
 
-    <!-- نافذة الإضافة/التعديل -->
+    <!-- Modal Add/Edit -->
     <div id="productModal" class="modal" aria-hidden="true">
         <div class="modal-overlay"></div>
         <div class="modal-dialog">
-            <form id="productForm" enctype="multipart/form-data" method="post">
+            <form id="productForm" enctype="multipart/form-data" method="post"
+                  data-create-url="@Url.Action("Create","Product")"
+                  data-edit-url="@Url.Action("Edit","Product")">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="Id" id="prodId" />
+                <input type="hidden" name="ProId" id="prodId" />
 
                 <div class="modal-header">
                     <h2 id="modalTitle">إضافة منتج جديد</h2>
@@ -180,13 +177,12 @@
 
                 <div class="modal-body">
                     <div class="form-grid">
-                        <!-- رفع الصورة -->
                         <div class="image-upload-section">
                             <label class="image-preview-box" for="prodImage">
                                 <img id="imagePreview" src="/images/image-placeholder.png" alt="Preview"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="preview-placeholder-icon" style="display:none;">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    <!-- svg -->
                                 </div>
 
                                 <div class="upload-overlay">
@@ -197,7 +193,6 @@
                             <input type="file" name="ImageFile" id="prodImage" accept="image/*" hidden />
                         </div>
 
-                        <!-- الحقول -->
                         <div class="inputs-section">
                             <div class="form-group">
                                 <label for="prodName">اسم المنتج</label>
@@ -233,6 +228,38 @@
                                 <label for="prodDesc">وصف المنتج</label>
                                 <textarea name="Description" id="prodDesc" class="form-control" rows="3" placeholder="اكتب وصفاً مختصراً..."></textarea>
                             </div>
+
+                            <!-- إضافات اختيارية: Barcode, Brand, VatRate, Dosage, DrugType, PharmId -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prodBarcode">Barcode</label>
+                                    <input type="text" name="Barcode" id="prodBarcode" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="prodBrand">Brand</label>
+                                    <input type="text" name="Brand" id="prodBrand" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prodVat">VatRate</label>
+                                    <input type="number" name="VatRate" id="prodVat" class="form-control" step="0.01" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="prodDosage">Dosage</label>
+                                    <input type="text" name="Dosage" id="prodDosage" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prodDrugType">DrugType</label>
+                                    <input type="text" name="DrugType" id="prodDrugType" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="prodPharmId">PharmId</label>
+                                    <input type="number" name="PharmId" id="prodPharmId" class="form-control" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,7 +274,7 @@
         </div>
     </div>
 
-    <!-- نافذة تأكيد الحذف -->
+    <!-- Confirm delete modal -->
     <div id="confirmModal" class="modal" aria-hidden="true">
         <div class="modal-overlay"></div>
         <div class="modal-dialog modal-sm">
@@ -266,7 +293,6 @@
         </div>
     </div>
 
-    <!-- فورم مخفي للحذف (للنسخة الكلاسيكية من JS) -->
     <form id="deleteForm" asp-controller="Product" asp-action="Delete" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" id="deleteId" name="id" />

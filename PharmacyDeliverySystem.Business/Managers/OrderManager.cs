@@ -21,8 +21,8 @@ namespace PharmacyDeliverySystem.Business.Managers
                        .Include(o => o.Customer)
                        .Include(o => o.Payment)
                        .Include(o => o.Pharm)
-                       .Include(o => o.Run)
-                       .Include(o => o.OrderItems);
+                       .Include(o => o.Run);
+        // .Include(o => o.OrderItems);  // 👈 متشالة مؤقتًا
 
         public IEnumerable<Order> GetAllOrders()
             => IncludeAll().AsNoTracking().ToList();
@@ -47,6 +47,11 @@ namespace PharmacyDeliverySystem.Business.Managers
                .Where(o => o.Status == status)
                .AsNoTracking()
                .ToList();
+
+        public IEnumerable<Order> GetPendingOrders()
+        {
+            return GetOrdersByStatus("Pending");
+        }
 
         public decimal GetOrderTotal(int orderId)
         {
@@ -96,7 +101,6 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.SaveChanges();
         }
 
-        // ✅ IMPORTANT - NEW METHOD
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())

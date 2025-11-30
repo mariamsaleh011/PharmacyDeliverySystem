@@ -39,13 +39,14 @@
                 {
                     <tr>
                         <td>
+                            <!-- IMPORTANT: return list correctly -->
                             <input type="checkbox"
                                    name="OrderIds"
                                    value="@order.OrderId" />
                         </td>
                         <td>@order.OrderId</td>
                         <td>@order.CustomerId</td>
-                        <td>@order.TotalPrice</td>
+                        <td>@(order.TotalPrice?.ToString("0.00") ?? "0.00")</td>
                         <td>@order.Status</td>
                     </tr>
                 }

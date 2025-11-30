@@ -15,6 +15,9 @@ namespace PharmacyDeliverySystem.Business.Interfaces
 
         IEnumerable<Order> GetOrdersByStatus(string status);
 
+        // ✅ عشان نجيب الأوردرات الـ Pending
+        IEnumerable<Order> GetPendingOrders();
+
         decimal GetOrderTotal(int orderId);
 
         void UpdateOrderStatus(int orderId, string newStatus);
@@ -27,7 +30,7 @@ namespace PharmacyDeliverySystem.Business.Interfaces
 
         void CancelOrder(int id);
 
-        // ✅ New method (Important for DeliveryRun)
+        // ✅ مهمة لـ DeliveryRun
         IEnumerable<Order> GetOrdersByIds(List<int> orderIds);
     }
 }

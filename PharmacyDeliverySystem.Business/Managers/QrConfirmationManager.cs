@@ -76,16 +76,26 @@ namespace PharmacyDeliverySystem.Business.Managers
 
         public QrConfirmation GetQrById(int qrId)
         {
-            return _context.QrConfirmations
-                           .Include(q => q.Order)
-                           .FirstOrDefault(q => q.QR_Id == qrId);
+            var qr = _context.QrConfirmations
+                             .Include(q => q.Order)
+                             .FirstOrDefault(q => q.QR_Id == qrId);
+
+            if (qr is null)
+                throw new Exception("QR not found");
+
+            return qr;
         }
 
         public QrConfirmation GetQrByOrder(int orderId)
         {
-            return _context.QrConfirmations
-                           .Include(q => q.Order)
-                           .FirstOrDefault(q => q.OrderId == orderId);
+            var qr = _context.QrConfirmations
+                             .Include(q => q.Order)
+                             .FirstOrDefault(q => q.OrderId == orderId);
+
+            if (qr is null)
+                throw new Exception("QR not found");
+
+            return qr;
         }
 
         public bool AllOrdersConfirmed(int runId)

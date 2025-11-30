@@ -4,6 +4,7 @@ using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels.DeliveryRun;
 using System.Linq;
 
+
 namespace PharmacyDeliverySystem.Controllers
 {
     public class DeliveryRunController : Controller
@@ -23,10 +24,12 @@ namespace PharmacyDeliverySystem.Controllers
         public IActionResult Create()
         {
             var pendingOrders = _orderManager.GetPendingOrders(); // Orders with Status = "Pending"
+
             var model = new DeliveryRunViewModels.CreateDeliveryRunViewModel
             {
                 OrderIds = pendingOrders.Select(o => o.OrderId).ToList()
             };
+
             ViewBag.PendingOrders = pendingOrders; // لعرض أسماء العملاء في View
             return View(model);
         }
@@ -43,7 +46,8 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
-            var selectedOrders = _orderManager.GetOrdersByIds(model.OrderIds);
+            // ⬅️ نحول لـ List عشان Orders في DeliveryRun غالباً ICollection<Order>
+            var selectedOrders = _orderManager.GetOrdersByIds(model.OrderIds).ToList();
 
             var run = new DeliveryRun
             {
@@ -73,10 +77,23 @@ namespace PharmacyDeliverySystem.Controllers
             return View(activeRuns);
         }
 
-        // =============================
-        // 4) POST: Complete Run
-        // =============================
-        [HttpPost]
+public IActionResult Details(int id)
+    {
+        // نجيب الـ Run المطلوب مع الأوردرات بتاعته
+        var run = _runManager
+            .GetActiveRuns()          // بيرجع Runs ومعاها Orders
+            .FirstOrDefault(r => r.RunId == id);
+
+        if (run == null)
+            return NotFound();
+
+        return View(run);             // Views/DeliveryRun/Details.cshtml
+    }
+
+    // =============================
+    // 4) POST: Complete Run
+    // =============================
+    [HttpPost]
         public IActionResult Complete(int runId)
         {
             _runManager.CompleteRun(runId);
@@ -84,4 +101,3 @@ namespace PharmacyDeliverySystem.Controllers
         }
     }
 }
-
