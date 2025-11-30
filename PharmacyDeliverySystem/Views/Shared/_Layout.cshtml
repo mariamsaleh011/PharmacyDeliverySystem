@@ -30,16 +30,24 @@
 
             <!-- Searchbar -->
             <div class="searchbar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input id="searchInput"
-                       type="text"
-                       data-lang-key="searchPlaceholder"
-                       placeholder="ابحث في الباقات والمنتجات..."
-                       aria-label="بحث" />
+                <form asp-area="" asp-controller="Home" asp-action="Search" method="get" class="search-form" id="globalSearchForm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+
+                    <input id="searchInput"
+                           name="query"
+                           type="text"
+                           placeholder="ابحث في الباقات والمنتجات..."
+                           aria-label="بحث" autocomplete="off" />
+                    <!-- زر مخفي لتضمن أن Enter يعمل في كل المتصفحات -->
+                    <button type="submit" style="display:none" aria-hidden="true">Search</button>
+                </form>
             </div>
+
+
+
 
             <!-- Nav + Actions -->
             <div class="topbar-right">
@@ -174,4 +182,44 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
+<script>
+    (function(){
+        var input = document.getElementById('searchInput');
+        var form = document.getElementById('globalSearchForm');
+
+        // لو النموذج فشل في الإرسال، استخدم redirect يدوياً عند Enter
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                // تأكّد إن الحقل مش فاضي
+                var q = input.value && input.value.trim();
+                if (!q) return; // لو فاضي سيبها (أو تمنعي لو تحبي)
+
+                // لو النموذج تم منعه بواسطة event.preventDefault في مكان آخر
+                // نفّذ إعادة توجيه يدوية بدلاً من الاعتماد على submit
+                try {
+                    // URL يتم توليده من السيرفر (آمن). لو بتحطيه هنا مباشرة غيّري المسار.
+                    var actionUrl = '@Url.Action("Search", "Home", new { area = "" })';
+                    window.location.href = actionUrl + '?query=' + encodeURIComponent(q);
+                } catch (err) {
+                    // كحل بديل لو Razor ما اشتغلتش (فقط جرب استخدام مسار ثابت)
+                    window.location.href = '/Home/Search?query=' + encodeURIComponent(q);
+                }
+
+                // منع السلوك الافتراضي لو الفورم بيمنع نفسه مرتين
+                e.preventDefault();
+            }
+        });
+
+        // لو حبيت تتأكد إن الفورم يرسل بشكل طبيعي (بدون اعاقة)
+        form.addEventListener('submit', function(e){
+            var q = input.value && input.value.trim();
+            if (!q) {
+                // اختياري: تمنعي الإرسال لو فاضي
+                e.preventDefault();
+            }
+        });
+    })();
+</script>
+
 </html>

@@ -1,0 +1,37 @@
+﻿@{
+
+    var Drugs = ViewBag.DrugsProducts as List<PharmacyDeliverySystem.Models.Product>;
+
+}
+<link rel="stylesheet" href="~/css/drugs.css" asp-append-version="true" />
+
+
+<section class="products">
+    <h2>المنتجات العامة</h2>
+
+    <div class="product-grid">
+        @if (Drugs != null && Drugs.Any())
+        {
+            foreach (var product in Drugs)
+            {
+                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                    <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
+                    <h3>@product.Name</h3>
+                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">أضف للسلة</button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>لا توجد منتجات عامة متاحة حالياً.</p>
+        }
+    </div>
+</section>

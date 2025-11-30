@@ -88,5 +88,9 @@ namespace PharmacyDeliverySystem.Controllers
             _productManager.Delete(id);
             return RedirectToAction(nameof(Index));
         }
+
+
+
+
     }
 }
