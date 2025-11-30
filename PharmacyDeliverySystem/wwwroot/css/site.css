@@ -20,17 +20,26 @@
     box-sizing: border-box;
 }
 
+/* ====== عشان الفوتر يبقى تحت خالص ====== */
+html,
+body {
+    height: 100%;
+}
+
 body {
     margin: 0;
     background-color: var(--bg);
     color: var(--text);
     font-family: "Cairo", sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
 /* -------- Layout عام -------- */
 
 main {
     padding: 20px 3%;
+    flex: 1 0 auto; /* يدفع الفوتر لتحت */
 }
 
 /* -------- Topbar / Navbar موحد -------- */
@@ -268,10 +277,28 @@ section {
 
 .main-footer {
     background-color: var(--brand);
-    color: white;
+    color: #f9fafb;
     text-align: center;
     padding: 15px 3%;
-    margin-top: 40px;
+    margin-top: 0; /* مفيش مسافة فاضية لما الصفحة قصيرة */
+    flex-shrink: 0; /* يثبت تحت */
+}
+
+    .main-footer a {
+        color: #e0f2fe; /* لون باين في اللايت والدارك */
+        text-decoration: underline;
+    }
+
+        .main-footer a:hover {
+            color: #ffffff;
+        }
+
+/* لو في فوتر MVC افتراضي بكلاس .footer نخليه عادي */
+.footer {
+    position: static !important;
+    bottom: auto;
+    width: 100%;
+    white-space: normal;
 }
 
 /* -------- Scroll to top -------- */
@@ -412,6 +439,32 @@ section {
     color: var(--muted);
 }
 
+/* -------- Privacy page styling -------- */
+
+.privacy-main {
+    padding: 40px 3%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+    .privacy-main h1,
+    .privacy-main h2 {
+        color: var(--text);
+    }
+
+    .privacy-main p,
+    .privacy-main ul {
+        color: var(--muted);
+    }
+
+    .privacy-main a {
+        color: var(--brand-600);
+    }
+
+[data-theme="dark"] .privacy-main a {
+    color: #38bdf8;
+}
+
 /* -------- Responsive -------- */
 
 @media (max-width: 992px) {
@@ -450,11 +503,33 @@ section {
         justify-content: center;
     }
 }
+/* ===== Login / Register Card ===== */
 
-/* -------- Fix MVC default footer (كان ثابت تحت الشاشة) -------- */
-.footer {
-    position: static !important;
-    bottom: auto;
-    width: 100%;
-    white-space: normal;
+.login-card {
+    background-color: var(--card) !important;
+    color: var(--text);
+}
+
+    /* عنوان اللوجين + الليبلات + النص تحت الزراير */
+    .login-card h2,
+    .login-card .form-label,
+    .login-card .text-muted {
+        color: var(--text) !important;
+    }
+
+    /* الحقول نفسها */
+    .login-card .form-control {
+        background-color: rgba(255,255,255,0.06);
+        border-color: rgba(0,0,0,0.12);
+        color: var(--text);
+    }
+
+[data-theme="dark"] .login-card .form-control {
+    background-color: rgba(15,18,20,0.9); /* أغمق شوية في الدارك */
+    border-color: rgba(255,255,255,0.16);
+    color: var(--text);
+}
+
+.login-card .form-control::placeholder {
+    color: var(--muted);
 }
