@@ -3,7 +3,6 @@
     Layout = "_Layout";
 
     var BabyCareProducts = ViewBag.BabyCareProducts as List<PharmacyDeliverySystem.Models.Product>;
-
 }
 <link rel="stylesheet" href="~/css/baby-care.css" asp-append-version="true" />
 
@@ -15,7 +14,10 @@
         {
             foreach (var product in BabyCareProducts)
             {
-                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
                     <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
                     <h3>@product.Name</h3>
                     <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>

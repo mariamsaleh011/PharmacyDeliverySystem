@@ -1,10 +1,7 @@
 ﻿@{
-
     var Drugs = ViewBag.DrugsProducts as List<PharmacyDeliverySystem.Models.Product>;
-
 }
 <link rel="stylesheet" href="~/css/drugs.css" asp-append-version="true" />
-
 
 <section class="products">
     <h2>المنتجات العامة</h2>
@@ -14,7 +11,10 @@
         {
             foreach (var product in Drugs)
             {
-                <div class="product" data-name="@product.Name" data-proid="@product.ProId">
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
                     <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
                     <h3>@product.Name</h3>
                     <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>

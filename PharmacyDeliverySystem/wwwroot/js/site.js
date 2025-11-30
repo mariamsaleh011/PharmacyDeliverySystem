@@ -451,13 +451,13 @@ function writeCart(items) {
     renderCart();
 }
 
-function addToCart(name, price) {
+function addToCart(name, price, productId) {
     const items = readCart();
-    const idx = items.findIndex(i => i.name === name);
+    const idx = items.findIndex(i => i.productId === productId);
     if (idx >= 0) {
         items[idx].qty += 1;
     } else {
-        items.push({ name, price, qty: 1 });
+        items.push({ productId, name, price, qty: 1 });
     }
     writeCart(items);
 }
@@ -484,8 +484,11 @@ function clearCart() {
 }
 
 function formatPrice(v) {
-    return v.toFixed(2) + ' ج.م';
+    // نحاول نحوله لرقم، ولو طلع null/undefined/NaN نخليه 0
+    const num = Number(v) || 0;
+    return num.toFixed(2) + ' ج.م';
 }
+
 
 function renderCart() {
     const items = readCart();
@@ -533,18 +536,47 @@ function toggleCart(open) {
 if (cartBtn) {
     cartBtn.addEventListener('click', () => toggleCart());
 }
-
-function checkout() {
+async function checkout() {
     const items = readCart();
     if (!items.length) {
         const msg = translations[currentLang]?.cart_empty_alert || translations.en.cart_empty_alert;
         alert(msg);
         return;
     }
-    const okMsg = translations[currentLang]?.cart_success_alert || translations.en.cart_success_alert;
-    alert(okMsg);
-    clearCart();
-    toggleCart(false);
+
+    try {
+        // حول الـ items لصيغة مناسبة للـ backend
+        const cartItems = items.map(item => ({
+            ProductId: getProductIdByName(item.name), // محتاجين نجيب الـ ID
+            Name: item.name,
+            Price: item.price,
+            Qty: item.qty
+        }));
+
+        // ابعت للـ backend
+        const response = await fetch('/Product/Checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify(cartItems)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const okMsg = translations[currentLang]?.cart_success_alert || translations.en.cart_success_alert;
+            alert(okMsg);
+            clearCart();
+            toggleCart(false);
+        } else {
+            alert(result.message || 'حدث خطأ أثناء الطلب');
+        }
+    } catch (error) {
+        console.error('Checkout error:', error);
+        alert('حدث خطأ في الاتصال بالسيرفر');
+    }
 }
 
 // ===== Scroll to top =====
@@ -596,15 +628,33 @@ function orderNow() {
 window.orderNow = orderNow;
 
 // ===== Add to cart buttons =====
-document.querySelectorAll('.add-to-cart').forEach(btn => {
-    btn.addEventListener('click', e => {
-        const card = e.target.closest('.product');
-        if (!card) return;
-        const name = card.getAttribute('data-name');
-        const price = parseFloat(card.getAttribute('data-price'));
-        addToCart(name, price);
-    });
+// ===== Add to cart buttons (event delegation) =====
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.add-to-cart');
+    if (!btn) return;
+
+    const card = btn.closest('.product');
+    if (!card) return;
+
+    const name = card.getAttribute('data-name') || 'Product';
+    const productId = parseInt(card.getAttribute('data-product-id')) || 0; // 👈 جديد
+
+    let price = 0;
+    const dataPrice = card.getAttribute('data-price');
+    if (dataPrice) {
+        price = parseFloat(dataPrice);
+    } else {
+        const priceText = card.querySelector('.price')?.textContent || '';
+        const match = priceText.replace(',', '.').match(/[\d.]+/);
+        if (match) {
+            price = parseFloat(match[0]);
+        }
+    }
+
+    console.log('ADD TO CART:', { productId, name, price });
+    addToCart(name, price, productId); // 👈 مررنا الـ productId
 });
+
 
 // ===== Health tips (هوم فقط) =====
 // ===== Health tips (هوم فقط) =====
@@ -628,6 +678,17 @@ if (dailyTipBtn && dailyTip) {
     });
 }
 
+
+// ===== Helper: جيب الـ product ID من الاسم =====
+function getProductIdByName(name) {
+    const card = Array.from(document.querySelectorAll('.product'))
+        .find(p => p.getAttribute('data-name') === name);
+    return card ? parseInt(card.getAttribute('data-product-id')) : 0;
+}
+
+// ===== Initial init =====
+renderCart();
+applyFilters();
 // ===== Initial init =====
 renderCart();
 applyFilters();

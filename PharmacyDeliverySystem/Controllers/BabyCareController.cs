@@ -2,35 +2,38 @@
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
+using System.Linq;
 
-namespace PharmacyDeliverySystem.Controllers;
-
-public class BabyCareController : Controller
+namespace PharmacyDeliverySystem.Controllers
 {
-    private readonly ILogger<BabyCareController> _logger;
-    private readonly IProductManager _productManager;
-
-    public BabyCareController(ILogger<BabyCareController> logger, IProductManager productManager)
+    public class BabyCareController : Controller
     {
-        _logger = logger;
-        _productManager = productManager;
-    }
+        private readonly ILogger<BabyCareController> _logger;
+        private readonly IProductManager _productManager;
 
-    public IActionResult Index()
-    {
-        // جلب المنتجات الخاصة بـ Baby Care
-        var babyCareProducts = _productManager.GetAll()
-                                    .Where(p => p.DrugType == "baby care")
-                                    .ToList();
+        public BabyCareController(ILogger<BabyCareController> logger, IProductManager productManager)
+        {
+            _logger = logger;
+            _productManager = productManager;
+        }
 
-        ViewBag.BabyCareProducts = babyCareProducts;
+        public IActionResult Index()
+        {
+            var babyCareProducts = _productManager.GetAll()
+                                  .Where(p => p.DrugType == "baby care")
+                                  .ToList();
 
-        return View();
-    }
+            ViewBag.BabyCareProducts = babyCareProducts;
+            return View();
+        }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
     }
 }

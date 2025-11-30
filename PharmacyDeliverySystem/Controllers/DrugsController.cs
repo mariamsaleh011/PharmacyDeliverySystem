@@ -2,35 +2,38 @@
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
+using System.Linq;
 
-namespace PharmacyDeliverySystem.Controllers;
-
-public class DrugsController : Controller
+namespace PharmacyDeliverySystem.Controllers
 {
-    private readonly ILogger<DrugsController> _logger;
-    private readonly IProductManager _productManager;
-
-    public DrugsController(ILogger<DrugsController> logger, IProductManager productManager)
+    public class DrugsController : Controller
     {
-        _logger = logger;
-        _productManager = productManager;
-    }
+        private readonly ILogger<DrugsController> _logger;
+        private readonly IProductManager _productManager;
 
-    public IActionResult Index()
-    {
-        // جلب جميع المنتجات أو المنتجات الخاصة بالـ Drugs
-        var drugsProducts = _productManager.GetAll()
+        public DrugsController(ILogger<DrugsController> logger, IProductManager productManager)
+        {
+            _logger = logger;
+            _productManager = productManager;
+        }
+
+        public IActionResult Index()
+        {
+            var drugsProducts = _productManager.GetAll()
                                 .Where(p => p.DrugType == "drugs")
                                 .ToList();
 
-        ViewBag.DrugsProducts = drugsProducts;
+            ViewBag.DrugsProducts = drugsProducts;
+            return View();
+        }
 
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
     }
 }

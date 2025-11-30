@@ -168,7 +168,52 @@ namespace PharmacyDeliverySystem.Controllers
         }
 
 
+        // ================================
+        // POST: /Product/Checkout
+        // API للـ checkout وتقليل الكمية
+        // ================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Checkout([FromBody] List<CartItem> cartItems)
+        {
+            if (cartItems == null || !cartItems.Any())
+            {
+                return BadRequest(new { success = false, message = "Cart is empty" });
+            }
+            try
+            {
+                foreach (var item in cartItems)
+                {
+                    var product = _productManager.GetById(item.ProductId);
 
+                    if (product == null)
+                    {
+                        return BadRequest(new { success = false, message = $"Product {item.Name} not found" });
+                    }
+                    // تحقق إن الكمية المطلوبة متوفرة
+                    if (product.Quantity < item.Qty)
+                    {
+                        return BadRequest(new { success = false, message = $"Not enough stock for {product.Name}" });
+                    }
+                    // اخصم الكمية
+                    product.Quantity -= item.Qty;
+                    _productManager.Update(product);
+                }
+                return Ok(new { success = true, message = "Order placed successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+        // الكلاس اللي هنستخدمه للـ cart items
+        public class CartItem
+        {
+            public int ProductId { get; set; }
+            public string Name { get; set; }
+            public decimal Price { get; set; }
+            public int Qty { get; set; }
+        }
 
     }
 }

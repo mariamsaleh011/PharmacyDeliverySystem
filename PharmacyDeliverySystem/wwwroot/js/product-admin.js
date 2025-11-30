@@ -82,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     els.btnCancel?.addEventListener('click', closeModal);
-
+    // close on X button
+    document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
     // close on overlay
     window.addEventListener('click', (e) => {
         if (e.target === els.modal) closeModal();

@@ -349,11 +349,12 @@ body {
         opacity: 1;
     }
 
-.modal-overlay {
+..modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75); /* تعتيم الخلفية */
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(4px);
+    pointer-events: none; /* 👈 المهم جداً */
 }
 
 .modal-dialog {
@@ -370,6 +371,8 @@ body {
     flex-direction: column;
     max-height: 90vh;
     overflow-y: auto;
+    pointer-events: all; /* 👈 المهم جداً */
+    z-index: 10; /* 👈 جديد */
 }
 
     .modal-dialog.modal-sm {

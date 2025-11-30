@@ -1,3 +1,13 @@
 ﻿@{
-    Layout = "_Layout";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    // الصفحات اللي مش عايز فيها Navbar (اللوجين والريجيستر)
+    if (controller == "CustomerAuth" || controller == "PharmacyAuth")
+    {
+        Layout = "_AuthLayout";   // يستخدم اللي عملناه بدون Navbar
+    }
+    else
+    {
+        Layout = "_Layout";       // باقي الصفحات تستخدم اللي فيه Navbar
+    }
 }
