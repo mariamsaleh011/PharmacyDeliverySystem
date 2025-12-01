@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using PharmacyDeliverySystem.Business;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Business.Managers;
 using PharmacyDeliverySystem.DataAccess;
@@ -21,6 +20,7 @@ builder.Services.AddDbContext<PharmacyDeliveryContext>(options =>
 // Business layer
 builder.Services.AddScoped<ICustomerManager, CustomerManager>();
 builder.Services.AddScoped<IOrderManager, OrderManager>();
+builder.Services.AddScoped<IOrderItemManager, OrderItemManager>();
 builder.Services.AddScoped<IProductManager, ProductManager>();
 builder.Services.AddScoped<IPrescriptionManager, PrescriptionManager>();
 builder.Services.AddScoped<IReturnManager, ReturnManager>();
@@ -29,26 +29,17 @@ builder.Services.AddScoped<IChatManager, ChatManager>();
 builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
 builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
 
-
-
-
-// Managers الموجودة في main
-builder.Services.AddScoped<IChatManager, ChatManager>();
-builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
-builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
-
-// 🔐 Cookie Authentication
+// Auth
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";    
-        options.LogoutPath = "/CustomerAuth/Logout";  
-        options.AccessDeniedPath = "/Home/Index";      
+        options.LoginPath = "/CustomerAuth/Login";
+        options.LogoutPath = "/CustomerAuth/Logout";
+        options.AccessDeniedPath = "/Home/Index";
         options.Cookie.Name = "PharmacyAuthCookie";
     });
 
-// 👈 Authorization
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -60,18 +51,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseRouting();
 
-// الترتيب الصحيح
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

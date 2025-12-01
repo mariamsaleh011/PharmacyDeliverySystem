@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
-using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
+    [Authorize(Roles = "Customer")]
     public class DrugsController : Controller
     {
         private readonly ILogger<DrugsController> _logger;
@@ -28,6 +31,7 @@ namespace PharmacyDeliverySystem.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [AllowAnonymous]
         public IActionResult Error()
         {
             return View(new ErrorViewModel
