@@ -1,0 +1,33 @@
+﻿@model PharmacyDeliverySystem.Models.Chat
+
+<h2>Chat with @Model.Customer?.Name</h2>
+
+<div style="border:1px solid #ccc; padding:15px; height:350px; overflow-y:scroll;">
+    @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+    {
+        if (msg.SenderType == "Pharmacy")
+        {
+            <p style="text-align:right;color:blue;">
+                <b>You:</b> @msg.MessageText
+            </p>
+        }
+        else
+        {
+            <p style="text-align:left;color:green;">
+                <b>Customer:</b> @msg.MessageText
+            </p>
+        }
+
+        <small>@msg.SentAt.ToString("hh:mm tt")</small>
+        <hr />
+    }
+</div>
+
+<form method="post" action="@Url.Action("SendMessage","PharmacyChat")" style="margin-top:15px;">
+    <input type="hidden" name="chatId" value="@Model.ChatId" />
+
+    <div class="input-group">
+        <input type="text" name="message" class="form-control" placeholder="Type your message..." />
+        <button class="btn btn-success">Send</button>
+    </div>
+</form>

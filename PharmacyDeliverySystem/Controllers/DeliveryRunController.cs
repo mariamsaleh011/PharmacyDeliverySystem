@@ -5,6 +5,12 @@ using PharmacyDeliverySystem.ViewModels.DeliveryRun;
 using System.Linq;
 using System.Security.Claims;
 
+using Microsoft.AspNetCore.Mvc;
+using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.ViewModels.DeliveryRun;
+using System.Linq;
+
 namespace PharmacyDeliverySystem.Controllers
 {
     public class DeliveryRunController : Controller
@@ -55,30 +61,7 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
-            // 1) نجيب PharmacyId من الـ User لو هو صيدلي
-            int? pharmacyId = null;
-            if (User.IsInRole("Pharmacy"))
-            {
-                // على أساس إنك حاطة الـ PharmId في ClaimTypes.NameIdentifier
-                var idString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(idString, out var pid))
-                {
-                    pharmacyId = pid;
-                }
-            }
-
-            var orderIds = model.OrderIds ?? new List<int>();
-
-            var selectedOrders = _orderManager
-                .GetOrdersByIds(orderIds)
-                .ToList();
-
-            if (!selectedOrders.Any())
-            {
-                ModelState.AddModelError("", "لم يتم العثور على أي Orders مطابقة للاختيارات.");
-                ViewBag.PendingOrders = _orderManager.GetPendingOrders();
-                return View(model);
-            }
+            var selectedOrders = _orderManager.GetOrdersByIds(model.OrderIds);
 
             // 3) نعمل DeliveryRun جديد
             var run = new DeliveryRun
@@ -141,3 +124,4 @@ namespace PharmacyDeliverySystem.Controllers
         }
     }
 }
+
