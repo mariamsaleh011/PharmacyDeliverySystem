@@ -45,7 +45,7 @@ namespace PharmacyDeliverySystem.ViewModels.OrderItem
         {
             [Required]
             [StringLength(50, ErrorMessage = "Status لا يمكن أن يزيد عن 50 حرف")]
-            public string Status { get; set; }
+            public string Status { get; set; } = null!; // 👈 ضيف
         }
     }
 }

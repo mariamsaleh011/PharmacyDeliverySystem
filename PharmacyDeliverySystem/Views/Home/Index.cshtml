@@ -3,8 +3,8 @@
     Layout = "_Layout";
 
     // الليست اللي جايه من الكنترولر
-    List<PharmacyDeliverySystem.Models.Product> offerList =
-        ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
+    List<PharmacyDeliverySystem.Models.Product>? offerList =
+           ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
 }
 
 @section Head {
@@ -13,21 +13,21 @@
 
 <section class="hero">
     <div class="hero-content">
-        <h2 class="headline" data-lang-key="hero_title">
+        <h2 class="headline">
             المنصة <span class="accent">الشاملة</span> لتوريد كل احتياجات
             <span class="accent">الصيدلية</span> بتاعتك
         </h2>
-        <p data-lang-key="hero_subtitle">
+        <p>
             دور واطلب اللي محتاجه بسهولة، واحنا هنوصّلهولك بسرعة
         </p>
-        <button type="button" onclick="orderNow()" data-lang-key="hero_cta">
+        <button type="button" onclick="orderNow()">
             اطلب الآن
         </button>
     </div>
 </section>
 
 <section class="categories">
-    <h3 data-lang-key="categories_title">تسوق حسب الفئة</h3>
+    <h3>تسوق حسب الفئة</h3>
     <div class="cat-grid">
 
         <a asp-controller="Drugs" asp-action="Index" class="cat-card">
@@ -35,7 +35,7 @@
                 <rect x="3" y="10" width="7" height="11" rx="2"></rect>
                 <rect x="14" y="3" width="7" height="18" rx="2"></rect>
             </svg>
-            <div class="cat-title" data-lang-key="cat_drugs">Drugs</div>
+            <div class="cat-title">Drugs</div>
         </a>
 
         <a asp-controller="BabyCare" asp-action="Index" class="cat-card">
@@ -43,7 +43,7 @@
                 <circle cx="12" cy="7" r="3"></circle>
                 <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
             </svg>
-            <div class="cat-title" data-lang-key="cat_baby">Baby Care</div>
+            <div class="cat-title">Baby Care</div>
         </a>
 
         <a class="cat-card" asp-controller="MenCare" asp-action="Index">
@@ -51,13 +51,13 @@
                 <circle cx="12" cy="7" r="4"></circle>
                 <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
             </svg>
-            <div class="cat-title" data-lang-key="cat_men">Men Care</div>
+            <div class="cat-title">Men Care</div>
         </a>
     </div>
 </section>
 
 <section class="offers-section" id="offers">
-    <h2 data-lang-key="offers_title">العروض الخاصة</h2>
+    <h2>العروض الخاصة</h2>
     <div class="product-grid">
 
         @if (offerList != null && offerList.Any())
@@ -69,11 +69,21 @@
                      data-price="@product.Price"
                      data-product-id="@product.ProId">
 
-                    <img src="@product.ImageUrl" alt="عرض @product.Name" class="product-img" />
+                    @{
+                        var isDefaultIcon = string.IsNullOrWhiteSpace(product.ImageUrl);
 
-                    <h3 data-lang-key="offer_title">@product.Name</h3>
+                        var imgSrc = isDefaultIcon
+                        ? "/images/icons/medicine-logo.svg"
+                        : product.ImageUrl;
 
-                    <p data-lang-key="offer_desc">
+                        var imgClass = "product-img" + (isDefaultIcon ? " default-icon" : "");
+                    }
+
+                    <img src="@imgSrc" alt="عرض @product.Name" class="@imgClass" />
+
+                    <h3>@product.Name</h3>
+
+                    <p>
                         @((product.Description ?? product.Dosage) ?? "منتج متوفر")
                     </p>
 
@@ -88,8 +98,7 @@
                     </p>
 
                     <button class="btn add-to-cart"
-                            data-product-id="@product.ProId"
-                            data-lang-key="btn_add_to_cart">
+                            data-product-id="@product.ProId">
                         أضف للسلة
                     </button>
                 </div>
@@ -103,29 +112,28 @@
     </div>
 </section>
 
-
 <section class="health-tips">
-    <h2 data-lang-key="health_title">💡 نصائح صحية</h2>
-    <button id="dailyTipBtn" class="btn" data-lang-key="health_tip_cta">نصيحة اليوم</button>
+    <h2>💡 نصائح صحية</h2>
+    <button id="dailyTipBtn" class="btn">نصيحة اليوم</button>
     <p id="dailyTip" style="margin-top:15px;font-weight:600;"></p>
 </section>
 
 <section class="contact-section">
     <div class="container">
-        <h2 data-lang-key="contact_title">تواصل معنا</h2>
-        <p data-lang-key="contact_subtitle">يمكنك التواصل معنا عبر أي من القنوات التالية:</p>
+        <h2>تواصل معنا</h2>
+        <p>يمكنك التواصل معنا عبر أي من القنوات التالية:</p>
         <div class="contact-links">
             <a href="mailto:momoahead89@gmail.com" class="contact-btn">
-                <span>📧</span><span data-lang-key="contact_email">البريد الإلكتروني</span>
+                <span>📧</span><span>البريد الإلكتروني</span>
             </a>
             <a href="#" target="_blank" class="contact-btn">
-                <span>📘</span><span data-lang-key="contact_facebook">فيسبوك</span>
+                <span>📘</span><span>فيسبوك</span>
             </a>
             <a href="https://www.instagram.com/PharmacyMarts" target="_blank" class="contact-btn">
-                <span>📸</span><span data-lang-key="contact_instagram">انستجرام</span>
+                <span>📸</span><span>انستجرام</span>
             </a>
-            <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">   
-                <span>💬</span><span data-lang-key="contact_whatsapp">واتساب</span>
+            <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">
+                <span>💬</span><span>واتساب</span>
             </a>
         </div>
     </div>

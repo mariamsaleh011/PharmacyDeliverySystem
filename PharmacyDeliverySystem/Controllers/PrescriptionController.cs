@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.Models.Validation;
@@ -62,9 +62,9 @@ namespace PharmacyDeliverySystem.Controllers
             // Create entity
             var entity = new Prescription
             {
-                CustomerId = vm.CustomerID,   
+                CustomerId = vm.CustomerID,
                 PharmId = vm.PharmId,
-                Name = vm.Name,
+                Name = vm.Name ?? string.Empty,   // ✅ لو الـ VM ممكن يكون فيه null
                 OrderId = vm.OrderID,
                 Image = $"/uploads/{fileName}",
                 Status = PrescriptionStatuses.Uploaded

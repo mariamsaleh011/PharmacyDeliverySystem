@@ -31,7 +31,7 @@ namespace PharmacyDeliverySystem.Business.Managers
             if (run.Orders == null || !run.Orders.Any())
                 throw new ArgumentException("DeliveryRun must have at least one order");
 
-            // Fetch the real orders from DB to avoid EF issues
+            // 1) نجيب الأوردرات الحقيقيّة من الـ DB
             var orderIds = run.Orders.Select(o => o.OrderId).ToList();
             var realOrders = _context.Orders
                                      .Where(o => orderIds.Contains(o.OrderId))
@@ -40,19 +40,24 @@ namespace PharmacyDeliverySystem.Business.Managers
             if (!realOrders.Any())
                 throw new Exception("No valid orders found for this run");
 
+            // 2) نربط الأوردرات بالـ Run
             run.Orders = realOrders;
             run.StartAt = DateTime.Now;
 
+            // 3) نضيف الـ Run الأول عشان ياخد RunId من الـ DB
             _context.DeliveryRuns.Add(run);
+            _context.SaveChanges();  // هنا RunId يتولد
 
-            // Update each order
+            // 4) بعد ما RunId اتولد، نحدّث كل Order
             foreach (var order in realOrders)
             {
                 order.Status = "OnDelivery";
-                order.RunId = run.RunId;
+                order.RunId = run.RunId;   // نربطه بالـ Run الجديد
+                // بما إن order جاية من _context مش لازم Update، بس مش غلط لو سيبتيه:
                 _context.Orders.Update(order);
             }
 
+            // 5) نحفظ تغييرات الأوردرات
             _context.SaveChanges();
         }
 
@@ -112,6 +117,7 @@ namespace PharmacyDeliverySystem.Business.Managers
 
             run.Orders.Add(order);
             order.Status = "OnDelivery";
+            order.RunId = run.RunId;
 
             _context.SaveChanges();
         }
@@ -136,4 +142,3 @@ namespace PharmacyDeliverySystem.Business.Managers
         }
     }
 }
-

@@ -1,21 +1,36 @@
-﻿/* --- المتغيرات وتجهيز الوضع الداكن --- */
+﻿/* =====================================================
+   product-admin.css
+   كامل صفحة إدارة المنتجات — داكن + مودال + أزرار + إزالة Navbar
+   ===================================================== */
 
-:root { /* لوحة الألوان الداكنة */
-    --bg-page: #111827; /* خلفية الصفحة: كحلي داكن جداً */
-    --bg-card: #1f2937; /* خلفية البطاقات */
-    --bg-input: #374151; /* خلفية الحقول */
-    --border: #374151; /* لون الحدود */
-    --text-main: #f3f4f6; /* نص أبيض مائل للرمادي */
-    --text-muted: #9ca3af; /* نص رمادي باهت */
-    --brand: #0d9488; /* لون التركواز الأساسي */
-    --brand-hover: #0f766e; /* درجة أغمق عند التحويم */
-    --brand-light: rgba(13, 148, 136, 0.15); /* شفافية للتركواز */
-    --danger: #ef4444; /* أحمر */
-    --success: #10b981; /* أخضر */
+/* --- المتغيرات وتجهيز الوضع الداكن --- */
+:root {
+    --bg-page: #0b1220;
+    --bg-card: #0f1724;
+    --bg-input: #111827;
+    --border: #1f2937;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --brand: #0d9488;
+    --brand-hover: #0f766e;
+    --brand-light: rgba(13, 148, 136, 0.15);
+    --danger: #ef4444;
+    --success: #10b981;
     --radius-sm: 6px;
     --radius-md: 10px;
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 20px -6px rgba(0,0,0,0.6), 0 6px 18px -10px rgba(0,0,0,0.4);
     --font-cairo: "Cairo", system-ui, -apple-system, sans-serif;
+}
+
+/* =====================================================
+   قاعدة عامة
+   ===================================================== */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
 }
 
 body {
@@ -25,9 +40,36 @@ body {
     color: var(--text-main);
     direction: rtl;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
-/* --- التخطيط العام --- */
 
+/* =====================================================
+   إزالة الهيدر / Navbar (قواعد شاملة وآمنة)
+   ===================================================== */
+nav,
+.navbar,
+.navbar-top,
+.header,
+.site-header,
+.topbar,
+.app-header,
+.main-header,
+#navbar,
+#header,
+#topNav,
+#mainNav {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* =====================================================
+   التخطيط العام للوحة الإدارة
+   ===================================================== */
 .admin-wrapper {
     padding: 40px 20px;
     max-width: 1200px;
@@ -35,14 +77,16 @@ body {
 }
 
 .prod-card {
-    background: var(--bg-card);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)), var(--bg-card);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     border: 1px solid var(--border);
 }
-/* --- الهيدر --- */
 
+/* =====================================================
+   الهيدر داخل البطاقة
+   ===================================================== */
 .prod-card__header {
     padding: 24px 32px;
     border-bottom: 1px solid var(--border);
@@ -82,8 +126,10 @@ body {
     font-size: 14px;
     color: var(--text-muted);
 }
-/* --- الأزرار والبحث --- */
 
+/* =====================================================
+   الأزرار والبحث
+   ===================================================== */
 .prod-actions {
     display: flex;
     gap: 12px;
@@ -119,10 +165,10 @@ body {
     #prodSearch:focus {
         border-color: var(--brand);
         width: 300px;
-        box-shadow: 0 0 0 3px var(--brand-light);
+        box-shadow: 0 0 0 6px var(--brand-light);
     }
-/* --- الأزرار --- */
 
+/* Buttons base */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -133,20 +179,23 @@ body {
     font-size: 14px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s ease;
     font-family: var(--font-cairo);
 }
 
+/* Primary */
 .btn-primary {
     background-color: var(--brand);
     color: #fff;
+    box-shadow: 0 6px 12px rgba(13,148,136,0.06);
 }
 
     .btn-primary:hover {
         background-color: var(--brand-hover);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
     }
 
+/* Secondary */
 .btn-secondary {
     background-color: transparent;
     color: var(--text-muted);
@@ -159,6 +208,7 @@ body {
         border-color: var(--text-muted);
     }
 
+/* Danger */
 .btn-danger {
     background-color: var(--danger);
     color: white;
@@ -167,8 +217,10 @@ body {
     .btn-danger:hover {
         background-color: #dc2626;
     }
-/* --- الجدول --- */
 
+/* =====================================================
+   جدول المنتجات
+   ===================================================== */
 .table-container {
     overflow-x: auto;
 }
@@ -176,6 +228,7 @@ body {
 .prod-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 800px;
 }
 
     .prod-table thead th {
@@ -184,14 +237,14 @@ body {
         font-size: 13px;
         font-weight: 700;
         color: var(--text-muted);
-        background-color: rgba(0,0,0,0.2); /* تغميق طفيف للهيدر */
+        background-color: rgba(255,255,255,0.02);
         border-bottom: 1px solid var(--border);
         white-space: nowrap;
     }
 
     .prod-table tbody tr {
         border-bottom: 1px solid var(--border);
-        transition: background 0.1s;
+        transition: background 0.12s ease;
     }
 
         .prod-table tbody tr:last-child {
@@ -199,7 +252,7 @@ body {
         }
 
         .prod-table tbody tr:hover {
-            background-color: rgba(255,255,255,0.03); /* تأثير عند التحويم */
+            background-color: rgba(255,255,255,0.02);
         }
 
     .prod-table td {
@@ -208,8 +261,8 @@ body {
         font-size: 14px;
         color: var(--text-main);
     }
-/* تنسيق الصور والبدائل */
 
+/* الصور */
 .img-wrapper {
     width: 50px;
     height: 50px;
@@ -238,6 +291,7 @@ body {
     background: var(--bg-input);
 }
 
+/* cell content */
 .cell-content {
     display: flex;
     flex-direction: column;
@@ -254,6 +308,7 @@ body {
     color: var(--text-muted);
 }
 
+/* السعر */
 .price-cell {
     display: flex;
     flex-direction: column;
@@ -270,6 +325,7 @@ body {
     color: var(--text-muted);
 }
 
+/* badge */
 .badge {
     display: inline-block;
     padding: 4px 10px;
@@ -279,45 +335,70 @@ body {
 }
 
 .badge-active {
-    background-color: rgba(16, 185, 129, 0.2);
+    background-color: rgba(16,185,129,0.12);
     color: #34d399;
 }
 
 .badge-inactive {
-    background-color: rgba(239, 68, 68, 0.2);
+    background-color: rgba(239,68,68,0.12);
     color: #f87171;
 }
 
+/* =====================================================
+   أزرار الأيقونات (تعديل - حذف) — تحسين الظهور
+   ===================================================== */
 .action-buttons {
     display: flex;
     gap: 8px;
+    position: relative;
+    z-index: 5;
 }
 
+/* زر أيقونة (تعديل / حذف) */
 .btn-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 6px;
+    color: var(--text-main) !important;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
     border: none;
     background: transparent;
-    color: var(--text-muted);
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
+    transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease;
+    opacity: 1 !important;
 }
 
+    /* إجبار كل أجزاء svg على التلوين بالـ currentColor */
+    .btn-icon svg,
+    .btn-icon svg * {
+        stroke: currentColor !important;
+        fill: currentColor !important;
+        opacity: 1 !important;
+    }
+
+    /* hover effect للأيقونات */
     .btn-icon:hover {
-        background-color: var(--bg-input);
-        color: var(--text-main);
+        background-color: rgba(255,255,255,0.04) !important;
+        color: var(--text-main) !important;
+        transform: translateY(-2px);
     }
 
+    /* زر الحذف يتميّز باللون الأحمر عند hover */
     .btn-icon.delete-btn:hover {
-        background-color: rgba(239, 68, 68, 0.2);
-        color: var(--danger);
+        background-color: rgba(239,68,68,0.14) !important;
+        color: var(--danger) !important;
     }
-/* --- الحالة الفارغة --- */
 
+/* لو الأيقونات داخل عناصر أخرى: تأكد ظهورها فوق */
+.btn-icon {
+    z-index: 30;
+}
+
+/* =====================================================
+   الحالات الفارغة
+   ===================================================== */
 .empty-state td {
     text-align: center;
     padding: 60px 0;
@@ -330,8 +411,10 @@ body {
     gap: 10px;
     color: var(--text-muted);
 }
-/* --- النوافذ المنبثقة (Modals) --- */
 
+/* =====================================================
+   مودال (تصحيحات + أيقونات + overlay)
+   ===================================================== */
 .modal {
     position: fixed;
     inset: 0;
@@ -341,43 +424,43 @@ body {
     justify-content: center;
     visibility: hidden;
     opacity: 0;
-    transition: all 0.2s ease-in-out;
+    transition: opacity 0.18s ease, visibility 0.18s ease;
+    pointer-events: none;
 }
 
     .modal[aria-hidden="false"] {
         visibility: visible;
         opacity: 1;
+        pointer-events: auto;
     }
 
-..modal-overlay {
+/* overlay */
+.modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0,0,0,0.72);
     backdrop-filter: blur(4px);
-    pointer-events: none; /* 👈 المهم جداً */
+    pointer-events: none;
 }
 
+/* صندوق المودال */
 .modal-dialog {
     position: relative;
     width: 100%;
-    max-width: 700px;
+    max-width: 820px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
     box-shadow: var(--shadow-lg);
     transform: translateY(20px);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     max-height: 90vh;
     overflow-y: auto;
-    pointer-events: all; /* 👈 المهم جداً */
-    z-index: 10; /* 👈 جديد */
+    pointer-events: all;
+    z-index: 1010;
 }
-
-    .modal-dialog.modal-sm {
-        max-width: 450px;
-    }
 
 .modal[aria-hidden="false"] .modal-dialog {
     transform: translateY(0);
@@ -397,10 +480,6 @@ body {
         color: var(--text-main);
     }
 
-.text-danger {
-    color: var(--danger) !important;
-}
-
 .btn-close {
     background: none;
     border: none;
@@ -415,25 +494,26 @@ body {
 
 .modal-body {
     padding: 24px;
+    color: var(--text-main);
 }
 
-    .modal-body p {
-        margin-bottom: 8px;
-        color: var(--text-main);
-    }
-
-.text-sm {
-    font-size: 13px;
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: rgba(0,0,0,0.02);
 }
-/* شبكة النموذج */
 
+/* form grid */
 .form-grid {
     display: grid;
     grid-template-columns: 180px 1fr;
     gap: 24px;
 }
-/* قسم رفع الصور */
 
+/* image upload box */
 .image-upload-section {
     display: flex;
     flex-direction: column;
@@ -452,7 +532,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s;
 }
 
     .image-preview-box:hover {
@@ -463,33 +543,28 @@ body {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: filter 0.2s;
     }
 
-.preview-placeholder-icon {
-    color: var(--text-muted);
-}
-
+/* upload overlay */
 .upload-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(13, 148, 136, 0.85);
+    background: rgba(13,148,136,0.85);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
     opacity: 0;
-    transition: opacity 0.2s;
-    font-size: 12px;
+    transition: opacity 0.18s;
     font-weight: 700;
 }
 
 .image-preview-box:hover .upload-overlay {
     opacity: 1;
 }
-/* الحقول */
 
+/* form controls */
 .form-group {
     margin-bottom: 16px;
 }
@@ -517,30 +592,27 @@ label {
     border-radius: 8px;
     font-family: var(--font-cairo);
     font-size: 14px;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.12s, box-shadow 0.12s;
 }
 
     .form-control:focus {
         outline: none;
         border-color: var(--brand);
-        box-shadow: 0 0 0 3px var(--brand-light);
+        box-shadow: 0 0 0 6px var(--brand-light);
     }
 
 textarea.form-control {
     resize: vertical;
 }
 
-.modal-footer {
-    padding: 20px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    background: rgba(0,0,0,0.2);
+/* modal footer buttons */
+.modal-footer .btn {
+    min-width: 120px;
 }
-/* --- التنبيهات (Toasts) --- */
 
+/* =====================================================
+   toasts
+   ===================================================== */
 .toast-container {
     position: fixed;
     bottom: 30px;
@@ -559,33 +631,24 @@ textarea.form-control {
     border-radius: 8px;
     font-size: 14px;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
-    animation: slideUp 0.3s ease-out forwards;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 240px;
 }
 
-    .toast.error {
-        border-left: 4px solid var(--danger);
+/* =====================================================
+   responsive adjustments
+   ===================================================== */
+@media (max-width: 1024px) {
+    .admin-wrapper {
+        padding: 30px 12px;
     }
 
-    .toast.success {
-        border-left: 4px solid var(--success);
+    .modal-dialog {
+        max-width: 680px;
     }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .prod-table {
+        min-width: 700px;
     }
 }
-/* --- التجاوب --- */
 
 @media (max-width: 768px) {
     .form-grid {
@@ -604,9 +667,11 @@ textarea.form-control {
 
     .prod-actions {
         flex-direction: column;
+        width: 100%;
+        gap: 10px;
     }
 
-    .search-wrapper, #prodSearch {
+    #prodSearch {
         width: 100%;
     }
 
@@ -614,4 +679,23 @@ textarea.form-control {
         width: 100%;
         justify-content: center;
     }
+
+    .prod-table {
+        min-width: 100%;
+    }
+}
+
+/* =====================================================
+   small helpers
+   ===================================================== */
+.hidden {
+    display: none !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
 }

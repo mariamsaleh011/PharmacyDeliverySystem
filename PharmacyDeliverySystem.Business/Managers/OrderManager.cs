@@ -22,7 +22,8 @@ namespace PharmacyDeliverySystem.Business.Managers
                        .Include(o => o.Payment)
                        .Include(o => o.Pharm)
                        .Include(o => o.Run)
-                       .Include(o => o.OrderItems);
+                       .Include(o => o.OrderItems)
+                           .ThenInclude(oi => oi.Product);
 
         public IEnumerable<Order> GetAllOrders()
             => IncludeAll().AsNoTracking().ToList();
@@ -48,6 +49,7 @@ namespace PharmacyDeliverySystem.Business.Managers
                .AsNoTracking()
                .ToList();
 
+<<<<<<< HEAD
         // ✅ للـ DeliveryRunController.Create (GET)
         public IEnumerable<Order> GetPendingOrders()
         {
@@ -58,14 +60,15 @@ namespace PharmacyDeliverySystem.Business.Managers
             //        .AsNoTracking()
             //        .ToList();
         }
+=======
+        public IEnumerable<Order> GetPendingOrders()
+            => GetOrdersByStatus("Pending");
+>>>>>>> upstream/main
 
         public decimal GetOrderTotal(int orderId)
         {
             var order = IncludeAll().FirstOrDefault(o => o.OrderId == orderId);
-            if (order == null)
-                return 0m;
-
-            return order.TotalPrice ?? 0;
+            return order?.TotalPrice ?? 0m;
         }
 
         public void UpdateOrderStatus(int orderId, string newStatus)
@@ -107,7 +110,10 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.SaveChanges();
         }
 
+<<<<<<< HEAD
         // ✅ تستخدم في POST Create في DeliveryRunController
+=======
+>>>>>>> upstream/main
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())

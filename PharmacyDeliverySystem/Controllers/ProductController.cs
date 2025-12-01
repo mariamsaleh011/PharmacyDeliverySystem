@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
-using System.IO;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -16,13 +20,10 @@ namespace PharmacyDeliverySystem.Controllers
             _env = env;
         }
 
-        // ================================
-        // لوحة إدارة المنتجات (الـ UI الجديد)
-        // GET: /Product/Admin
-        // ================================
+        // لوحة إدارة المنتجات – للصيدلي فقط
+        [Authorize(Roles = "Pharmacy")]
         public IActionResult Admin()
         {
-            // بنجهز موديل ديناميكي فيه IsActive محسوبة من الـ Quantity
             var products = _productManager.GetAll()
                 .Select(p => new
                 {
@@ -33,21 +34,21 @@ namespace PharmacyDeliverySystem.Controllers
                     p.Price,
                     p.OldPrice,
                     p.Quantity,
-                    IsActive = p.Quantity > 0     // نشط لو الكمية > 0
+                    IsActive = p.Quantity > 0
                 })
                 .ToList<object>();
 
-            // Admin.cshtml مكتوبة @model IEnumerable<dynamic> فده هيشتغل عادي
             return View(products);
         }
 
-        // لو محتاجين الـ Index/Details القديمة
+        // عرض كل المنتجات (مفتوحة للجميع)
         public IActionResult Index()
         {
             var products = _productManager.GetAll();
             return View(products);
         }
 
+        // تفاصيل منتج واحد (مفتوحة للجميع)
         public IActionResult Details(int id)
         {
             var product = _productManager.GetById(id);
@@ -57,18 +58,15 @@ namespace PharmacyDeliverySystem.Controllers
             return View(product);
         }
 
-        // ================================
-        // CREATE من المودال
-        // POST: /Product/Create
-        // ================================
+        // إنشاء منتج جديد – للصيدلي فقط
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Pharmacy")]
         public IActionResult Create(Product product, IFormFile? ImageFile)
         {
             if (!ModelState.IsValid)
                 return RedirectToAction(nameof(Admin));
 
-            // حفظ الصورة
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
@@ -90,12 +88,10 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction(nameof(Admin));
         }
 
-        // ================================
-        // EDIT من المودال
-        // POST: /Product/Edit
-        // ================================
+        // تعديل منتج – للصيدلي فقط
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Pharmacy")]
         public IActionResult Edit(Product product, IFormFile? ImageFile)
         {
             if (!ModelState.IsValid)
@@ -105,7 +101,6 @@ namespace PharmacyDeliverySystem.Controllers
             if (existing == null)
                 return NotFound();
 
-            // تحديث الخصائص الموجودة فعلاً في الـ Product
             existing.Name = product.Name;
             existing.Price = product.Price;
             existing.OldPrice = product.OldPrice;
@@ -118,7 +113,6 @@ namespace PharmacyDeliverySystem.Controllers
             existing.DrugType = product.DrugType;
             existing.PharmId = product.PharmId;
 
-            // صورة جديدة لو اتبعتت
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
@@ -140,9 +134,8 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction(nameof(Admin));
         }
 
-        // ================================
-        // DELETE (لو عندك صفحة تأكيد قديمة)
-        // ================================
+        // صفحة تأكيد الحذف – للصيدلي فقط
+        [Authorize(Roles = "Pharmacy")]
         public IActionResult Delete(int id)
         {
             var product = _productManager.GetById(id);
@@ -152,11 +145,10 @@ namespace PharmacyDeliverySystem.Controllers
             return View(product);
         }
 
-        // ================================
-        // POST: /Product/Delete
-        // ================================
+        // تنفيذ الحذف – للصيدلي فقط
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Pharmacy")]
         public IActionResult Delete(int id, string? returnUrl = null)
         {
             _productManager.Delete(id);
@@ -166,54 +158,5 @@ namespace PharmacyDeliverySystem.Controllers
 
             return RedirectToAction(nameof(Admin));
         }
-
-
-        // ================================
-        // POST: /Product/Checkout
-        // API للـ checkout وتقليل الكمية
-        // ================================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Checkout([FromBody] List<CartItem> cartItems)
-        {
-            if (cartItems == null || !cartItems.Any())
-            {
-                return BadRequest(new { success = false, message = "Cart is empty" });
-            }
-            try
-            {
-                foreach (var item in cartItems)
-                {
-                    var product = _productManager.GetById(item.ProductId);
-
-                    if (product == null)
-                    {
-                        return BadRequest(new { success = false, message = $"Product {item.Name} not found" });
-                    }
-                    // تحقق إن الكمية المطلوبة متوفرة
-                    if (product.Quantity < item.Qty)
-                    {
-                        return BadRequest(new { success = false, message = $"Not enough stock for {product.Name}" });
-                    }
-                    // اخصم الكمية
-                    product.Quantity -= item.Qty;
-                    _productManager.Update(product);
-                }
-                return Ok(new { success = true, message = "Order placed successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
-        }
-        // الكلاس اللي هنستخدمه للـ cart items
-        public class CartItem
-        {
-            public int ProductId { get; set; }
-            public string Name { get; set; }
-            public decimal Price { get; set; }
-            public int Qty { get; set; }
-        }
-
     }
 }
