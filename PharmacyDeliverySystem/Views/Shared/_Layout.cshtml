@@ -30,7 +30,13 @@
 
             <!-- Searchbar -->
             <div class="searchbar">
-                <form asp-area="" asp-controller="Home" asp-action="Search" method="get" class="search-form" id="globalSearchForm">
+                <form asp-area=""
+                      asp-controller="Home"
+                      asp-action="Search"
+                      method="get"
+                      class="search-form"
+                      id="globalSearchForm">
+
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="7"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -40,7 +46,9 @@
                            name="query"
                            type="text"
                            placeholder="ابحث في الباقات والمنتجات..."
-                           aria-label="بحث" autocomplete="off" />
+                           aria-label="بحث"
+                           autocomplete="off" />
+
                     <!-- زر مخفي لتضمن أن Enter يعمل في كل المتصفحات -->
                     <button type="submit" style="display:none" aria-hidden="true">Search</button>
                 </form>
@@ -52,49 +60,39 @@
                 <nav class="main-nav">
                     <a asp-area=""
                        asp-controller="Home"
-                       asp-action="Index"
-                       data-lang-key="nav_home">
+                       asp-action="Index">
                         الرئيسية
                     </a>
 
                     <a asp-controller="Drugs"
-                       asp-action="Index"
-                       data-lang-key="nav_drugs">
+                       asp-action="Index">
                         الأدوية
                     </a>
 
                     <a asp-controller="BabyCare"
-                       asp-action="Index"
-                       data-lang-key="nav_baby">
+                       asp-action="Index">
                         عناية الأطفال
                     </a>
 
                     <a asp-controller="MenCare"
-                       asp-action="Index"
-                       data-lang-key="nav_men">
+                       asp-action="Index">
                         عناية الرجال
                     </a>
 
                     <a asp-controller="Chat"
-                       asp-action="Index"
-                       data-lang-key="nav_chat">
+                       asp-action="Index">
                         Chat مع الصيدلي
                     </a>
 
                     <a asp-area=""
                        asp-controller="Home"
-                       asp-action="Privacy"
-                       data-lang-key="nav_privacy">
+                       asp-action="Privacy">
                         Privacy
                     </a>
                 </nav>
 
-                <!-- أكشنز: لغة + Login/Logout + ثيم + سلة -->
+                <!-- أكشنز: Login/Logout + ثيم + سلة -->
                 <div class="top-actions">
-                    <select id="langSelect" class="lang-select" aria-label="Language">
-                        <option value="en" data-lang-key="lang_en">EN</option>
-                        <option value="ar" data-lang-key="lang_ar">AR</option>
-                    </select>
 
                     @* Login / Logout *@
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -105,8 +103,7 @@
                               class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="submit"
-                                    class="btn btn-outline-danger btn-sm"
-                                    data-lang-key="logoutButton">
+                                    class="btn btn-outline-danger btn-sm">
                                 Logout
                             </button>
                         </form>
@@ -115,8 +112,7 @@
                     {
                         <a class="login-btn nav-link"
                            asp-controller="CustomerAuth"
-                           asp-action="Login"
-                           data-lang-key="loginButton">
+                           asp-action="Login">
                             Login
                         </a>
                     }
@@ -125,8 +121,7 @@
                             class="icon-btn"
                             type="button"
                             title="الوضع"
-                            aria-label="تبديل الوضع"
-                            data-lang-key="themeToggle">
+                            aria-label="تبديل الوضع">
                         ☾
                     </button>
 
@@ -153,14 +148,13 @@
     <!-- Footer -->
     <footer class="border-top footer text-muted main-footer">
         <div class="container">
-            <span data-lang-key="footer_text">
+            <span>
                 &copy; 2025 - PharmacyDeliverySystem - جميع الحقوق محفوظة
             </span>
             |
             <a asp-area=""
                asp-controller="Home"
-               asp-action="Privacy"
-               data-lang-key="nav_privacy">
+               asp-action="Privacy">
                 Privacy
             </a>
         </div>
@@ -174,17 +168,32 @@
 
     <aside id="drawer" class="drawer" aria-label="سلة المشتريات" aria-live="polite">
         <div class="drawer-header">
-            <strong data-lang-key="cart_title">سلة المشتريات</strong>
+            <strong>سلة المشتريات</strong>
             <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="إغلاق">✕</button>
         </div>
+
         <div id="cartList" class="drawer-body"></div>
+
         <div class="drawer-footer">
             <div class="drawer-total-row">
-                <span data-lang-key="cart_total_label">الإجمالي:</span>
+                <span>الإجمالي:</span>
                 <strong id="cartTotal">0 ج.م</strong>
             </div>
-            <button type="button" onclick="checkout()" data-lang-key="cart_checkout">إتمام الشراء</button>
-            <button type="button" onclick="clearCart()" data-lang-key="cart_clear">تفريغ السلة</button>
+
+            <!-- 👇 زرار الـ Checkout متظبط مع الـ JS -->
+            <button id="checkoutBtn"
+                    type="button"
+                    onclick="checkout()"
+                    data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
+                    data-login-url="@Url.Action("Login", "CustomerAuth")">
+                Checkout
+            </button>
+
+            <button type="button"
+                    class="btn btn-danger w-100"
+                    onclick="clearCart()">
+                تفريغ السلة
+            </button>
         </div>
     </aside>
 

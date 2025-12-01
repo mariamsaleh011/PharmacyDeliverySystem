@@ -1,68 +1,157 @@
 ﻿@model PharmacyDeliverySystem.Models.Order
+
 @{
-    ViewBag.Title = "Invoice Details";
-    decimal totalAmount = ViewBag.TotalAmount ?? 0;
+    ViewData["Title"] = "Invoice";
+    Layout = "_Layout"; // لو _ViewStart محدد Layout ممكن تشيليه
+
+    decimal totalAmount = ViewBag.TotalAmount ?? 0m;
+
+    bool isPharmacy = User.IsInRole("Pharmacy");
+    bool isCustomer = User.IsInRole("Customer");
 }
 
-<div style="width: 800px; margin: auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
-    <h2>Invoice</h2>
+<div class="container my-5">
+    <div id="invoiceCard" class="card shadow-lg mx-auto" style="max-width: 900px;">
+        <!-- ===== Header / Brand ===== -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <div style="
+                        width:32px;height:32px;
+                        border-radius:8px;
+                        background:#16a34a;
+                        display:flex;align-items:center;justify-content:center;
+                        color:#fff;font-weight:700;">
+                    P
+                </div>
+                <div>
+                    <h4 class="mb-0">PharmacyMarts</h4>
+                    <small class="text-muted">Digital Pharmacy Delivery Invoice</small>
+                </div>
+            </div>
 
-    <p><strong>Order ID:</strong> @Model.OrderId</p>
-    <p><strong>Customer:</strong> @Model.Customer?.Name</p>
-    <p><strong>Status:</strong> @Model.Status</p>
-    <p><strong>Total Amount:</strong> @totalAmount.ToString("C")</p>
+            <div class="text-end">
+                <div class="fw-semibold">Invoice</div>
+                <div class="small text-muted">Order #@Model.OrderId</div>
+                <div class="small text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
 
-    <h3>Items</h3>
-    @if (Model.OrderItems != null && Model.OrderItems.Any())
-    {
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th style="border: 1px solid #ccc; padding: 8px;">Product</th>
-                    <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.OrderItems)
+        <!-- ===== Body ===== -->
+        <div class="card-body">
+            <!-- Customer / QR row -->
+            <div class="row mb-4">
+                <div class="col-md-7">
+                    <h5 class="mb-3">Customer Details</h5>
+
+                    <p class="mb-1">
+                        <strong>Name:</strong>
+                        @Model.Customer?.Name
+                    </p>
+                    <p class="mb-1">
+                        <strong>Status:</strong>
+                        @Model.Status
+                    </p>
+                    <p class="mb-1">
+                        <strong>Total Amount:</strong>
+                        @totalAmount.ToString("0.00 ج.م")
+                    </p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
                 {
-                    <tr>
-                        <td style="border: 1px solid #ccc; padding: 8px;">@item.Product?.Name</td>
-                        <td style="border: 1px solid #ccc; padding: 8px;">@item.Quantity</td>
-                    </tr>
+                    <div class="col-md-5 text-center">
+                        <h5 class="mb-3">QR Code</h5>
+                        <img id="qrCodeImage"
+                             src="@ViewBag.QRCodeImage"
+                             alt="QR Code"
+                             class="img-fluid border rounded"
+                             style="max-width: 220px;"
+                             data-order-id="@Model.OrderId" />
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm mt-3"
+                                onclick="downloadQRCode()">
+                            Download QR Code
+                        </button>
+                    </div>
                 }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p>No items to display.</p>
-    }
+            </div>
 
-    <h3>QR Code</h3>
-    @if (!string.IsNullOrEmpty(ViewBag.QRCodeImage))
-    {
-        <img id="qrCodeImage" src="@ViewBag.QRCodeImage" alt="QR Code" style="width: 200px; height: 200px;" />
-        <br />
-        <button onclick="downloadQRCode()" style="margin-top: 10px; padding: 8px 12px;">Download QR Code</button>
-    }
+            <!-- Items table -->
+            <h5 class="mb-3">Items</h5>
 
-    <br /><br />
-    <button onclick="printInvoice()" style="padding: 8px 12px;">Print Invoice</button>
+            @if (Model.OrderItems != null && Model.OrderItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center" style="width:120px;">Quantity</th>
+                                <th class="text-end" style="width:150px;">Unit Price</th>
+                                <th class="text-end" style="width:150px;">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                var qty = item.Quantity ?? 0;
+                                var unitPrice = item.Price ?? 0m;
+                                var lineTotal = qty * unitPrice;
+
+                                <tr>
+                                    <td>@item.Product?.Name</td>
+                                    <td class="text-center">@qty</td>
+                                    <td class="text-end">@unitPrice.ToString("0.00 ج.م")</td>
+                                    <td class="text-end">@lineTotal.ToString("0.00 ج.م")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Total</th>
+                                <th class="text-end">@totalAmount.ToString("0.00 ج.م")</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No items to display.</p>
+            }
+        </div>
+
+        <!-- ===== Footer / Actions ===== -->
+        <div class="card-footer d-flex justify-content-between">
+            <div class="text-muted small align-self-center">
+                Generated on @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+            </div>
+
+            <div class="d-flex gap-2">
+                @* Customer: Save (Print dialog → Save as PDF) *@
+                @if (isCustomer || (!isCustomer && !isPharmacy))
+                {
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="saveInvoice()">
+                        Save Invoice
+                    </button>
+                }
+
+                @* Pharmacy: Print *@
+                @if (isPharmacy)
+                {
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            onclick="printInvoice()">
+                        Print Invoice
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
-<script>
-    function printInvoice() {
-        var printContents = document.body.innerHTML;
-        var originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-    }
-
-    function downloadQRCode() {
-        var link = document.createElement('a');
-        link.href = document.getElementById('qrCodeImage').src;
-        link.download = 'QRCode.png';
-        link.click();
-    }
-</script>
+@section Scripts {
+    <script src="~/js/invoice.js" asp-append-version="true"></script>
+}

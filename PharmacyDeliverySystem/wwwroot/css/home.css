@@ -1,7 +1,10 @@
 ﻿/* -------- Hero -------- */
 
 .hero {
-    background: url("https://images.unsplash.com/photo-1580281658629-25b94e37a32a?auto=format&fit=crop&w=1200&q=60") center/cover no-repeat;
+    background-image: url("https://images.unsplash.com/photo-1580281658629-25b94e37a32a?auto=format&fit=crop&w=1200&q=60");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     color: white;
     text-align: center;
     padding: 100px 5%;
@@ -137,6 +140,18 @@
     object-fit: cover;
     margin-bottom: 10px;
 }
+
+    /* ✅ هنا التعديل المهم */
+    .product-img.default-icon {
+        filter: none !important; /* مفيش فيلتر يتطبق عليها */
+        background-color: #ffffff; /* خلفية بيضا ثابتة في اللايت والدارك */
+        border-radius: 10px; /* نفس الـ radius بتاع الصورة العادية */
+    }
+
+[data-theme="dark"] .product-img.default-icon {
+    background-color: #ffffff; /* نثبت الخلفية البيضا في الدارك برضو */
+}
+/* ✅ نهاية التعديل */
 
 .product h3 {
     margin: 10px 0;
