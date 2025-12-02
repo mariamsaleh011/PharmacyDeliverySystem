@@ -1,4 +1,4 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "الرئيسية";
     Layout = "_Layout";
 
@@ -35,6 +35,10 @@
                 <rect x="3" y="10" width="7" height="11" rx="2"></rect>
                 <rect x="14" y="3" width="7" height="18" rx="2"></rect>
             </svg>
+           
+    <div class="cat-title">Chat</div>
+</a>
+
             <div class="cat-title">Drugs</div>
         </a>
 
@@ -117,6 +121,150 @@
             <p>لا توجد عروض خاصة متاحة حالياً. يرجى مراجعة قاعدة البيانات.</p>
         }
 
+    </div>
+</section>
+
+<section class="health-tips">
+    <h2>💡 نصائح صحية</h2>
+    <button id="dailyTipBtn" class="btn">نصيحة اليوم</button>
+    <p id="dailyTip" style="margin-top:15px;font-weight:600;"></p>
+</section>
+
+<section class="contact-section">
+    <div class="container">
+        <h2>تواصل معنا</h2>
+        <p>يمكنك التواصل معنا عبر أي من القنوات التالية:</p>
+        <div class="contact-links">
+            <a href="mailto:momoahead89@gmail.com" class="contact-btn">
+                <span>📧</span><span>البريد الإلكتروني</span>
+            </a>
+            <a href="#" target="_blank" class="contact-btn">
+                <span>📘</span><span>فيسبوك</span>
+            </a>
+            <a href="https://www.instagram.com/PharmacyMarts" target="_blank" class="contact-btn">
+                <span>📸</span><span>انستجرام</span>
+            </a>
+            <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">
+                <span>💬</span><span>واتساب</span>
+            </a>
+        </div>
+    </div>
+</section> *@
+@{
+    ViewData["Title"] = "الرئيسية";
+    Layout = "_Layout";
+
+    List<PharmacyDeliverySystem.Models.Product>? offerList =
+           ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<section class="hero">
+    <div class="hero-content">
+        <h2 class="headline">
+            المنصة <span class="accent">الشاملة</span> لتوريد كل احتياجات
+            <span class="accent">الصيدلية</span> بتاعتك
+        </h2>
+        <p>
+            دور واطلب اللي محتاجه بسهولة، واحنا هنوصّلهولك بسرعة
+        </p>
+        <button type="button" onclick="orderNow()">
+            اطلب الآن
+        </button>
+    </div>
+</section>
+
+<section class="categories">
+    <h3>تسوق حسب الفئة</h3>
+    <div class="cat-grid">
+
+        <!-- Chat Icon -->
+        <a href="@Url.Action("ChatRedirect", "Home")" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
+            </svg>
+            <div class="cat-title">Chat</div>
+        </a>
+
+        <!-- Other categories -->
+        <a asp-controller="Drugs" asp-action="Index" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="10" width="7" height="11" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="18" rx="2"></rect>
+            </svg>
+            <div class="cat-title">Drugs</div>
+        </a>
+
+        <a asp-controller="BabyCare" asp-action="Index" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="3"></circle>
+                <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
+            </svg>
+            <div class="cat-title">Baby Care</div>
+        </a>
+
+        <a asp-controller="MenCare" asp-action="Index" class="cat-card">
+            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
+            </svg>
+            <div class="cat-title">Men Care</div>
+        </a>
+
+    </div>
+</section>
+
+<section class="offers-section" id="offers">
+    <h2>العروض الخاصة</h2>
+    <div class="product-grid">
+        @if (offerList != null && offerList.Any())
+        {
+            foreach (var product in offerList)
+            {
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
+
+                    @{
+                        var imgSrc = string.IsNullOrWhiteSpace(product.ImageUrl)
+                                     ? "/images/icons/medicine-logo.svg"
+                                     : product.ImageUrl;
+                        var imgClass = "product-img" + (string.IsNullOrWhiteSpace(product.ImageUrl) ? " default-icon" : "");
+                    }
+
+                    <img src="@imgSrc" alt="عرض @product.Name" class="@imgClass" />
+
+                    <h3>@product.Name</h3>
+
+                    <p>
+                        @((product.Description ?? product.Dosage) ?? "منتج متوفر")
+                    </p>
+
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">
+                                @product.OldPrice.Value.ToString("0.00 ج.م")
+                            </span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        أضف للسلة
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>لا توجد عروض خاصة متاحة حالياً. يرجى مراجعة قاعدة البيانات.</p>
+        }
     </div>
 </section>
 

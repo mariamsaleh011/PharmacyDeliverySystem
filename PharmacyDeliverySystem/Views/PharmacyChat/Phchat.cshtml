@@ -1,0 +1,54 @@
+﻿
+
+@model PharmacyDeliverySystem.Models.Chat
+
+@{
+
+    ViewData["Title"] = "Chat with Customer";
+    Layout = "_Layout";
+}
+
+<div class="chat-page">
+    <div class="chat-card">
+        <header class="chat-header">
+            <div class="chat-header-main">
+                <div class="chat-header-icon">👤</div>
+                <div>
+                    <h2>@Model.Customer.Name</h2>
+                    <p>Customer Chat</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="chat-body" id="chat-box">
+            @foreach(var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+            {
+                <div class="msg-row @(msg.SenderType == "Pharmacy" ? "pharmacist" : "customer")">
+                    <div class="msg-avatar">@((msg.SenderType == "Pharmacy") ? "💊" : "👤")</div>
+                    <div class="message">
+                        @msg.MessageText
+                        <br />
+                        <small>@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</small>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <footer class="chat-footer">
+            <form asp-action="SendMessage" method="post">
+                <input type="hidden" name="chatId" value="@Model.ChatId" />
+                <div class="chat-input-row">
+                    <input type="text" name="message" placeholder="Type a message..." required />
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </footer>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    </script>
+}
