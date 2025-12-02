@@ -1,0 +1,59 @@
+﻿@using PharmacyDeliverySystem.Models
+
+@{
+    ViewData["Title"] = "Products";
+    Layout = "_Layout";
+
+    var productsList = ViewBag.ProductsList as IEnumerable<Product>;
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<section class="products">
+    <h2>المنتجات</h2>
+    <div class="product-grid">
+        @if (productsList != null && productsList.Any())
+        {
+            foreach (var product in productsList)
+            {
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
+
+                    @{
+                        var imgSrc = string.IsNullOrWhiteSpace(product.ImageUrl)
+                        ? "/images/icons/medicine-logo.svg"
+                        : product.ImageUrl;
+
+                        var imgClass = "product-img" + (string.IsNullOrWhiteSpace(product.ImageUrl) ? " default-icon" : "");
+                    }
+
+                    <img src="@imgSrc" alt="@product.Name" class="@imgClass" />
+
+                    <h3>@product.Name</h3>
+
+                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        أضف للسلة
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>لا توجد منتجات حالياً.</p>
+        }
+    </div>
+</section>
