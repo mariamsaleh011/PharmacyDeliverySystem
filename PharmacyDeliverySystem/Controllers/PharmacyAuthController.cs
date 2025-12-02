@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -19,30 +20,18 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
-        // ============= LOGIN (GET) ============
         [HttpGet]
-        public IActionResult Login(string? returnUrl)
-        {
-            ViewBag.ReturnUrl = returnUrl;
-            return View(new PharmacyLoginViewModel());
-        }
+        public IActionResult Login() => View(new PharmacyLoginViewModel());
 
-        // ============= LOGIN (POST) ============
         [HttpPost]
-        public IActionResult Login(PharmacyLoginViewModel model, string? returnUrl)
+        public async Task<IActionResult> Login(PharmacyLoginViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.ReturnUrl = returnUrl;
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
-            var pharmacy = _context.Pharmacies.FirstOrDefault(p => p.Email == model.Email);
-
-            if (pharmacy == null || pharmacy.PasswordHash != model.Password)
+            var pharmacy = _context.Pharmacies.FirstOrDefault(p => p.Email == model.Email && p.PasswordHash == model.Password);
+            if (pharmacy == null)
             {
                 ViewBag.Error = "Invalid email or password";
-                ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
@@ -50,75 +39,31 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 new Claim(ClaimTypes.Name, pharmacy.Name),
                 new Claim(ClaimTypes.Email, pharmacy.Email),
-                new Claim(ClaimTypes.Role, "Pharmacy")
+                new Claim(ClaimTypes.Role, "Pharmacy"),
+                new Claim("PharmacyId", pharmacy.PharmId.ToString())
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            // Sign in and persist the cookie
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = System.DateTime.UtcNow.AddHours(8)
+                });
 
-            if (!string.IsNullOrEmpty(returnUrl))
-                return Redirect(returnUrl);
-
-            // لما صفحات ال Pharmacy تجهز غيري الـ Redirect هنا
-            return RedirectToAction("Index", "Home");
+            // Redirect to chat page after login
+            return RedirectToAction("Chats", "PharmacyChat");
         }
 
-        // ============= REGISTER (GET) ============
-        [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Logout()
         {
-            return View(new PharmacyRegisterViewModel());
-        }
-
-        // ============= REGISTER (POST) ============
-        [HttpPost]
-        public IActionResult Register(PharmacyRegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
-            if (emailExists)
-            {
-                ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
-                return View(model);
-            }
-
-            var pharmacy = new Pharmacy
-            {
-                Name = model.Name,
-                LicenceNo = model.LicenceNo,
-                TaxId = model.TaxId,
-                Email = model.Email,
-                PasswordHash = model.Password // عدلي لو فيه hashing
-            };
-
-            _context.Pharmacies.Add(pharmacy);
-            _context.SaveChanges();
-
-            // Login تلقائي بعد التسجيل
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, pharmacy.Name),
-                new Claim(ClaimTypes.Email, pharmacy.Email),
-                new Claim(ClaimTypes.Role, "Pharmacy")
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            // غيريه بعدين لصفحة الـ dashboard بتاعة الصيدلية
-            return RedirectToAction("Index", "Home");
-        }
-
-        public IActionResult Logout()
-        {
-            HttpContext.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Login");
         }
     }
 }

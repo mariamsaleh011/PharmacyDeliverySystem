@@ -97,7 +97,10 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.SaveChanges();
         }
 
-        // ✅ IMPORTANT - NEW METHOD
+<<<<<<< HEAD
+        // ✅ تستخدم في POST Create في DeliveryRunController
+=======
+>>>>>>> upstream/main
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())

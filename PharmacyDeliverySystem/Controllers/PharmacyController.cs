@@ -1,10 +1,12 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
-using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace PharmacyDeliverySystem.Controllers
 {
+    [Authorize(Roles = "Pharmacy")]
     public class PharmacyController : Controller
     {
         private readonly IPharmacyManager _manager;
@@ -14,28 +16,41 @@ namespace PharmacyDeliverySystem.Controllers
             _manager = manager;
         }
 
-        // GET: Pharmacy
+        // =========================
+        // Helper: Get Logged-in Pharmacy Id
+        // =========================
+        private int GetPharmacyId()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+                return 0;
+
+            var pharmacy = _manager.GetPharmacyByEmail(email);
+            return pharmacy?.PharmId ?? 0;
+        }
+
+        // =========================
+        // CRUD Actions for Pharmacy
+        // =========================
+
         public IActionResult Index()
         {
             var pharmacies = _manager.GetAllPharmacies();
-            return View(pharmacies); // Views/Pharmacy/Index.cshtml
+            return View(pharmacies);
         }
 
-        // GET: Pharmacy/Details/{id}
         public IActionResult Details(int id)
         {
             var pharmacy = _manager.GetById(id);
             if (pharmacy == null) return NotFound();
-            return View(pharmacy); // Views/Pharmacy/Details.cshtml
+            return View(pharmacy);
         }
 
-        // GET: Pharmacy/Create
         public IActionResult Create()
         {
-            return View(); // Views/Pharmacy/Create.cshtml
+            return View();
         }
 
-        // POST: Pharmacy/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Pharmacy pharmacy)
@@ -48,15 +63,13 @@ namespace PharmacyDeliverySystem.Controllers
             return View(pharmacy);
         }
 
-        // GET: Pharmacy/Edit/{id}
         public IActionResult Edit(int id)
         {
             var pharmacy = _manager.GetById(id);
             if (pharmacy == null) return NotFound();
-            return View(pharmacy); // Views/Pharmacy/Edit.cshtml
+            return View(pharmacy);
         }
 
-        // POST: Pharmacy/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Pharmacy pharmacy)
@@ -69,15 +82,13 @@ namespace PharmacyDeliverySystem.Controllers
             return View(pharmacy);
         }
 
-        // GET: Pharmacy/Delete/{id}
         public IActionResult Delete(int id)
         {
             var pharmacy = _manager.GetById(id);
             if (pharmacy == null) return NotFound();
-            return View(pharmacy); // Views/Pharmacy/Delete.cshtml
+            return View(pharmacy);
         }
 
-        // POST: Pharmacy/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
@@ -86,12 +97,54 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Pharmacy/ByName/{name}
         public IActionResult ByName(string name)
         {
             if (string.IsNullOrEmpty(name)) return BadRequest();
             var pharmacies = _manager.GetByName(name);
-            return View("Index", pharmacies); // reuse Index view
+            return View("Index", pharmacies);
+        }
+
+        // =========================
+        // Pharmacy Chat Actions
+        // =========================
+
+        // List all chats for logged-in pharmacy
+        public IActionResult Chats()
+        {
+            int pharmacyId = GetPharmacyId();
+            if (pharmacyId == 0)
+                return RedirectToAction("Login", "PharmacyAuth");
+
+            var chats = _manager.GetChatsByPharmacyId(pharmacyId);
+            return View(chats); // Views/Pharmacy/Chats.cshtml
+        }
+
+        // Open a specific chat
+        public IActionResult OpenChat(int chatId)
+        {
+            int pharmacyId = GetPharmacyId();
+            if (pharmacyId == 0)
+                return RedirectToAction("Login", "PharmacyAuth");
+
+            var chat = _manager.GetChatById(chatId);
+            if (chat == null || chat.PharmacyId != pharmacyId)
+                return NotFound();
+
+            return View(chat); // Views/Pharmacy/OpenChat.cshtml
+        }
+
+        // Send message from pharmacy
+        [HttpPost]
+        public IActionResult SendMessage(int chatId, string message)
+        {
+            int pharmacyId = GetPharmacyId();
+            if (pharmacyId == 0)
+                return RedirectToAction("Login", "PharmacyAuth");
+
+            if (!string.IsNullOrEmpty(message))
+                _manager.SendMessage(chatId, message, "Pharmacy");
+
+            return RedirectToAction("OpenChat", new { chatId = chatId });
         }
     }
 }

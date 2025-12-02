@@ -45,19 +45,17 @@ namespace PharmacyDeliverySystem.Controllers
 
             // 1) جرّب كـ Customer
             var customer = _context.Customers.FirstOrDefault(c => c.Email == model.Email);
-
             if (customer != null && customer.PasswordHash == model.Password)
             {
-                await SignInUser(customer.Name, customer.Email, "Customer");
+                await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
                 return RedirectAfterLogin(returnUrl, "Customer");
             }
 
             // 2) لو مش Customer.. جرّب كـ Pharmacy
             var pharmacy = _context.Pharmacies.FirstOrDefault(p => p.Email == model.Email);
-
             if (pharmacy != null && pharmacy.PasswordHash == model.Password)
             {
-                await SignInUser(pharmacy.Name, pharmacy.Email, "Pharmacy");
+                await SignInUser(pharmacy.Name, pharmacy.Email, "Pharmacy", pharmacy.PharmId);
                 return RedirectAfterLogin(returnUrl, "Pharmacy");
             }
 
@@ -67,15 +65,21 @@ namespace PharmacyDeliverySystem.Controllers
             return View(model);
         }
 
-        // helper: يعمل SignIn ويحط الـ Role
-        private async Task SignInUser(string? name, string? email, string role)
+        // helper: يعمل SignIn ويحط الـ Role و Id
+        private async Task SignInUser(string? name, string? email, string role, int userId)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name,  name  ?? string.Empty),
                 new Claim(ClaimTypes.Email, email ?? string.Empty),
-                new Claim(ClaimTypes.Role,  role) // "Customer" أو "Pharmacy"
+                new Claim(ClaimTypes.Role,  role)
             };
+
+            // إضافة الـ claim الخاص بالـ Id بناءً على الدور
+            if (role == "Customer")
+                claims.Add(new Claim("CustomerId", userId.ToString()));
+            else if (role == "Pharmacy")
+                claims.Add(new Claim("PharmacyId", userId.ToString()));
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -88,15 +92,13 @@ namespace PharmacyDeliverySystem.Controllers
         // helper: يحدد يروح فين بعد الـ Login على حسب الـ Role
         private IActionResult RedirectAfterLogin(string? returnUrl, string role)
         {
-            // لو كان داخل على صفحة محتاجة Login نرجعه لها
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            // الوجهة الافتراضية لكل Role
             return role switch
             {
                 "Customer" => RedirectToAction("Index", "Home"),
-                "Pharmacy" => RedirectToAction("Admin", "Product"), // 👈 الصيدلي يروح للأدمن
+                "Pharmacy" => RedirectToAction("Admin", "Product"),
                 _ => RedirectToAction("Index", "Home")
             };
         }
@@ -141,7 +143,7 @@ namespace PharmacyDeliverySystem.Controllers
             _context.SaveChanges();
 
             // Login تلقائي بعد التسجيل كـ Customer
-            await SignInUser(customer.Name, customer.Email, "Customer");
+            await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
 
             return RedirectToAction("Index", "Home");
         }

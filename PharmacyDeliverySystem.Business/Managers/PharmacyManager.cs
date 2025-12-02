@@ -1,9 +1,9 @@
-﻿using PharmacyDeliverySystem.DataAccess;
-using PharmacyDeliverySystem.Models;
-using PharmacyDeliverySystem.Business.Interfaces;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
+using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Business.Managers
 {
@@ -53,5 +53,40 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.Pharmacies.Remove(pharmacy);
             _context.SaveChanges();
         }
+        // For Pharmacy Chat
+            public List<Chat> GetChatsByPharmacyId(int pharmacyId)
+        {
+            return _context.Chats
+                .Where(c => c.PharmacyId == pharmacyId)
+                .Include(c => c.Customer)
+                .Include(c => c.ChatMessages)
+                .ToList();
+        }
+        public Chat GetChatById(int chatId)
+        {
+            return _context.Chats
+                .Include(c => c.Customer)
+                .Include(c => c.ChatMessages)
+                .FirstOrDefault(c => c.ChatId == chatId);
+        }
+        public void SendMessage(int chatId, string message, string senderType)
+        {
+            var newMessage = new ChatMessage
+            {
+                ChatId = chatId,
+                MessageText = message,
+                SenderType = senderType,
+                SentAt = DateTime.Now
+            };
+
+            _context.ChatMessages.Add(newMessage);
+            _context.SaveChanges();
+        }
+        public Pharmacy GetPharmacyByEmail(string email)
+        {
+            return _context.Pharmacies.FirstOrDefault(p => p.Email == email);
+        }
+
     }
 }
+

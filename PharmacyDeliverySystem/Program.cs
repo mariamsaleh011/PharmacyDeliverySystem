@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Business.Managers;
@@ -29,15 +29,19 @@ builder.Services.AddScoped<IChatManager, ChatManager>();
 builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
 builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
 
-// Auth
+// Authentication & Authorization
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";
+        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل دخول
         options.LogoutPath = "/CustomerAuth/Logout";
-        options.AccessDeniedPath = "/Home/Index";
+        options.AccessDeniedPath = "/Home/Index";    // redirect if unauthorized
         options.Cookie.Name = "PharmacyAuthCookie";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+
+        options.ReturnUrlParameter = "returnUrl"; // إضافة دعم ReturnUrl لإعادة التوجيه بعد login
     });
 
 builder.Services.AddAuthorization();

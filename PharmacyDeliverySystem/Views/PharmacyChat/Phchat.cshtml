@@ -1,33 +1,54 @@
-﻿@model PharmacyDeliverySystem.Models.Chat
+﻿
 
-<h2>Chat with @Model.Customer?.Name</h2>
+@model PharmacyDeliverySystem.Models.Chat
 
-<div style="border:1px solid #ccc; padding:15px; height:350px; overflow-y:scroll;">
-    @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
-    {
-        if (msg.SenderType == "Pharmacy")
-        {
-            <p style="text-align:right;color:blue;">
-                <b>You:</b> @msg.MessageText
-            </p>
-        }
-        else
-        {
-            <p style="text-align:left;color:green;">
-                <b>Customer:</b> @msg.MessageText
-            </p>
-        }
+@{
 
-        <small>@msg.SentAt.ToString("hh:mm tt")</small>
-        <hr />
-    }
+    ViewData["Title"] = "Chat with Customer";
+    Layout = "_Layout";
+}
+
+<div class="chat-page">
+    <div class="chat-card">
+        <header class="chat-header">
+            <div class="chat-header-main">
+                <div class="chat-header-icon">👤</div>
+                <div>
+                    <h2>@Model.Customer.Name</h2>
+                    <p>Customer Chat</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="chat-body" id="chat-box">
+            @foreach(var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+            {
+                <div class="msg-row @(msg.SenderType == "Pharmacy" ? "pharmacist" : "customer")">
+                    <div class="msg-avatar">@((msg.SenderType == "Pharmacy") ? "💊" : "👤")</div>
+                    <div class="message">
+                        @msg.MessageText
+                        <br />
+                        <small>@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</small>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <footer class="chat-footer">
+            <form asp-action="SendMessage" method="post">
+                <input type="hidden" name="chatId" value="@Model.ChatId" />
+                <div class="chat-input-row">
+                    <input type="text" name="message" placeholder="Type a message..." required />
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </footer>
+    </div>
 </div>
 
-<form method="post" action="@Url.Action("SendMessage","PharmacyChat")" style="margin-top:15px;">
-    <input type="hidden" name="chatId" value="@Model.ChatId" />
-
-    <div class="input-group">
-        <input type="text" name="message" class="form-control" placeholder="Type your message..." />
-        <button class="btn btn-success">Send</button>
-    </div>
-</form>
+@section Scripts {
+    <script>
+        var chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    </script>
+}

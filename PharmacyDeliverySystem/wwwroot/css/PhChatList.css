@@ -1,0 +1,88 @@
+﻿namespace PharmacyDeliverySystem.wwwroot.css
+{
+    public class PhChatList
+{
+    /* Container for the chat list */
+    .chat-list-container
+
+{
+    max-width: 700px;
+    margin: 30px auto;
+    background-color: #fefefe;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Each chat item link */
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: #000;
+    transition: background 0.2s, transform 0.1s;
+}
+
+    .chat-item:last-child {
+        border-bottom: none;
+    }
+
+    .chat-item:hover {
+        background-color: #f0f8ff;
+        transform: scale(1.01);
+    }
+
+/* Avatar for the customer */
+.chat-avatar {
+    font-size: 2em;
+    margin-right: 15px;
+}
+
+/* Info container */
+.chat-info {
+    flex: 1;
+}
+
+/* Header inside chat info: customer name + time */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+/* Customer name */
+.chat-customer {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #333;
+}
+
+/* Time of last message */
+.chat-time {
+    font-size: 0.8em;
+    color: #999;
+}
+
+/* Last message preview */
+.chat-preview {
+    font-size: 0.95em;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* No chats placeholder */
+.no-chats {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    font-size: 1em;
+}
+
+    }
+}
