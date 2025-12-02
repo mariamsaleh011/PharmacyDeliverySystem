@@ -5,12 +5,6 @@ using PharmacyDeliverySystem.ViewModels.DeliveryRun;
 using System.Linq;
 using System.Security.Claims;
 
-using Microsoft.AspNetCore.Mvc;
-using PharmacyDeliverySystem.Business.Interfaces;
-using PharmacyDeliverySystem.Models;
-using PharmacyDeliverySystem.ViewModels.DeliveryRun;
-using System.Linq;
-
 namespace PharmacyDeliverySystem.Controllers
 {
     public class DeliveryRunController : Controller
@@ -29,12 +23,8 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         public IActionResult Create()
         {
-<<<<<<< HEAD
-            var pendingOrders = _orderManager.GetPendingOrders(); // Orders with Status = "Pending"
-=======
             // كل الأوردرز اللي Status = Pending
             var pendingOrders = _orderManager.GetPendingOrders();
->>>>>>> upstream/main
 
             var model = new DeliveryRunViewModels.CreateDeliveryRunViewModel
             {
@@ -42,11 +32,7 @@ namespace PharmacyDeliverySystem.Controllers
                 OrderIds = pendingOrders.Select(o => o.OrderId).ToList()
             };
 
-<<<<<<< HEAD
-            ViewBag.PendingOrders = pendingOrders; // لعرض أسماء العملاء في View
-=======
             ViewBag.PendingOrders = pendingOrders;
->>>>>>> upstream/main
             return View(model);
         }
 
@@ -69,10 +55,6 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
-<<<<<<< HEAD
-            // ⬅ نحول لـ List عشان Orders في DeliveryRun غالباً ICollection<Order>
-            var selectedOrders = _orderManager.GetOrdersByIds(model.OrderIds).ToList();
-=======
             // 1) نجيب PharmacyId من الـ User لو هو صيدلي
             int? pharmacyId = null;
             if (User.IsInRole("Pharmacy"))
@@ -84,7 +66,6 @@ namespace PharmacyDeliverySystem.Controllers
                     pharmacyId = pid;
                 }
             }
->>>>>>> upstream/main
 
             var orderIds = model.OrderIds ?? new List<int>();
 
@@ -159,8 +140,4 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Index");
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> upstream/main

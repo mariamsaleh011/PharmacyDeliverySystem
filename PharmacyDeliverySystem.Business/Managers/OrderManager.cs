@@ -49,21 +49,8 @@ namespace PharmacyDeliverySystem.Business.Managers
                .AsNoTracking()
                .ToList();
 
-<<<<<<< HEAD
-        // ✅ للـ DeliveryRunController.Create (GET)
-        public IEnumerable<Order> GetPendingOrders()
-        {
-            return GetOrdersByStatus("Pending");
-            // أو:
-            // return IncludeAll()
-            //        .Where(o => o.Status == "Pending")
-            //        .AsNoTracking()
-            //        .ToList();
-        }
-=======
         public IEnumerable<Order> GetPendingOrders()
             => GetOrdersByStatus("Pending");
->>>>>>> upstream/main
 
         public decimal GetOrderTotal(int orderId)
         {
@@ -110,10 +97,6 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.SaveChanges();
         }
 
-<<<<<<< HEAD
-        // ✅ تستخدم في POST Create في DeliveryRunController
-=======
->>>>>>> upstream/main
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())

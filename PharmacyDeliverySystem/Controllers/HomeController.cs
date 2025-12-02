@@ -1,8 +1,9 @@
 using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
-using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -61,5 +62,61 @@ namespace PharmacyDeliverySystem.Controllers
 
             return View("SearchResults", results);
         }
+        //pharmacy chat part
+
+        //    public IActionResult ChatRedirect()
+        //{
+        //    // إذا المستخدم غير مسجل دخول
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        // توجه المستخدم إلى صفحة تسجيل الدخول العامة أو CustomerAuth/Login
+        //        return RedirectToAction("Login", "CustomerAuth");
+        //    }
+
+        //    // الحصول على دور المستخدم
+        //    var role = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+
+        //    return role switch
+        //    {
+        //        "Customer" => RedirectToAction("Index", "Chat"), // صفحة شات العميل
+        //        "Pharmacy" => RedirectToAction("Chats", "PharmacyChat"), // صفحة شات الصيدلي
+        //        _ => RedirectToAction("Index", "Home") // fallback
+        //    };
+
+        public IActionResult ChatRedirect()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                if (roleClaim != null)
+                {
+                    if (roleClaim.Value == "Customer")
+                        return RedirectToAction("Index", "Chat"); // صفحة Customer Chat
+
+                    if (roleClaim.Value == "Pharmacy")
+                        return RedirectToAction("Chats", "PharmacyChat"); // صفحة Pharmacy Chat
+                }
+            }
+
+            // لو مش مسجل دخول، حوله لصفحة Login
+            return RedirectToAction("Login", "CustomerAuth");
+        }
+        public IActionResult GoToChat()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == "Customer")
+                    return RedirectToAction("Index", "Chat"); // صفحة الدردشة للعميل
+
+                if (role == "Pharmacy")
+                    return RedirectToAction("Chats", "PharmacyChat"); // صفحة الدردشة للصيدلي
+            }
+
+            // إذا لم يكن مسجل دخول
+            return RedirectToAction("Login", "CustomerAuth");
+        }
+
     }
 }
