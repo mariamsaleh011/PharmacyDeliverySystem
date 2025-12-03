@@ -1,10 +1,11 @@
 ﻿
+using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
-using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -18,14 +19,15 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
-        // Helper to get logged-in CustomerId
         private int GetCustomerId()
         {
-            return int.Parse(User.Claims.First(c => c.Type == "CustomerId").Value);
+            var claim = User.Claims.FirstOrDefault(c => c.Type == "CustomerId");
+            if (claim == null) throw new Exception("CustomerId claim not found.");
+            return int.Parse(claim.Value);
         }
 
-        // GET: /Chat
-        public IActionResult Index(int pharmacyId = 1) // default to pharmacy 1
+        // Open chat with a pharmacy
+        public IActionResult Index(int pharmacyId = 1)
         {
             int customerId = GetCustomerId();
 
@@ -34,7 +36,6 @@ namespace PharmacyDeliverySystem.Controllers
                 .Include(c => c.ChatMessages)
                 .FirstOrDefault(c => c.PharmacyId == pharmacyId && c.CustomerId == customerId);
 
-            // If no chat exists, create one
             if (chat == null)
             {
                 chat = new Chat
@@ -44,7 +45,6 @@ namespace PharmacyDeliverySystem.Controllers
                     Status = "Open",
                     Channel = "Default"
                 };
-
                 _context.Chats.Add(chat);
                 _context.SaveChanges();
 
@@ -54,33 +54,29 @@ namespace PharmacyDeliverySystem.Controllers
                     .FirstOrDefault(c => c.ChatId == chat.ChatId);
             }
 
-            return View("Index", chat); // explicitly use Index.cshtml
+            return View(chat);
         }
 
-        // POST: /Chat/SendMessage
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message)
         {
             if (string.IsNullOrWhiteSpace(message))
                 return RedirectToAction("Index");
 
-            var chat = _context.Chats.FirstOrDefault(c => c.ChatId == chatId);
-            if (chat == null)
-                return NotFound();
+            var chat = _context.Chats.Find(chatId);
+            if (chat == null) return NotFound();
 
-            var newMessage = new ChatMessage
+            _context.ChatMessages.Add(new ChatMessage
             {
                 ChatId = chatId,
                 SenderType = "Customer",
                 MessageText = message,
-                SentAt = System.DateTime.Now
-            };
+                SentAt = DateTime.Now
+            });
 
-            _context.ChatMessages.Add(newMessage);
             _context.SaveChanges();
 
             return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
         }
     }
 }
-

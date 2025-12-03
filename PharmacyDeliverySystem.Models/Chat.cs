@@ -24,6 +24,7 @@ namespace PharmacyDeliverySystem.Models
         public virtual Order? Order { get; set; }
 
         public virtual Pharmacy? Pharmacy { get; set; }
+
         public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
 
     }

@@ -1,32 +1,30 @@
-﻿
-
-@model PharmacyDeliverySystem.Models.Chat
-
+﻿@model PharmacyDeliverySystem.Models.Chat
 @{
-
-    ViewData["Title"] = "Chat with Customer";
     Layout = "_Layout";
+    ViewData["Title"] = "Pharmacy Chat";
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/pharmacy-chat.css" />
 }
 
 <div class="chat-page">
     <div class="chat-card">
+        <!-- Header -->
         <header class="chat-header">
-            <div class="chat-header-main">
-                <div class="chat-header-icon">👤</div>
-                <div>
-                    <h2>@Model.Customer.Name</h2>
-                    <p>Customer Chat</p>
-                </div>
+            <div class="chat-header-title">
+                <span class="chat-header-avatar">💊</span>
+                <h2>@Model.Customer.Name</h2>
             </div>
         </header>
 
+        <!-- Body -->
         <div class="chat-body" id="chat-box">
             @foreach(var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
             {
                 <div class="msg-row @(msg.SenderType == "Pharmacy" ? "pharmacist" : "customer")">
                     <div class="msg-avatar">@((msg.SenderType == "Pharmacy") ? "💊" : "👤")</div>
-                    <div class="message">
-                        @msg.MessageText
+                    <div class="message">@msg.MessageText
                         <br />
                         <small>@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</small>
                     </div>
@@ -34,21 +32,18 @@
             }
         </div>
 
+        <!-- Footer -->
         <footer class="chat-footer">
-            <form asp-action="SendMessage" method="post">
+            <form asp-action="SendMessage" method="post" class="chat-form">
                 <input type="hidden" name="chatId" value="@Model.ChatId" />
-                <div class="chat-input-row">
-                    <input type="text" name="message" placeholder="Type a message..." required />
-                    <button type="submit">Send</button>
-                </div>
+                <input type="text" name="message" placeholder="Type a message..." required />
+                <button type="submit">Send</button>
             </form>
         </footer>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        var chatBox = document.getElementById('chat-box');
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    </script>
+    <script src="~/js/pharmacy-chat.js"></script>
 }
+
