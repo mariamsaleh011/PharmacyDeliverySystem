@@ -1,77 +1,41 @@
-﻿@{
-    ViewData["Title"] = "Chat";
-    Layout = "_Layout";
-}
+﻿
+
+@model PharmacyDeliverySystem.Models.Chat
 
 @section Head {
-    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chat.css" />
+}
+
+@section Scripts {
+    <script src="~/js/chat.js"></script>
 }
 
 <div class="chat-page">
     <div class="chat-card">
-        <!-- Header -->
         <header class="chat-header">
-            <div class="chat-header-main">
-                <div class="chat-header-icon">💊</div>
-                <div>
-                    <h1 data-lang-key="chat_title">Chat with the Pharmacist</h1>
-                    <p class="chat-header-subtitle" data-lang-key="chat_subtitle">
-                        Ask about your medication dosage or any quick question.
-                    </p>
-                </div>
-            </div>
+            <h2>@Model.Pharmacy.Name</h2>
         </header>
 
-        <!-- Body -->
         <div class="chat-body" id="chat-box">
-            <div class="msg-row pharmacist">
-                <div class="msg-avatar">💊</div>
-                <div class="message pharmacist" data-lang-key="chat_pharmacist_initial">
-                    Hello! I'm the pharmacist 😊 How can I help you today?
+            @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+            {
+                <div class="msg-row @(msg.SenderType == "Customer" ? "customer" : "pharmacist")">
+                    <div class="msg-avatar">@((msg.SenderType == "Customer") ? "👤" : "💊")</div>
+                    <div class="message">
+                        @msg.MessageText
+                        <br />
+                        <small>@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</small>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
 
-        <!-- Typing indicator -->
-        <div id="typingIndicator" class="typing-indicator">
-            <div class="msg-avatar small">💊</div>
-            <div class="typing-bubble">
-                <span></span><span></span><span></span>
-            </div>
-            <span class="typing-text" data-lang-key="chat_typing">
-                Pharmacist is typing…
-            </span>
-        </div>
-
-        <!-- Footer -->
         <footer class="chat-footer">
-            <!-- Attachments row -->
-            <div class="chat-attachments">
-                <button type="button" class="attach-btn" id="attachBtn" title="Upload file">
-                    📎
-                </button>
-                <span class="file-name" id="fileName" data-lang-key="chat_no_file">
-                    No file selected
-                </span>
-                <input type="file" id="fileUpload" accept="image/*,.pdf" />
-            </div>
-
-            <!-- Input row -->
-            <div class="chat-input-row">
-                <input type="text"
-                       id="userInput"
-                       data-lang-key="chat_placeholder"
-                       placeholder="Type your message here..."
-                       aria-label="Your message" />
-
-                <button type="button" id="sendBtn" data-lang-key="chat_send_btn">
-                    Send
-                </button>
-            </div>
+            <form asp-action="SendMessage" method="post">
+                <input type="hidden" name="chatId" value="@Model.ChatId" />
+                <input type="text" name="message" placeholder="Type a message..." required />
+                <button type="submit">Send</button>
+            </form>
         </footer>
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/chat.js" asp-append-version="true"></script>
-}
