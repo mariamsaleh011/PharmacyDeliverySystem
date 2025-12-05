@@ -1,38 +1,73 @@
-﻿:root {
-    --brand: #008080;
-    --brand-600: #006666;
-    --bg: #0b0f13;
-    --card: #10151c;
-    --text: #f9fafb;
-    --muted: #9ca3af;
-    --shadow: 0 12px 35px rgba(0,0,0,0.6);
-}
+﻿/* ===== Auth pages shared layout (Login / Customer Register / Pharmacy Register) ===== */
 
-/* الغلاف العام للصفحة – يخلي الفورم في نص الشاشة */
+/* الغلاف العام لكل صفحات الأوث */
 .auth-page {
-    min-height: calc(100vh - 120px); /* يقل شوية عشان النّافبار + الفوتر */
+    min-height: calc(100vh - 120px); /* ياخد في الاعتبار الفوتر لو موجود */
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 32px 16px;
+    background-color: var(--bg); /* من site.css علشان الثيم يشتغل */
 }
 
-/* الكارت بتاع اللوجين */
+/* الكارت الأساسي */
 .auth-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 520px;
     background: var(--card);
     color: var(--text);
-    border-radius: 18px;
-    padding: 24px 28px 28px;
+    border-radius: 20px;
+    padding: 24px 28px 24px;
     box-shadow: var(--shadow);
 }
 
-/* العنوان والسب تايتل */
+/* ===== ترويسة Sign In / Sign Up أعلى الكارت ===== */
+
+.auth-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.auth-toggle {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.25);
+    gap: 4px;
+}
+
+.auth-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .auth-toggle-btn:hover {
+        background: rgba(15, 23, 42, 0.7);
+        color: var(--text);
+    }
+
+    .auth-toggle-btn.active {
+        background: linear-gradient(135deg, var(--brand), var(--brand-600));
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+/* ===== عناوين الصفحات ===== */
+
 .auth-title {
     margin: 0 0 4px;
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
 }
 
 .auth-subtitle {
@@ -41,20 +76,16 @@
     color: var(--muted);
 }
 
-/* جروب كل فيلد */
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
+/* ===== لابيلز والإنبوتس داخل كروت الأوث ===== */
 
-.auth-group label {
+.auth-card .form-label {
     display: block;
     margin-bottom: 4px;
     font-size: 13px;
+    color: var(--text);
 }
 
-.auth-group input {
+.auth-card .form-control {
     width: 100%;
     border-radius: 999px;
     border: 1px solid #1f2937;
@@ -63,39 +94,114 @@
     background: #020617;
     color: var(--text);
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-    .auth-group input:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+    .auth-card .form-control::placeholder {
+        color: #6b7280;
     }
 
-/* زرار الـ Login */
+    .auth-card .form-control:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 1px rgba(0, 180, 219, 0.55);
+        background: #020617;
+    }
+
+/* ===== زرار أساسي أزرق (Sign In / Next / Sign Up) ===== */
+
 .auth-submit {
     margin-top: 6px;
-    width: 100%;
     border: none;
     border-radius: 999px;
     padding: 10px 0;
-    background: #0d6efd;
-    color: #fff;
+    /* مهم عشان يبقى في النص وياخد عرض الكارت كله */
+    width: 100%;
+    display: block;
+    text-align: center;
+    background: linear-gradient(135deg, var(--brand), var(--brand-600));
+    color: #ffffff;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 16px rgba(0, 180, 219, 0.35);
+    transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
 }
 
     .auth-submit:hover {
-        background: #0b5ed7;
-        transform: translateY(-1px);
-        box-shadow: 0 8px 18px rgba(37,99,235,0.5);
+        background: linear-gradient(135deg, #0095c7, #006f94);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(0, 180, 219, 0.6);
     }
 
-/* موبايل */
+    .auth-submit:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(0, 180, 219, 0.45);
+    }
+
+/* زرار أساسي لكن عرضه صغير شوية (Next في الريچستر) */
+.auth-submit--small {
+    width: 140px;
+}
+
+/* ===== Divider "Or" ===== */
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 12px 0 10px;
+}
+
+    .auth-divider span {
+        flex: 1;
+        height: 1px;
+        background: #1f2937;
+    }
+
+/* ===== روابط مساعدة / Cancel ===== */
+
+.auth-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.auth-cancel-link {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+}
+
+    .auth-cancel-link:hover {
+        color: var(--text);
+        text-decoration: underline;
+    }
+
+/* نص مساعد تحت الفورم (Don’t have an account?) */
+.auth-helper-text {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+/* نص صغير عام */
+.auth-subtext {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* ===== ريسبونسيف ===== */
+
 @media (max-width: 576px) {
     .auth-card {
         padding: 20px 18px 22px;
         border-radius: 14px;
+    }
+
+    .auth-page {
+        padding: 24px 10px;
     }
 }

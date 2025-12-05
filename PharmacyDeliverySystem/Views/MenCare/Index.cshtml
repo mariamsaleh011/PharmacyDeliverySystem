@@ -1,11 +1,41 @@
-﻿@{
-    var menCareProducts = ViewBag.MenCareProducts as List<PharmacyDeliverySystem.Models.Product>;
+﻿@using PharmacyDeliverySystem.Models
+@{
+    ViewData["Title"] = "Men Care";
+    Layout = "_Layout";
+
+    var menCareProducts = ViewBag.MenCareProducts as List<Product>;
+    var total = menCareProducts?.Count ?? 0;
 }
 
-<link rel="stylesheet" href="~/css/men-care.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
 
-<div class="products">
-    <h2>منتجات العناية بالرجال</h2>
+<section class="products products-en">
+    <div class="products-header">
+        <div class="products-header-left">
+            <div class="products-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="4"></circle>
+                    <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="products-title-en">Men care products</h2>
+                <p class="products-subtitle-en">
+                    <span class="category-count">@total items</span> available
+                </p>
+            </div>
+        </div>
+
+        <div class="category-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search"
+                   class="category-search-input"
+                   placeholder="Search @total items..." />
+        </div>
+    </div>
 
     @if (menCareProducts != null && menCareProducts.Any())
     {
@@ -18,21 +48,21 @@
                      data-product-id="@product.ProId">
                     <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
                     <h3>@product.Name</h3>
-                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+                    <p>@((product.Description ?? product.Dosage) ?? "Available product")</p>
                     <p class="price">
                         @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
                         {
-                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 EGP")</span>
                         }
-                        @product.Price.ToString("0.00 ج.م")
+                        @product.Price.ToString("0.00 EGP")
                     </p>
-                    <button class="btn add-to-cart" data-product-id="@product.ProId">أضف للسلة</button>
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">Add to cart</button>
                 </div>
             }
         </div>
     }
     else
     {
-        <p>لا توجد منتجات عناية الرجال متاحة حالياً.</p>
+        <p>No men care products available right now.</p>
     }
-</div>
+</section>

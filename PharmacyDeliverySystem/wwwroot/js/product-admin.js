@@ -19,13 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         imageInput: document.getElementById('prodImage'),
         imagePreview: document.getElementById('imagePreview'),
         modalTitle: document.getElementById('modalTitle'),
+
+        // delete modal
         confirmModal: document.getElementById('confirmModal'),
         cancelConfirmBtn: document.getElementById('cancelConfirmBtn'),
         confirmDeleteActionBtn: document.getElementById('confirmDeleteActionBtn'),
         deleteItemName: document.getElementById('deleteItemName'),
         deleteForm: document.getElementById('deleteForm'),
         deleteIdInput: document.getElementById('deleteId'),
+        closeConfirmBtn: document.getElementById('closeConfirmBtn'), // 👈 X بتاعة مودال الحذف
+
         toastContainer: document.getElementById('toastContainer'),
+
         // optional additional fields
         prodBarcode: document.getElementById('prodBarcode'),
         prodBrand: document.getElementById('prodBrand'),
@@ -42,9 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
         els.modalTitle.textContent = isEdit ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد';
         els.modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        // use data attributes to get correct server-side url
+
         if (els.form) {
-            els.form.action = isEdit ? els.form.getAttribute('data-edit-url') : els.form.getAttribute('data-create-url');
+            els.form.action = isEdit
+                ? els.form.getAttribute('data-edit-url')
+                : els.form.getAttribute('data-create-url');
         }
     }
 
@@ -91,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     els.btnCancel?.addEventListener('click', closeModal);
     document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
+
     window.addEventListener('click', (e) => {
         if (e.target === els.modal) closeModal();
         if (e.target === els.confirmModal) closeConfirmModal();
@@ -105,7 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
         els.price.value = parseFloat(priceTxt.replace(/[^\d.]/g, '')) || 0;
 
         const oldPriceTxt = row.querySelector('.old-price')?.textContent;
-        els.oldPrice.value = oldPriceTxt ? (parseFloat(oldPriceTxt.replace(/[^\d.]/g, '')) || '') : '';
+        els.oldPrice.value = oldPriceTxt
+            ? (parseFloat(oldPriceTxt.replace(/[^\d.]/g, '')) || '')
+            : '';
 
         els.qty.value = row.querySelector('.prod-qty')?.textContent?.trim() || 0;
 
@@ -122,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resetImagePreview();
         }
 
-        // clear optional inputs (if not available in the table, left blank)
+        // clear optional inputs
         if (els.prodBarcode) els.prodBarcode.value = '';
         if (els.prodBrand) els.prodBrand.value = '';
         if (els.prodVat) els.prodVat.value = '';
@@ -158,9 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
         els.confirmModal.setAttribute('aria-hidden', 'true');
         els.deleteIdInput.value = '';
         itemToDeleteRow = null;
+        els.confirmDeleteActionBtn.disabled = false;
+        els.confirmDeleteActionBtn.textContent = 'Yes, delete';
     }
 
     els.cancelConfirmBtn?.addEventListener('click', closeConfirmModal);
+    els.closeConfirmBtn?.addEventListener('click', closeConfirmModal); // 👈 ربطنا الـ X
 
     els.confirmDeleteActionBtn?.addEventListener('click', () => {
         if (!els.deleteIdInput.value) return;

@@ -5,7 +5,7 @@
 }
 
 @section Head {
-    <link rel="stylesheet" href="~/css/pharmacy-chat.css" />
+    <link rel="stylesheet" href="~/css/pharmacy-chat.css" asp-append-version="true" />
 }
 
 <div class="chat-page">
@@ -14,19 +14,28 @@
         <header class="chat-header">
             <div class="chat-header-title">
                 <span class="chat-header-avatar">💊</span>
-                <h2>@Model.Customer.Name</h2>
+                <h2>@Model.Customer!.Name</h2>
             </div>
         </header>
 
         <!-- Body -->
-        <div class="chat-body" id="chat-box">
-            @foreach(var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+        <div class="chat-body">
+            @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
             {
-                <div class="msg-row @(msg.SenderType == "Pharmacy" ? "pharmacist" : "customer")">
-                    <div class="msg-avatar">@((msg.SenderType == "Pharmacy") ? "💊" : "👤")</div>
-                    <div class="message">@msg.MessageText
-                        <br />
-                        <small>@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</small>
+                var sender = msg.SenderType?.Trim() ?? "";
+
+                var isPharmacy =
+                sender.Equals("Pharmacy", StringComparison.OrdinalIgnoreCase) ||
+                sender.Equals("Pharmacist", StringComparison.OrdinalIgnoreCase);
+
+                <div class="msg-row @(isPharmacy ? "pharmacist" : "customer")">
+                    <div class="msg-avatar">
+                        @(isPharmacy ? "💊" : "👤")
+                    </div>
+
+                    <div class="message">
+                        <div class="message-text">@msg.MessageText</div>
+                        <div class="message-time">@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</div>
                     </div>
                 </div>
             }
@@ -36,8 +45,10 @@
         <footer class="chat-footer">
             <form asp-action="SendMessage" method="post" class="chat-form">
                 <input type="hidden" name="chatId" value="@Model.ChatId" />
-                <input type="text" name="message" placeholder="Type a message..." required />
-                <button type="submit">Send</button>
+                <div class="chat-input-row">
+                    <input type="text" name="message" placeholder="Type a message..." required autocomplete="off" />
+                    <button type="submit">Send</button>
+                </div>
             </form>
         </footer>
     </div>
@@ -46,4 +57,3 @@
 @section Scripts {
     <script src="~/js/pharmacy-chat.js"></script>
 }
-
