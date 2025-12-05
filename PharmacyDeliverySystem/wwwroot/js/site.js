@@ -1,6 +1,7 @@
 ﻿// ===== Constants =====
 const CART_KEY = 'pharmacy_cart_v1';
 const THEME_KEY = 'pharmacy_theme_v1';
+const LANG_KEY = 'pharmacy_lang_v1';
 
 // ===== DOM Elements =====
 const cartBtn = document.getElementById('cartBtn');
@@ -10,9 +11,115 @@ const cartTotal = document.getElementById('cartTotal');
 const overlay = document.getElementById('overlay');
 const drawer = document.getElementById('drawer');
 const themeToggle = document.getElementById('themeToggle');
-const searchInput = document.getElementById('searchInput');
+const headerSearchInput = document.getElementById('searchInput'); // header search
 const toTopBtn = document.getElementById('toTop');
-const checkoutBtn = document.getElementById('checkoutBtn'); // لو مش موجود مش هيبوظ حاجة
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+// عناصر للنصوص (للترجمة)
+const navHomeEl = document.getElementById('navHome');
+const navChatEl = document.getElementById('navChat');
+const loginTextEl = document.getElementById('loginText');
+const logoutTextEl = document.getElementById('logoutText');
+const cartTextEl = document.getElementById('cartText');
+const backBtnTextEl = document.getElementById('backBtnText');
+const footerTextEl = document.getElementById('footerText');
+const privacyLinkTextEl = document.getElementById('privacyLinkText');
+const cartTitleEl = document.getElementById('cartTitle');
+const totalLabelEl = document.getElementById('totalLabel');
+const clearCartTextEl = document.getElementById('clearCartText');
+const currentLangEl = document.getElementById('currentLang');
+
+// ===== Translations =====
+const translations = {
+    en: {
+        navHome: 'Home',
+        navChat: 'Chat with Pharmacy',
+        loginText: 'Login',
+        logoutText: 'Logout',
+        cartText: 'Cart',
+        backBtn: 'Back',
+        footerText: '© 2025 - PharmacyDeliverySystem - All rights reserved',
+        privacyText: 'Privacy',
+        cartTitle: 'Shopping Cart',
+        totalLabel: 'Total Amount',
+        checkoutBtn: 'Checkout',
+        clearCartText: 'Clear cart',
+        searchPlaceholder: 'Search in items and products...',
+        emptyCartTitle: 'Your cart is empty',
+        emptyCartSubtitle: 'Start adding items to get started!',
+        toTopTitle: 'Back to top'
+    },
+    ar: {
+        navHome: 'الرئيسية',
+        navChat: 'Chat مع الصيدلي',
+        loginText: 'تسجيل الدخول',
+        logoutText: 'تسجيل الخروج',
+        cartText: 'السلة',
+        backBtn: 'رجوع',
+        footerText: '© 2025 - نظام توصيل الصيدليات - جميع الحقوق محفوظة',
+        privacyText: 'الخصوصية',
+        cartTitle: 'سلة المشتريات',
+        totalLabel: 'الإجمالي',
+        checkoutBtn: 'إتمام الشراء',
+        clearCartText: 'تفريغ السلة',
+        searchPlaceholder: 'ابحث في الباقات والمنتجات...',
+        emptyCartTitle: 'سلتك فارغة',
+        emptyCartSubtitle: 'ابدأ بإضافة المنتجات الآن!',
+        toTopTitle: 'أعلى الصفحة'
+    }
+};
+
+function getCurrentLang() {
+    const saved = localStorage.getItem(LANG_KEY);
+    return saved === 'ar' ? 'ar' : 'en';
+}
+
+function applyLanguage(lang) {
+    const safeLang = lang === 'ar' ? 'ar' : 'en';
+    localStorage.setItem(LANG_KEY, safeLang);
+
+    const t = translations[safeLang];
+
+    // تحديث lang و dir على الـ html
+    if (document.documentElement) {
+        document.documentElement.lang = safeLang;
+        document.documentElement.dir = safeLang === 'ar' ? 'rtl' : 'ltr';
+    }
+
+    if (currentLangEl) currentLangEl.textContent = safeLang.toUpperCase();
+
+    if (navHomeEl && t.navHome) navHomeEl.textContent = t.navHome;
+    if (navChatEl && t.navChat) navChatEl.textContent = t.navChat;
+
+    if (loginTextEl && t.loginText) loginTextEl.textContent = t.loginText;
+    if (logoutTextEl && t.logoutText) logoutTextEl.textContent = t.logoutText;
+
+    if (cartTextEl && t.cartText) cartTextEl.textContent = t.cartText;
+    if (backBtnTextEl && t.backBtn) backBtnTextEl.textContent = t.backBtn;
+
+    if (footerTextEl && t.footerText) footerTextEl.textContent = t.footerText;
+    if (privacyLinkTextEl && t.privacyText) privacyLinkTextEl.textContent = t.privacyText;
+
+    if (cartTitleEl && t.cartTitle) cartTitleEl.textContent = t.cartTitle;
+    if (totalLabelEl && t.totalLabel) totalLabelEl.textContent = t.totalLabel;
+
+    if (checkoutBtn && t.checkoutBtn) checkoutBtn.textContent = t.checkoutBtn;
+    if (clearCartTextEl && t.clearCartText) clearCartTextEl.textContent = t.clearCartText;
+
+    if (headerSearchInput && t.searchPlaceholder) {
+        headerSearchInput.placeholder = t.searchPlaceholder;
+    }
+
+    if (toTopBtn && t.toTopTitle) {
+        toTopBtn.title = t.toTopTitle;
+    }
+
+    // إعادة رسم السلة (عشان نص الرسالة الفارغة يتغير)
+    renderCart();
+}
+
+// تطبيق اللغة المحفوظة أول ما الصفحة تفتح
+applyLanguage(getCurrentLang());
 
 // ===== Theme system =====
 function setTheme(theme) {
@@ -21,7 +128,7 @@ function setTheme(theme) {
 
     if (themeToggle) {
         themeToggle.textContent = theme === 'dark' ? '☀' : '☾';
-        themeToggle.title = 'تغيير وضع العرض';
+        themeToggle.title = 'Toggle theme';
     }
 }
 
@@ -86,37 +193,57 @@ function clearCart() {
 
 function formatPrice(v) {
     const num = Number(v) || 0;
-    return num.toFixed(2) + ' ج.م';
+    return num.toFixed(2) + ' EGP';
 }
 
 function renderCart() {
     const items = readCart();
     if (!cartList || !cartTotal || !cartCount) return;
 
+    const lang = getCurrentLang();
+    const t = translations[lang] || translations.en;
+
     if (items.length === 0) {
-        cartList.innerHTML = `<p class="empty-cart-text">السلة فاضية</p>`;
-        cartTotal.textContent = '0 ج.م';
+        cartList.innerHTML = `
+            <div class="empty-cart">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"></path>
+                </svg>
+                <p>${t.emptyCartTitle}<br />${t.emptyCartSubtitle}</p>
+            </div>
+        `;
+        cartTotal.textContent = '0 EGP';
         cartCount.textContent = '0';
         return;
     }
 
+    const totalQty = items.reduce((s, i) => s + i.qty, 0);
+    const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+
     cartList.innerHTML = items.map(i => `
         <div class="cart-item">
-            <div>
+            <div class="cart-item-image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <path d="M21 15l-5-5L5 21"></path>
+                </svg>
+            </div>
+            <div class="cart-item-details">
                 <div class="cart-item-name">${i.name}</div>
-                <div class="cart-item-meta">${formatPrice(i.price)} × ${i.qty}</div>
+                <div class="cart-item-price">${formatPrice(i.price)}</div>
+                <div class="cart-item-qty">Qty: ${i.qty}</div>
             </div>
-            <div class="qty-controls">
-                <button type="button" onclick="changeQty('${i.name}', 1)">+</button>
-                <button type="button" onclick="changeQty('${i.name}', -1)">-</button>
-                <button type="button" onclick="removeFromCart('${i.name}')" style="background:#ef4444">حذف</button>
-            </div>
+            <button type="button" class="cart-item-remove" onclick="removeFromCart('${i.name}')">
+                <span>&times;</span>
+            </button>
         </div>
     `).join('');
 
-    const total = items.reduce((s, i) => s + i.price * i.qty, 0);
     cartTotal.textContent = formatPrice(total);
-    cartCount.textContent = items.reduce((s, i) => s + i.qty, 0);
+    cartCount.textContent = totalQty;
 }
 
 function toggleCart(open) {
@@ -127,10 +254,12 @@ function toggleCart(open) {
 
     if (shouldOpen) {
         drawer.classList.add('open');
-        overlay.style.display = 'block';
+        overlay.classList.add('open');
+        document.body.classList.add('cart-open');
     } else {
         drawer.classList.remove('open');
-        overlay.style.display = 'none';
+        overlay.classList.remove('open');
+        document.body.classList.remove('cart-open');
     }
 }
 
@@ -141,12 +270,14 @@ if (cartBtn) {
 // ===== Checkout =====
 async function checkout() {
     const items = readCart();
+    const lang = getCurrentLang();
+    const t = translations[lang] || translations.en;
+
     if (!items.length) {
-        alert('السلة فاضية');
+        alert(lang === 'ar' ? 'سلتك فارغة' : 'Your cart is empty');
         return;
     }
 
-    // 🔐 Check authentication لو عندنا زرار بـ data-*
     let isAuth = true;
     let loginUrl = '/CustomerAuth/Login';
 
@@ -158,7 +289,6 @@ async function checkout() {
     }
 
     if (!isAuth) {
-        // ممكن تزودي returnUrl لو حابة
         window.location.href = loginUrl;
         return;
     }
@@ -173,7 +303,6 @@ async function checkout() {
             }))
         };
 
-
         const response = await fetch('/Order/Checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -183,17 +312,20 @@ async function checkout() {
         let result = null;
         try {
             result = await response.json();
-        } catch {
-            // لو السيرفر رجّع نص مش JSON
-        }
+        } catch { }
 
         if (!response.ok || !result || result.success !== true) {
-            const msg = (result && result.message) || 'حدث خطأ أثناء إتمام الطلب';
+            const msg = (result && result.message) || (lang === 'ar'
+                ? 'حدث خطأ أثناء تسجيل الطلب.'
+                : 'An error occurred while placing your order.');
             alert(msg);
             return;
         }
 
-        alert('تم تسجيل طلبك وسيتم التواصل معك للتأكيد.');
+        alert(lang === 'ar'
+            ? 'تم تسجيل طلبك، سوف نتواصل معك للتأكيد.'
+            : 'Your order has been placed. We will contact you to confirm.');
+
         clearCart();
         toggleCart(false);
 
@@ -202,14 +334,20 @@ async function checkout() {
         }
     } catch (error) {
         console.error('Checkout error:', error);
-        alert('حدث خطأ في الاتصال بالسيرفر');
+        alert(lang === 'ar'
+            ? 'حدث خطأ في الاتصال. حاول مرة أخرى.'
+            : 'A network error occurred. Please try again.');
     }
 }
 
 // ===== Scroll to top =====
 window.addEventListener('scroll', () => {
     if (!toTopBtn) return;
-    toTopBtn.style.display = window.scrollY > 0 ? 'block' : 'none';
+    if (window.scrollY > 0) {
+        toTopBtn.classList.add('show');
+    } else {
+        toTopBtn.classList.remove('show');
+    }
 });
 
 function scrollToTop() {
@@ -218,31 +356,67 @@ function scrollToTop() {
 window.scrollToTop = scrollToTop;
 
 if (toTopBtn) {
-    toTopBtn.title = 'أعلى الصفحة';
     toTopBtn.addEventListener('click', scrollToTop);
 }
 
-// ===== Search =====
-const products = Array.from(document.querySelectorAll('.product'));
+// ===== Global header search (works on all products on the page) =====
+const allProductCards = Array.from(document.querySelectorAll('.product'));
 
 function normalize(str) {
     return (str || '').toString().toLowerCase();
 }
 
-function applyFilters() {
-    if (!searchInput) return;
-    const term = normalize(searchInput.value);
-    products.forEach(card => {
+function applyGlobalHeaderFilter() {
+    if (!headerSearchInput) return;
+    const term = normalize(headerSearchInput.value);
+    allProductCards.forEach(card => {
         const name = normalize(card.getAttribute('data-name'));
         card.style.display = (!term || name.includes(term)) ? '' : 'none';
     });
 }
 
-if (searchInput) {
-    searchInput.addEventListener('input', applyFilters);
+if (headerSearchInput) {
+    headerSearchInput.addEventListener('input', applyGlobalHeaderFilter);
 }
 
-// ===== Order Now =====
+// ===== Per-category search (Drugs / Baby / Men Care) =====
+document.querySelectorAll('.products .category-search').forEach(function (wrapper) {
+    const searchInput = wrapper.querySelector('.category-search-input');
+    if (!searchInput) return;
+
+    const productsSection = wrapper.closest('.products');
+    if (!productsSection) return;
+
+    const cards = productsSection.querySelectorAll('.product-grid .product');
+    if (!cards.length) return;
+
+    const countLabel = productsSection.querySelector('.category-count');
+    const total = cards.length;
+
+    function applyCategoryFilter() {
+        const q = searchInput.value.toLowerCase().trim();
+        let shown = 0;
+
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            const match = text.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) shown++;
+        });
+
+        if (countLabel) {
+            if (!q) {
+                countLabel.textContent = `${total} items`;
+            } else {
+                countLabel.textContent = `${shown} / ${total} items`;
+            }
+        }
+    }
+
+    searchInput.addEventListener('input', applyCategoryFilter);
+});
+
+// ===== Order Now (scroll to offers section) =====
 function orderNow() {
     const section = document.getElementById('offers') || document.querySelector('.offers-section');
     if (section) {
@@ -251,7 +425,7 @@ function orderNow() {
 }
 window.orderNow = orderNow;
 
-// ===== Add to cart =====
+// ===== Add to cart (delegation) =====
 document.addEventListener('click', function (e) {
     const btn = e.target.closest('.add-to-cart');
     if (!btn) return;
@@ -279,12 +453,12 @@ document.addEventListener('click', function (e) {
 
 // ===== Health Tips =====
 const healthTips = [
-    { icon: "💧", text: "اشرب 8 أكواب من الماء يوميًا للحفاظ على رطوبة جسمك" },
-    { icon: "🛌", text: "حافظ على نوم منتظم لا يقل عن 7 ساعات يوميًا" },
-    { icon: "🥦", text: "تناول فواكه وخضروات طازجة يوميًا" },
-    { icon: "🏃‍♂️", text: "مارس نشاط بدني مثل المشي 30 دقيقة يوميًا" },
-    { icon: "😌", text: "خصص وقتًا للاسترخاء وإدارة التوتر" },
-    { icon: "💊", text: "تناول الفيتامينات والمكملات حسب نصيحة طبيبك" }
+    { icon: '💧', text: 'Drink at least 8 cups of water daily to stay hydrated.' },
+    { icon: '🛌', text: 'Try to get at least 7 hours of sleep every night.' },
+    { icon: '🥦', text: 'Include fresh fruits and vegetables in your daily meals.' },
+    { icon: '🏃‍♂️', text: 'Do some physical activity like walking for 30 minutes a day.' },
+    { icon: '😌', text: 'Take time to relax and manage your stress levels.' },
+    { icon: '💊', text: 'Take vitamins and supplements only as advised by your doctor.' }
 ];
 
 const dailyTipBtn = document.getElementById('dailyTipBtn');
@@ -293,7 +467,7 @@ const dailyTip = document.getElementById('dailyTip');
 if (dailyTipBtn && dailyTip) {
     dailyTipBtn.addEventListener('click', () => {
         const tip = healthTips[Math.floor(Math.random() * healthTips.length)];
-        dailyTip.textContent = tip.icon + " " + tip.text;
+        dailyTip.textContent = tip.icon + ' ' + tip.text;
     });
 }
 
@@ -306,4 +480,74 @@ function getProductIdByName(name) {
 
 // ===== Init =====
 renderCart();
-applyFilters();
+applyGlobalHeaderFilter();
+
+
+// ===== Categories horizontal scroll (Home categories strip) =====
+const catStrip = document.getElementById('catStrip');
+const catPrevBtn = document.querySelector('.cat-scroll-prev');
+const catNextBtn = document.querySelector('.cat-scroll-next');
+
+if (catStrip) {
+    // خطوة الاسكرول = عرض كارت تقريباً
+    let step = 260;
+    const firstCard = catStrip.querySelector('.cat-card');
+    if (firstCard) {
+        const rect = firstCard.getBoundingClientRect();
+        step = rect.width + 16; // عرض الكارت + الجاب
+    }
+
+    if (catNextBtn) {
+        catNextBtn.addEventListener('click', () => {
+            catStrip.scrollBy({
+                left: step,
+                behavior: 'smooth'
+            });
+        });
+    }
+
+    if (catPrevBtn) {
+        catPrevBtn.addEventListener('click', () => {
+            catStrip.scrollBy({
+                left: -step,
+                behavior: 'smooth'
+            });
+        });
+    }
+}
+
+
+// ===== Language dropdown (EN / AR) =====
+(function () {
+    const toggle = document.getElementById('langToggle');
+    const menu = document.getElementById('langMenu');
+
+    if (!toggle || !menu) return;
+
+    // فتح/قفل القائمة
+    toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = menu.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // اختيار اللغة
+    menu.addEventListener('click', function (e) {
+        const btn = e.target.closest('.lang-option');
+        if (!btn) return;
+
+        const lang = btn.dataset.lang; // "en" أو "ar"
+        applyLanguage(lang);
+
+        menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+
+    // قفل القائمة عند الضغط برة
+    document.addEventListener('click', function () {
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();

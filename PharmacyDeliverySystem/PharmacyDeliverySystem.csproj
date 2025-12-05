@@ -22,4 +22,13 @@
 
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="wwwroot\images\icons\medicine-logo.svg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\images\icons\product-default.svg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

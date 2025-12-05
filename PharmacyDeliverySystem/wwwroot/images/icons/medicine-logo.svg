@@ -1,26 +1,38 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 64 64"
-     stroke="black"
-     fill="none"
-     stroke-width="3"
-     stroke-linecap="round"
-     stroke-linejoin="round">
+﻿<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
 
-  <!-- bottle body -->
-  <rect x="18" y="22" width="28" height="30" rx="4" ry="4" />
-  <!-- bottle cap -->
-  <rect x="20" y="12" width="24" height="10" rx="4" ry="4" />
-  <!-- line between cap and body -->
-  <line x1="18" y1="22" x2="46" y2="22" />
+	<!-- Cross shape -->
+	<path d="
+    M70 10
+    H110
+    C118 10 125 17 125 25
+    V55
+    H155
+    C163 55 170 62 170 70
+    V110
+    C170 118 163 125 155 125
+    H125
+    V155
+    C125 163 118 170 110 170
+    H70
+    C62 170 55 163 55 155
+    V125
+    H25
+    C17 125 10 118 10 110
+    V70
+    C10 62 17 55 25 55
+    H55
+    V25
+    C55 17 62 10 70 10
+  "
+	fill="none"
+	stroke="#0288D1"
+	stroke-width="12"
+	stroke-linejoin="round"/>
 
-  <!-- plus sign -->
-  <line x1="32" y1="34" x2="32" y2="44" />
-  <line x1="27" y1="39" x2="37" y2="39" />
+	<!-- Simple medical pill icon inside -->
+	<g transform="translate(75,80)">
+		<rect x="0" y="8" width="28" height="14" rx="4" fill="#0288D1"/>
+		<rect x="14" y="4" width="28" height="14" rx="4" fill="#00BFA5"/>
+	</g>
 
-  <!-- capsule -->
-  <g transform="translate(34 38) rotate(-25)">
-    <rect x="0" y="0" width="24" height="12" rx="6" ry="6" />
-    <line x1="12" y1="0" x2="12" y2="12" />
-  </g>
 </svg>

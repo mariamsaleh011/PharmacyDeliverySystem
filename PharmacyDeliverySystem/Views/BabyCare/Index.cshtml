@@ -1,18 +1,46 @@
-﻿@{
-    ViewData["Title"] = "منتجات عناية الأطفال";
+﻿@using PharmacyDeliverySystem.Models
+@{
+    ViewData["Title"] = "Baby Care";
     Layout = "_Layout";
 
-    var BabyCareProducts = ViewBag.BabyCareProducts as List<PharmacyDeliverySystem.Models.Product>;
+    var babyCareProducts = ViewBag.BabyCareProducts as List<Product>;
+    var total = babyCareProducts?.Count ?? 0;
 }
-<link rel="stylesheet" href="~/css/baby-care.css" asp-append-version="true" />
 
-<section class="products">
-    <h2>منتجات عناية الأطفال</h2>
+<link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
+
+<section class="products products-en">
+    <div class="products-header">
+        <div class="products-header-left">
+            <div class="products-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="3"></circle>
+                    <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="products-title-en">Baby care products</h2>
+                <p class="products-subtitle-en">
+                    <span class="category-count">@total items</span> available
+                </p>
+            </div>
+        </div>
+
+        <div class="category-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="search"
+                   class="category-search-input"
+                   placeholder="Search @total items..." />
+        </div>
+    </div>
 
     <div class="product-grid">
-        @if (BabyCareProducts != null && BabyCareProducts.Any())
+        @if (babyCareProducts != null && babyCareProducts.Any())
         {
-            foreach (var product in BabyCareProducts)
+            foreach (var product in babyCareProducts)
             {
                 <div class="product"
                      data-name="@product.Name"
@@ -20,21 +48,21 @@
                      data-product-id="@product.ProId">
                     <img src="@product.ImageUrl" alt="@product.Name" class="product-img" />
                     <h3>@product.Name</h3>
-                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+                    <p>@((product.Description ?? product.Dosage) ?? "Available product")</p>
                     <p class="price">
                         @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
                         {
-                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 EGP")</span>
                         }
-                        @product.Price.ToString("0.00 ج.م")
+                        @product.Price.ToString("0.00 EGP")
                     </p>
-                    <button class="btn add-to-cart" data-product-id="@product.ProId">أضف للسلة</button>
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">Add to cart</button>
                 </div>
             }
         }
         else
         {
-            <p>لا توجد منتجات عناية الأطفال متاحة حالياً.</p>
+            <p>No baby care products available right now.</p>
         }
     </div>
 </section>

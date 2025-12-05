@@ -7,233 +7,272 @@
 
     <script type="importmap"></script>
 
-    <!-- Bootstrap CSS -->
+    <!-- Global site style (top bar, cart, back-to-top, theme, ...) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <!-- ستايل عام للموقع (فيه التوب بار، السلة، زر الرجوع لأعلى، الثيم، ... ) -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <!-- ستايلات الـ Razor اللي السكافولد بيولدها -->
     <link rel="stylesheet" href="~/PharmacyDeliverySystem.styles.css" asp-append-version="true" />
 
     @RenderSection("Head", required: false)
 </head>
 <body>
-    <!-- Topbar / Navbar الموحد لكل الصفحات -->
-    <header class="topbar">
-        <div class="topbar-inner">
-            <!-- Logo -->
-            <div class="logo">
-                <div class="logo-mark" aria-hidden="true"></div>
-                <div>Pharmacy<span>Marts</span></div>
-            </div>
+    @{
+        var controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["Action"]?.ToString();
 
-            <!-- Searchbar -->
-            <div class="searchbar">
-                <form asp-area=""
-                      asp-controller="Home"
-                      asp-action="Search"
-                      method="get"
-                      class="search-form"
-                      id="globalSearchForm">
+        // صفحات الأوث: لوجين + ريچستر (عميل / صيدلية)
+        bool isAuthPage =
+        controller == "CustomerAuth" ||
+        controller == "PharmacyAuth";
+    }
 
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+    @if (!isAuthPage)
+    {
+        <!-- Topbar / Navbar for all non-auth pages -->
+        <header class="topbar">
+            <div class="topbar-inner">
+                <!-- Logo -->
+                <a href="@Url.Action("Index", "Home")" class="logo">
+                    <div class="logo-icon">
+                        <img src="@(Url.Content("~/images/icons/medicine-logo.svg"))"
+                             asp-append-version="true"
+                             alt="PharmacyMarts logo"
+                             class="logo-img" />
+                    </div>
+                    <div class="logo-text">
+                        Pharmacy<span>Marts</span>
+                    </div>
+                </a>
 
-                    <input id="searchInput"
-                           name="query"
-                           type="text"
-                           placeholder="ابحث في الباقات والمنتجات..."
-                           aria-label="بحث"
-                           autocomplete="off" />
+                <!-- Searchbar -->
+                <div class="searchbar">
+                    <form asp-area=""
+                          asp-controller="Home"
+                          asp-action="Search"
+                          method="get"
+                          class="search-form"
+                          id="globalSearchForm">
 
-                    <!-- زر مخفي لتضمن أن Enter يعمل في كل المتصفحات -->
-                    <button type="submit" style="display:none" aria-hidden="true">Search</button>
-                </form>
-            </div>
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
 
-            <!-- Nav + Actions -->
-            <div class="topbar-right">
-                <!-- روابط الصفحات الأساسية -->
-                <nav class="main-nav">
-                    <a asp-area=""
-                       asp-controller="Home"
-                       asp-action="Index">
-                        الرئيسية
-                    </a>
+                        <input id="searchInput"
+                               name="query"
+                               type="text"
+                               class="search-input"
+                               placeholder="Search in items and products..."
+                               aria-label="Search"
+                               autocomplete="off" />
 
-                    <a asp-controller="Drugs"
-                       asp-action="Index">
-                        الأدوية
-                    </a>
+                        <!-- Hidden button to ensure Enter works in all browsers -->
+                        <button type="submit" style="display:none" aria-hidden="true">Search</button>
+                    </form>
+                </div>
 
-                    <a asp-controller="BabyCare"
-                       asp-action="Index">
-                        عناية الأطفال
-                    </a>
-
-                    <a asp-controller="MenCare"
-                       asp-action="Index">
-                        عناية الرجال
-                    </a>
-
-                    <a asp-controller="Chat"
-                       asp-action="Index">
-                        Chat مع الصيدلي
-                    </a>
-
-                    <a asp-area=""
-                       asp-controller="Home"
-                       asp-action="Privacy">
-                        Privacy
-                    </a>
-                </nav>
-
-                <!-- أكشنز: Login/Logout + ثيم + سلة -->
-                <div class="top-actions">
-
-                    @* Login / Logout *@
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
-                    {
-                        <form asp-controller="CustomerAuth"
-                              asp-action="Logout"
-                              method="post"
-                              class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit"
-                                    class="btn btn-outline-danger btn-sm">
-                                Logout
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <a class="login-btn nav-link"
-                           asp-controller="CustomerAuth"
-                           asp-action="Login">
-                            Login
+                <!-- Nav + Actions -->
+                <div class="topbar-right">
+                    <!-- Main navigation links -->
+                    <nav class="main-nav">
+                        <a asp-area=""
+                           asp-controller="Home"
+                           asp-action="Index"
+                           id="navHome">
+                            Home
                         </a>
-                    }
 
-                    <button id="themeToggle"
-                            class="icon-btn"
-                            type="button"
-                            title="الوضع"
-                            aria-label="تبديل الوضع">
-                        ☾
-                    </button>
+                        <a asp-area=""
+                           asp-controller="Chat"
+                           asp-action="Index"
+                           id="navChat">
+                            Chat with Pharmacy
+                        </a>
+                    </nav>
 
-                    <button id="cartBtn"
-                            class="icon-btn"
-                            type="button"
-                            title="السلة"
-                            aria-label="فتح السلة">
-                        🛒
-                        <span id="cartCount" class="badge" aria-live="polite">0</span>
-                    </button>
+
+                    <!-- Actions: Login/Logout + Language + Theme + Cart -->
+                    <div class="top-actions">
+
+                        @* Login / Logout *@
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <form asp-controller="CustomerAuth"
+                                  asp-action="Logout"
+                                  method="post"
+                                  class="top-action-form d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="action-card btn-logout">
+                                    <span class="action-icon">👤</span>
+                                    <span class="action-text" id="logoutText">Logout</span>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="action-card btn-logout"
+                               asp-controller="CustomerAuth"
+                               asp-action="Login">
+                                <span class="action-icon">👤</span>
+                                <span class="action-text" id="loginText">Login</span>
+                            </a>
+                        }
+
+                        <!-- Cart -->
+                        <button id="cartBtn"
+                                class="action-card btn-cart"
+                                type="button"
+                                title="Cart"
+                                aria-label="Open cart">
+                            <span class="action-icon">🛒</span>
+                            <span class="action-text" id="cartText">Cart</span>
+                            <span id="cartCount" class="badge" aria-live="polite">0</span>
+                        </button>
+
+                        <!-- Language dropdown -->
+                        <div class="lang-dropdown">
+                            <button type="button"
+                                    class="lang-card btn-lang"
+                                    id="langToggle"
+                                    aria-label="Language selector"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                <span class="lang-code" id="currentLang">EN</span>
+                                <span class="lang-chevron">▾</span>
+                            </button>
+
+                            <div class="lang-menu" id="langMenu">
+                                <button type="button" class="lang-option" data-lang="en">EN</button>
+                                <button type="button" class="lang-option" data-lang="ar">AR</button>
+                            </div>
+                        </div>
+
+                        <!-- Theme -->
+                        <button id="themeToggle"
+                                class="icon-btn btn-settings"
+                                type="button"
+                                title="Theme"
+                                aria-label="Toggle theme">
+                            ☾
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- محتوى الصفحات -->
+        <!-- Global Back button for all non-auth pages -->
+        <div class="global-back-btn">
+            <button type="button"
+                    class="back-btn"
+                    aria-label="Back"
+                    onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='@Url.Action("Index", "Home")'; }">
+                <span id="backBtnText">Back</span>
+            </button>
+        </div>
+    }
+
+    <!-- Page content -->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-top footer text-muted main-footer">
-        <div class="container">
-            <span>
-                &copy; 2025 - PharmacyDeliverySystem - جميع الحقوق محفوظة
-            </span>
-            |
-            <a asp-area=""
-               asp-controller="Home"
-               asp-action="Privacy">
-                Privacy
-            </a>
-        </div>
-    </footer>
+    @if (!isAuthPage)
+    {
+        <!-- Footer -->
+        <footer class="border-top footer text-muted main-footer">
+            <div class="container">
+                <span id="footerText">
+                    &copy; 2025 - PharmacyDeliverySystem - All rights reserved
+                </span>
+                |
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Privacy"
+                   id="privacyLinkText">
+                    Privacy
+                </a>
+            </div>
+        </footer>
 
-    <!-- زر الرجوع لأعلى -->
-    <button id="toTop" type="button" title="أعلى الصفحة">↑</button>
+        <!-- Back to top button -->
+        <button id="toTop" type="button" title="Back to top">↑</button>
 
-    <!-- Overlay + Drawer بتوع السلة -->
-    <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
+        <!-- Overlay + Cart drawer -->
+        <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
 
-    <aside id="drawer" class="drawer" aria-label="سلة المشتريات" aria-live="polite">
-        <div class="drawer-header">
-            <strong>سلة المشتريات</strong>
-            <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="إغلاق">✕</button>
-        </div>
-
-        <div id="cartList" class="drawer-body"></div>
-
-        <div class="drawer-footer">
-            <div class="drawer-total-row">
-                <span>الإجمالي:</span>
-                <strong id="cartTotal">0 ج.م</strong>
+        <aside id="drawer" class="drawer" aria-label="Shopping cart" aria-live="polite">
+            <div class="drawer-header">
+                <strong id="cartTitle">Shopping Cart</strong>
+                <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="Close cart">✕</button>
             </div>
 
-            <!-- 👇 زرار الـ Checkout متظبط مع الـ JS -->
-            <button id="checkoutBtn"
-                    type="button"
-                    onclick="checkout()"
-                    data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
-                    data-login-url="@Url.Action("Login", "CustomerAuth")">
-                Checkout
-            </button>
+            <div id="cartList" class="drawer-body"></div>
+            <div class="drawer-footer">
+                <div class="drawer-total-row">
+                    <span id="totalLabel">Total Amount</span>
+                    <strong id="cartTotal">0 EGP</strong>
+                </div>
 
-            <button type="button"
-                    class="btn btn-danger w-100"
-                    onclick="clearCart()">
-                تفريغ السلة
-            </button>
-        </div>
-    </aside>
+                <!-- Checkout button -->
+                <button id="checkoutBtn"
+                        type="button"
+                        onclick="checkout()"
+                        data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
+                        data-login-url="@Url.Action("Login", "CustomerAuth")">
+                    Checkout
+                </button>
 
-    <!-- سكربتات أساسية -->
+                <button type="button"
+                        class="btn btn-danger w-100"
+                        onclick="clearCart()">
+                    <span id="clearCartText">Clear cart</span>
+                </button>
+            </div>
+
+        </aside>
+    }
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- سكربت بحث الهيدر -->
-    <script>
-        (function () {
-            var input = document.getElementById('searchInput');
-            var form = document.getElementById('globalSearchForm');
+    @if (!isAuthPage)
+    {
+        <!-- Header search script (معتمد على وجود السيرش في التوب بار) -->
+        <script>
+            (function () {
+                var input = document.getElementById('searchInput');
+                var form = document.getElementById('globalSearchForm');
 
-            if (!input || !form) return;
+                if (!input || !form) return;
 
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    var q = input.value && input.value.trim();
-                    if (!q) return;
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        var q = input.value && input.value.trim();
+                        if (!q) return;
 
-                    try {
-                        var actionUrl = '@Url.Action("Search", "Home", new { area = "" })';
-                        window.location.href = actionUrl + '?query=' + encodeURIComponent(q);
-                    } catch (err) {
-                        window.location.href = '/Home/Search?query=' + encodeURIComponent(q);
+                        try {
+                            var actionUrl = '@Url.Action("Search", "Home", new { area = "" })';
+                            window.location.href = actionUrl + '?query=' + encodeURIComponent(q);
+                        } catch (err) {
+                            window.location.href = '/Home/Search?query=' + encodeURIComponent(q);
+                        }
+
+                        e.preventDefault();
                     }
+                });
 
-                    e.preventDefault();
-                }
-            });
-
-            form.addEventListener('submit', function (e) {
-                var q = input.value && input.value.trim();
-                if (!q) {
-                    e.preventDefault();
-                }
-            });
-        })();
-    </script>
+                form.addEventListener('submit', function (e) {
+                    var q = input.value && input.value.trim();
+                    if (!q) {
+                        e.preventDefault();
+                    }
+                });
+            })();
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
