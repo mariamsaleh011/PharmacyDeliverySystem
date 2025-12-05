@@ -1,0 +1,79 @@
+﻿@model PharmacyDeliverySystem.Models.Chat
+
+@section Head {
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/chat.js"></script>
+}
+
+<div class="chat-page">
+    <div class="chat-card">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="chat-header-main">
+                <div class="chat-header-icon">
+                    <!-- أيقونة شبه لوجو الموقع -->
+                    <span class="chat-logo-plus">+</span>
+                </div>
+                <div>
+                    <h1 class="chat-title">
+                        <span class="chat-title-main">Pharmacy</span>
+                        <span class="chat-title-accent">Marts</span>
+                    </h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- Body -->
+        <div class="chat-body" id="chat-box">
+            @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
+            {
+                var sender = msg.SenderType?.Trim() ?? "";
+                var isCustomer = sender.Equals("Customer", StringComparison.OrdinalIgnoreCase);
+
+                <div class="msg-row @(isCustomer ? "customer" : "pharmacist")">
+                    <div class="msg-avatar">
+                        @(isCustomer ? "👤" : "💊")
+                    </div>
+                    <div class="message">
+                        <div class="message-text">
+                            @msg.MessageText
+                        </div>
+                        <div class="message-time">
+                            @msg.SentAt.ToString("yyyy-MM-dd HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Footer -->
+        <footer class="chat-footer">
+            <form asp-action="SendMessage"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="chat-form">
+                <input type="hidden" name="chatId" value="@Model.ChatId" />
+
+                <!-- سطر المرفقات (الروشتة) -->
+                <div class="chat-attachments">
+                    <label class="attach-btn" for="fileUpload">📎</label>
+                    <span id="fileName" class="file-name">No file selected</span>
+                    <input type="file" id="fileUpload" name="file" />
+                </div>
+
+                <!-- سطر الكتابة والإرسال -->
+                <div class="chat-input-row">
+                    <input type="text"
+                           name="message"
+                           placeholder="Type a message..."
+                           autocomplete="off"
+                           required />
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </footer>
+    </div>
+</div>

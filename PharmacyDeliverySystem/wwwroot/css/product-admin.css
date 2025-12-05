@@ -1,9 +1,8 @@
 ﻿/* =====================================================
    product-admin.css
-   كامل صفحة إدارة المنتجات — داكن + مودال + أزرار + إزالة Navbar
    ===================================================== */
 
-/* --- المتغيرات وتجهيز الوضع الداكن --- */
+/* --- Variables & Dark mode --- */
 :root {
     --bg-page: #0b1220;
     --bg-card: #0f1724;
@@ -11,9 +10,9 @@
     --border: #1f2937;
     --text-main: #f3f4f6;
     --text-muted: #9ca3af;
-    --brand: #0d9488;
-    --brand-hover: #0f766e;
-    --brand-light: rgba(13, 148, 136, 0.15);
+    --brand: #00B4DB; /* كان أخضر بقى أزرق */
+    --brand-hover: #0083B0; /* أزرق أغمق */
+    --brand-light: rgba(0, 180, 219, 0.15); /* light blå */
     --danger: #ef4444;
     --success: #10b981;
     --radius-sm: 6px;
@@ -38,7 +37,7 @@ body {
     background-color: var(--bg-page);
     font-family: var(--font-cairo);
     color: var(--text-main);
-    direction: rtl;
+    direction: ltr; /* ⬅️ الصفحة كلها إنجليزي */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -74,6 +73,7 @@ nav,
     padding: 40px 20px;
     max-width: 1200px;
     margin: 0 auto;
+    direction: ltr; /* تأكيد إن المحتوى LTR */
 }
 
 .prod-card {
@@ -82,6 +82,8 @@ nav,
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     border: 1px solid var(--border);
+    direction: ltr;
+    text-align: left;
 }
 
 /* =====================================================
@@ -95,23 +97,13 @@ nav,
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
+    direction: ltr;
 }
 
 .header-title {
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-.icon-box {
-    width: 48px;
-    height: 48px;
-    background: var(--brand-light);
-    color: var(--brand);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .prod-card__header h1 {
@@ -140,17 +132,20 @@ nav,
     position: relative;
 }
 
+/* ⬅️ أيقونة البحث على الشمال */
 .search-icon {
     position: absolute;
-    right: 12px;
+    left: 12px;
+    right: auto;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
     pointer-events: none;
 }
 
+/* ⬅️ padding الأكبر من ناحية الشمال عشان الأيقونة */
 #prodSearch {
-    padding: 10px 40px 10px 12px;
+    padding: 10px 12px 10px 40px;
     background-color: var(--bg-page);
     border: 1px solid var(--border);
     color: var(--text-main);
@@ -195,6 +190,25 @@ nav,
         transform: translateY(-2px);
     }
 
+/* 🔹 Chat button نفس ستايل New Product */
+.btn-info {
+    background-color: var(--brand);
+    color: #ffffff;
+    box-shadow: 0 6px 12px rgba(6,182,212,0.18);
+}
+
+    .btn-info:hover {
+        background-color: var(--brand-hover);
+        transform: translateY(-2px);
+    }
+
+    /* خلي الأيقونة جوه زرار الشات نفس لون الـ text (أبيض) */
+    .btn-info svg,
+    .btn-info svg * {
+        stroke: currentColor !important;
+        fill: none;
+    }
+
 /* Secondary */
 .btn-secondary {
     background-color: transparent;
@@ -232,7 +246,7 @@ nav,
 }
 
     .prod-table thead th {
-        text-align: right;
+        text-align: left; /* ⬅️ عناوين الأعمدة على الشمال */
         padding: 16px 24px;
         font-size: 13px;
         font-weight: 700;
@@ -345,7 +359,7 @@ nav,
 }
 
 /* =====================================================
-   أزرار الأيقونات (تعديل - حذف) — تحسين الظهور
+   أزرار الأيقونات (تعديل - حذف)
    ===================================================== */
 .action-buttons {
     display: flex;
@@ -354,7 +368,6 @@ nav,
     z-index: 5;
 }
 
-/* زر أيقونة (تعديل / حذف) */
 .btn-icon {
     color: var(--text-main) !important;
     width: 38px;
@@ -370,28 +383,24 @@ nav,
     opacity: 1 !important;
 }
 
-    /* إجبار كل أجزاء svg على التلوين بالـ currentColor */
-    .btn-icon svg,
+    .btn-icon.svg,
     .btn-icon svg * {
         stroke: currentColor !important;
         fill: currentColor !important;
         opacity: 1 !important;
     }
 
-    /* hover effect للأيقونات */
     .btn-icon:hover {
         background-color: rgba(255,255,255,0.04) !important;
         color: var(--text-main) !important;
         transform: translateY(-2px);
     }
 
-    /* زر الحذف يتميّز باللون الأحمر عند hover */
     .btn-icon.delete-btn:hover {
         background-color: rgba(239,68,68,0.14) !important;
         color: var(--danger) !important;
     }
 
-/* لو الأيقونات داخل عناصر أخرى: تأكد ظهورها فوق */
 .btn-icon {
     z-index: 30;
 }
@@ -413,7 +422,7 @@ nav,
 }
 
 /* =====================================================
-   مودال (تصحيحات + أيقونات + overlay)
+   مودال
    ===================================================== */
 .modal {
     position: fixed;
@@ -434,7 +443,6 @@ nav,
         pointer-events: auto;
     }
 
-/* overlay */
 .modal-overlay {
     position: absolute;
     inset: 0;
@@ -443,7 +451,6 @@ nav,
     pointer-events: none;
 }
 
-/* صندوق المودال */
 .modal-dialog {
     position: relative;
     width: 100%;
@@ -506,6 +513,13 @@ nav,
     background: rgba(0,0,0,0.02);
 }
 
+/* ⬅️ خلي Confirm Delete modal دايمًا LTR */
+#confirmModal .modal-dialog,
+#confirmModal .modal-dialog * {
+    direction: ltr;
+    text-align: left;
+}
+
 /* form grid */
 .form-grid {
     display: grid;
@@ -545,11 +559,12 @@ nav,
         object-fit: cover;
     }
 
+
 /* upload overlay */
 .upload-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(13,148,136,0.85);
+    background: rgba(0, 131, 176, 0.9); /* كان rgba(13,148,136,0.85) */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -699,3 +714,17 @@ textarea.form-control {
 .text-danger {
     color: var(--danger) !important;
 }
+/* خلي لوجو الـ Admin ياخد نفس ستايل اللوجو الأساسي */
+.admin-logo {
+    /* نفس الأبعاد تقريبًا بتاعة اللوجو في الهيدر */
+    width: 44px;
+    height: 44px;
+}
+
+    /* نتأكد إن مفيش أي فلتر يغيّر ألوان الـ SVG */
+    .admin-logo .logo-img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+        filter: none !important;
+    }

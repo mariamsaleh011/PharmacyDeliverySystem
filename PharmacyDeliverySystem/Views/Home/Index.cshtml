@@ -1,65 +1,110 @@
-﻿@{
-    ViewData["Title"] = "الرئيسية";
+﻿@using PharmacyDeliverySystem.Models
+@{
+    ViewData["Title"] = "Home";
     Layout = "_Layout";
 
-    // الليست اللي جايه من الكنترولر
-    List<PharmacyDeliverySystem.Models.Product>? offerList =
-           ViewBag.OffersProducts as List<PharmacyDeliverySystem.Models.Product>;
+    List<Product>? offerList = ViewBag.OffersProducts as List<Product>;
 }
 
 @section Head {
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 }
 
-<section class="hero">
+<section class="hero hero-en">
     <div class="hero-content">
-        <h2 class="headline">
-            المنصة <span class="accent">الشاملة</span> لتوريد كل احتياجات
-            <span class="accent">الصيدلية</span> بتاعتك
+        <h2 class="headline-en">
+            Your <span class="accent">all-in-one</span> platform to supply
+            <span class="accent">your pharmacy</span>
         </h2>
         <p>
-            دور واطلب اللي محتاجه بسهولة، واحنا هنوصّلهولك بسرعة
+            Browse, order and get everything delivered to your pharmacy fast and safely.
         </p>
         <button type="button" onclick="orderNow()">
-            اطلب الآن
+            Order now
         </button>
     </div>
 </section>
 
-<section class="categories">
-    <h3>تسوق حسب الفئة</h3>
-    <div class="cat-grid">
+<section class="categories categories-en">
+    <div class="categories-header">
+        <h3>Shop by category</h3>
+    </div>
 
-        <a asp-controller="Drugs" asp-action="Index" class="cat-card">
-            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="10" width="7" height="11" rx="2"></rect>
-                <rect x="14" y="3" width="7" height="18" rx="2"></rect>
-            </svg>
-            <div class="cat-title">Drugs</div>
-        </a>
+    <div class="cat-strip-wrapper">
 
-        <a asp-controller="BabyCare" asp-action="Index" class="cat-card">
-            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="7" r="3"></circle>
-                <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
-            </svg>
-            <div class="cat-title">Baby Care</div>
-        </a>
+        <!-- زرار يرجع للي قبل (على الشمال) -->
+        <button type="button"
+                class="cat-scroll-btn cat-scroll-prev"
+                aria-label="Previous categories">
+            ‹
+        </button>
 
-        <a class="cat-card" asp-controller="MenCare" asp-action="Index">
-            <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="7" r="4"></circle>
-                <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
-            </svg>
-            <div class="cat-title">Men Care</div>
-        </a>
+        <!-- الشريط اللي فيه الكروت -->
+        <div class="cat-grid" id="catStrip">
+
+            <!-- Baby Care -->
+            <a href="@Url.Action("Index", "BabyCare")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="3"></circle>
+                    <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
+                </svg>
+                <div class="cat-title">Baby Care</div>
+            </a>
+
+            <!-- Men Care -->
+            <a href="@Url.Action("Index", "MenCare")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="4"></circle>
+                    <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
+                </svg>
+                <div class="cat-title">Men Care</div>
+            </a>
+
+            <!-- Women Care -->
+            <a href="@Url.Action("Index", "WomenCare")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="3"></circle>
+                    <path d="M9 11h6"></path>
+                    <path d="M10 14h4"></path>
+                    <path d="M8 21c0-3 2-6 4-6s4 3 4 6"></path>
+                </svg>
+                <div class="cat-title">Women Care</div>
+            </a>
+
+            <!-- Makeup & Accessories -->
+            <a href="@Url.Action("Index", "Makeup")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="6" height="14" rx="2"></rect>
+                    <rect x="11" y="7" width="4" height="10" rx="1"></rect>
+                    <circle cx="18" cy="15" r="2"></circle>
+                </svg>
+                <div class="cat-title">Makeup & Accessories</div>
+            </a>
+
+            <!-- Fitness & Nutrition -->
+            <a href="@Url.Action("Index", "Fitness")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="9" width="4" height="6" rx="1"></rect>
+                    <rect x="18" y="9" width="4" height="6" rx="1"></rect>
+                    <rect x="7" y="7" width="10" height="10" rx="2"></rect>
+                </svg>
+                <div class="cat-title">Fitness & Nutrition</div>
+            </a>
+
+        </div>
+
+        <!-- زرار يروح للي بعد (على اليمين) -->
+        <button type="button"
+                class="cat-scroll-btn cat-scroll-next"
+                aria-label="Next categories">
+            ›
+        </button>
     </div>
 </section>
 
-<section class="offers-section" id="offers">
-    <h2>العروض الخاصة</h2>
+<section class="offers-section offers-en" id="offers">
+    <h2>Special offers</h2>
     <div class="product-grid">
-
         @if (offerList != null && offerList.Any())
         {
             foreach (var product in offerList)
@@ -70,70 +115,69 @@
                      data-product-id="@product.ProId">
 
                     @{
-                        var isDefaultIcon = string.IsNullOrWhiteSpace(product.ImageUrl);
+                        // لو عنده صورة نستخدمها، لو مفيش نستخدم الأيقونة الافتراضية
+                        var hasImage = !string.IsNullOrWhiteSpace(product.ImageUrl);
 
-                        var imgSrc = isDefaultIcon
-                        ? "/images/icons/medicine-logo.svg"
-                        : product.ImageUrl;
+                        var imgSrc = hasImage
+                        ? product.ImageUrl
+                        : Url.Content("~/images/icons/product-default.svg");
 
-                        var imgClass = "product-img" + (isDefaultIcon ? " default-icon" : "");
+                        var imgClass = "product-img" + (!hasImage ? " default-icon" : "");
                     }
 
-                    <img src="@imgSrc" alt="عرض @product.Name" class="@imgClass" />
+                    <img src="@imgSrc" alt="Offer @product.Name" class="@imgClass" />
 
                     <h3>@product.Name</h3>
 
                     <p>
-                        @((product.Description ?? product.Dosage) ?? "منتج متوفر")
+                        @((product.Description ?? product.Dosage) ?? "Available product")
                     </p>
 
                     <p class="price">
                         @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
                         {
                             <span class="old-price">
-                                @product.OldPrice.Value.ToString("0.00 ج.م")
+                                @product.OldPrice.Value.ToString("0.00 EGP")
                             </span>
                         }
-                        @product.Price.ToString("0.00 ج.م")
+                        @product.Price.ToString("0.00 EGP")
                     </p>
 
-                    <button class="btn add-to-cart"
-                            data-product-id="@product.ProId">
-                        أضف للسلة
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        Add to cart
                     </button>
                 </div>
             }
         }
         else
         {
-            <p>لا توجد عروض خاصة متاحة حالياً. يرجى مراجعة قاعدة البيانات.</p>
+            <p>No special offers available right now.</p>
         }
-
     </div>
 </section>
 
-<section class="health-tips">
-    <h2>💡 نصائح صحية</h2>
-    <button id="dailyTipBtn" class="btn">نصيحة اليوم</button>
+<section class="health-tips health-tips-en">
+    <h2>💡 Health tips</h2>
+    <button id="dailyTipBtn" class="btn">Tip of the day</button>
     <p id="dailyTip" style="margin-top:15px;font-weight:600;"></p>
 </section>
 
-<section class="contact-section">
+<section class="contact-section contact-en">
     <div class="container">
-        <h2>تواصل معنا</h2>
-        <p>يمكنك التواصل معنا عبر أي من القنوات التالية:</p>
+        <h2>Contact us</h2>
+        <p>You can reach us through any of the following channels:</p>
         <div class="contact-links">
             <a href="mailto:momoahead89@gmail.com" class="contact-btn">
-                <span>📧</span><span>البريد الإلكتروني</span>
+                <span>📧</span><span>Email</span>
             </a>
             <a href="#" target="_blank" class="contact-btn">
-                <span>📘</span><span>فيسبوك</span>
+                <span>📘</span><span>Facebook</span>
             </a>
             <a href="https://www.instagram.com/PharmacyMarts" target="_blank" class="contact-btn">
-                <span>📸</span><span>انستجرام</span>
+                <span>📸</span><span>Instagram</span>
             </a>
             <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">
-                <span>💬</span><span>واتساب</span>
+                <span>💬</span><span>WhatsApp</span>
             </a>
         </div>
     </div>

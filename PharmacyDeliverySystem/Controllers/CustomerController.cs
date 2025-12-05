@@ -1,4 +1,6 @@
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.Models;
 
@@ -68,4 +70,7 @@ public class CustomerController : Controller
         customerManager.DeleteCustomer(id);
         return RedirectToAction("Index");
     }
+
+
+
 }
