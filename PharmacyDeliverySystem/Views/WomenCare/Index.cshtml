@@ -1,10 +1,10 @@
 ﻿@using PharmacyDeliverySystem.Models
 @{
-    ViewData["Title"] = "Drugs";
+    ViewData["Title"] = "Women Care";
     Layout = "_Layout";
 
-    var drugs = ViewBag.DrugsProducts as List<Product>;
-    var total = drugs?.Count ?? 0;
+    var womenCareProducts = ViewBag.WomenCareProducts as List<Product>;
+    var total = womenCareProducts?.Count ?? 0;
 }
 
 <link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
@@ -14,12 +14,14 @@
         <div class="products-header-left">
             <div class="products-header-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="10" width="7" height="11" rx="2"></rect>
-                    <rect x="14" y="3" width="7" height="18" rx="2"></rect>
+                    <circle cx="12" cy="7" r="3"></circle>
+                    <path d="M9 11h6"></path>
+                    <path d="M10 14h4"></path>
+                    <path d="M8 21c0-3 2-6 4-6s4 3 4 6"></path>
                 </svg>
             </div>
             <div>
-                <h2 class="products-title-en">Drugs</h2>
+                <h2 class="products-title-en">Women care products</h2>
                 <p class="products-subtitle-en">
                     <span class="category-count">@total items</span> available
                 </p>
@@ -38,9 +40,9 @@
     </div>
 
     <div class="product-grid">
-        @if (drugs != null && drugs.Any())
+        @if (womenCareProducts != null && womenCareProducts.Any())
         {
-            foreach (var product in drugs)
+            foreach (var product in womenCareProducts)
             {
                 <div class="product"
                      data-name="@product.Name"
@@ -56,13 +58,16 @@
                         }
                         @product.Price.ToString("0.00 EGP")
                     </p>
-                    <button class="btn add-to-cart" data-product-id="@product.ProId">Add to cart</button>
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        Add to cart
+                    </button>
                 </div>
             }
         }
         else
         {
-            <p>No drugs available right now.</p>
+            <p>No women care products available right now.</p>
         }
     </div>
 </section>
+

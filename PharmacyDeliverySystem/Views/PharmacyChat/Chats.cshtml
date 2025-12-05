@@ -1,29 +1,32 @@
-﻿
-@model IEnumerable<PharmacyDeliverySystem.ViewModels.PharmacyChatListItemViewModel>
+﻿@model IEnumerable<PharmacyDeliverySystem.ViewModels.PharmacyChatListItemViewModel>
 
 @section Head {
-    <link rel="stylesheet" href="~/css/pharmacy-chat.css" />
+    <link rel="stylesheet" href="~/css/pharmacy-chat.css" asp-append-version="true" />
 }
 
-<h2 class="chat-title">📩 Pharmacy Conversations</h2>
+<div class="chat-list-wrapper">
+    <h2 class="chat-title">📩 Pharmacy Conversations</h2>
 
-@if (!Model.Any())
-{
-    <p class="no-chats">لا توجد محادثات حتى الآن</p>
-}
-else
-{
-    <div class="chat-list">
-        @foreach (var chat in Model)
-        {
-            <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item">
-                <div class="chat-avatar">👤</div>
-                <div class="chat-info">
-                    <strong class="chat-customer">@chat.CustomerName</strong>
-                    <span class="chat-time">@chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")</span>
-                    <p class="chat-preview">@chat.LastMessage</p>
-                </div>
-            </a>
-        }
-    </div>
-}
+    @if (!Model.Any())
+    {
+        <p class="no-chats">No conversations yet</p>
+    }
+    else
+    {
+        <div class="chat-list">
+            @foreach (var chat in Model)
+            {
+                <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item">
+                    <div class="chat-avatar">👤</div>
+                    <div class="chat-info">
+                        <strong class="chat-customer">@chat.CustomerName</strong>
+                        <span class="chat-time">
+                            @chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")
+                        </span>
+                        <p class="chat-preview">@chat.LastMessage</p>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

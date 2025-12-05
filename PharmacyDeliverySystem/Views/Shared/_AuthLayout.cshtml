@@ -10,25 +10,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@title - PharmacyDeliverySystem</title>
 
+    <!-- Bootstrap + الستايل العام (فيه الثيم والـ variables) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- ستايل صفحات الأوث -->
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 </head>
 
-<body class="auth-body">
-    <main class="auth-main">
-        <div class="auth-shell">
-            <div class="auth-panel">
-                <div class="auth-panel-content">
-                    @RenderBody()
-                </div>
-            </div>
+<body>
+    <!-- الكارت في نص الصفحة -->
+    <div class="auth-page">
+        <div class="auth-card">
+            @RenderBody()
         </div>
-    </main>
+    </div>
 
-    <footer class="auth-footer">
+    <!-- Footer بسيط -->
+    <footer class="auth-footer text-center mt-3 mb-2">
         <small>© 2025 PharmacyMarts – Training project only</small>
     </footer>
 
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

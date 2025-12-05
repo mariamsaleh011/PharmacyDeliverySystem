@@ -1,0 +1,43 @@
+﻿using System.Diagnostics;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.Models;
+
+namespace PharmacyDeliverySystem.Controllers
+{
+    [Authorize(Roles = "Customer")]
+    public class FitnessController : Controller
+    {
+        private readonly ILogger<FitnessController> _logger;
+        private readonly IProductManager _productManager;
+
+        public FitnessController(ILogger<FitnessController> logger, IProductManager productManager)
+        {
+            _logger = logger;
+            _productManager = productManager;
+        }
+
+        public IActionResult Index()
+        {
+            var fitnessProducts = _productManager.GetAll()
+                                 .Where(p => p.DrugType == "fitness & nutrition")
+                                 .ToList();
+
+            ViewBag.FitnessProducts = fitnessProducts;
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [AllowAnonymous]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            });
+        }
+    }
+}

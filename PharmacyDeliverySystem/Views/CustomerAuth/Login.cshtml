@@ -1,5 +1,8 @@
 ﻿@model PharmacyDeliverySystem.ViewModels.CustomerLoginViewModel
-
+@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Login";
+}
 
 <h2 class="auth-title">Welcome Back!</h2>
 <p class="auth-subtitle">Sign in to manage your orders and deliveries.</p>
@@ -29,7 +32,8 @@
         <a href="#" class="text-muted small">Forgot Password?</a>
     </div>
 
-    <button type="submit" class="btn btn-success w-100 py-2 mb-3">
+    <!-- هنا التعديل المهم: استخدم auth-submit بدل btn-success -->
+    <button type="submit" class="auth-submit w-100 mb-3">
         Sign In
     </button>
 </form>
@@ -38,13 +42,14 @@
 
 <a asp-controller="Home"
    asp-action="Index"
-   class="btn btn-outline-primary w-100">
+   class="btn btn-outline-primary w-100 mb-3">
     Continue as Guest
 </a>
 
-
 <div class="text-center mt-3">
-    <p class="text-muted mb-2">Don’t have an account?</p>
+    <!-- خلّيها تاخد شكل أوضح وسط الكارت -->
+    <p class="auth-subtext mb-2">Don’t have an account?</p>
+
     <div class="d-flex flex-wrap gap-2">
         <a asp-controller="CustomerAuth" asp-action="Register"
            class="btn btn-outline-secondary flex-fill">

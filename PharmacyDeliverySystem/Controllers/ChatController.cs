@@ -1,9 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 
@@ -26,45 +26,75 @@ namespace PharmacyDeliverySystem.Controllers
             return int.Parse(claim.Value);
         }
 
-        // Open chat with a pharmacy
-        public IActionResult Index(int pharmacyId = 1)
+        // Open chat (specific pharmacy لو جايه, أو آخر شات للمستخدم لو لأ)
+        public IActionResult Index(int? pharmacyId)
         {
             int customerId = GetCustomerId();
+            Chat? chat;
 
-            var chat = _context.Chats
-                .Include(c => c.Pharmacy)
-                .Include(c => c.ChatMessages)
-                .FirstOrDefault(c => c.PharmacyId == pharmacyId && c.CustomerId == customerId);
-
-            if (chat == null)
+            if (pharmacyId.HasValue)
             {
-                chat = new Chat
-                {
-                    PharmacyId = pharmacyId,
-                    CustomerId = customerId,
-                    Status = "Open",
-                    Channel = "Default"
-                };
-                _context.Chats.Add(chat);
-                _context.SaveChanges();
-
+                // شات مع الصيدلية اللي جايه في الباراميتر
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
-                    .FirstOrDefault(c => c.ChatId == chat.ChatId);
+                    .FirstOrDefault(c =>
+                        c.CustomerId == customerId &&
+                        c.PharmacyId == pharmacyId.Value);
+
+                // لو مفيش شات قبل كده بين الكاستمر والصيدلية دي -> نعمل واحد جديد
+                if (chat == null)
+                {
+                    chat = new Chat
+                    {
+                        PharmacyId = pharmacyId.Value,
+                        CustomerId = customerId,
+                        Status = "Open",
+                        Channel = "Default"
+                    };
+
+                    _context.Chats.Add(chat);
+                    _context.SaveChanges();
+
+                    chat = _context.Chats
+                        .Include(c => c.Pharmacy)
+                        .Include(c => c.ChatMessages)
+                        .FirstOrDefault(c => c.ChatId == chat.ChatId);
+                }
+            }
+            else
+            {
+                // مفيش pharmacyId: هات آخر شات للـ Customer وافتحه
+                chat = _context.Chats
+                    .Include(c => c.Pharmacy)
+                    .Include(c => c.ChatMessages)
+                    .Where(c => c.CustomerId == customerId)
+                    .OrderByDescending(c => c.ChatId)   // الأحدث
+                    .FirstOrDefault();
+
+                if (chat == null)
+                {
+                    // مفيش أي شات لسه -> رجّعه للهوم (أو لاحقًا صفحة اختيار صيدلية)
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             return View(chat);
         }
 
         [HttpPost]
-        public IActionResult SendMessage(int chatId, string message)
+        public IActionResult SendMessage(int chatId, string message, IFormFile? file)
         {
-            if (string.IsNullOrWhiteSpace(message))
-                return RedirectToAction("Index");
-
             var chat = _context.Chats.Find(chatId);
             if (chat == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(message) &&
+                (file == null || file.Length == 0))
+            {
+                return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
+            }
+
+            // TODO: حفظ ملف الروشتة في uploads وتخزين الـ Path في ChatMessage
 
             _context.ChatMessages.Add(new ChatMessage
             {
