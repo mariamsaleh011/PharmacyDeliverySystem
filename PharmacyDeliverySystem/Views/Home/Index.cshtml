@@ -19,9 +19,6 @@
         <p>
             Browse, order and get everything delivered to your pharmacy fast and safely.
         </p>
-        <button type="button" onclick="orderNow()">
-            Order now
-        </button>
     </div>
 </section>
 
@@ -41,6 +38,27 @@
 
         <!-- الشريط اللي فيه الكروت -->
         <div class="cat-grid" id="catStrip">
+
+            <!-- Offers -->
+            <a href="@Url.Action("Index", "Offers")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="8" cy="8" r="2.5"></circle>
+                    <circle cx="16" cy="16" r="2.5"></circle>
+                    <line x1="6" y1="18" x2="18" y2="6"></line>
+                </svg>
+                <div class="cat-title">Special offers</div>
+            </a>
+
+            <!-- Drugs -->
+            <a href="@Url.Action("Index", "Drugs")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <!-- كبسولة دواء مثلا -->
+                    <rect x="4" y="3" width="8" height="18" rx="4"></rect>
+                    <rect x="12" y="3" width="8" height="18" rx="4"></rect>
+                    <line x1="8" y1="3" x2="8" y2="21"></line>
+                </svg>
+                <div class="cat-title">Drugs</div>
+            </a>
 
             <!-- Baby Care -->
             <a href="@Url.Action("Index", "BabyCare")" class="cat-card">
@@ -91,6 +109,17 @@
                 <div class="cat-title">Fitness & Nutrition</div>
             </a>
 
+            <!-- All Products (صفحة كل البرودكتس) -->
+            <a href="@Url.Action("Index", "Products")" class="cat-card">
+                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="4" width="7" height="7" rx="2"></rect>
+                    <rect x="3" y="13" width="7" height="7" rx="2"></rect>
+                    <rect x="14" y="13" width="7" height="7" rx="2"></rect>
+                </svg>
+                <div class="cat-title">All Products</div>
+            </a>
+
         </div>
 
         <!-- زرار يروح للي بعد (على اليمين) -->
@@ -102,60 +131,6 @@
     </div>
 </section>
 
-<section class="offers-section offers-en" id="offers">
-    <h2>Special offers</h2>
-    <div class="product-grid">
-        @if (offerList != null && offerList.Any())
-        {
-            foreach (var product in offerList)
-            {
-                <div class="product"
-                     data-name="@product.Name"
-                     data-price="@product.Price"
-                     data-product-id="@product.ProId">
-
-                    @{
-                        // لو عنده صورة نستخدمها، لو مفيش نستخدم الأيقونة الافتراضية
-                        var hasImage = !string.IsNullOrWhiteSpace(product.ImageUrl);
-
-                        var imgSrc = hasImage
-                        ? product.ImageUrl
-                        : Url.Content("~/images/icons/product-default.svg");
-
-                        var imgClass = "product-img" + (!hasImage ? " default-icon" : "");
-                    }
-
-                    <img src="@imgSrc" alt="Offer @product.Name" class="@imgClass" />
-
-                    <h3>@product.Name</h3>
-
-                    <p>
-                        @((product.Description ?? product.Dosage) ?? "Available product")
-                    </p>
-
-                    <p class="price">
-                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
-                        {
-                            <span class="old-price">
-                                @product.OldPrice.Value.ToString("0.00 EGP")
-                            </span>
-                        }
-                        @product.Price.ToString("0.00 EGP")
-                    </p>
-
-                    <button class="btn add-to-cart" data-product-id="@product.ProId">
-                        Add to cart
-                    </button>
-                </div>
-            }
-        }
-        else
-        {
-            <p>No special offers available right now.</p>
-        }
-    </div>
-</section>
-
 <section class="health-tips health-tips-en">
     <h2>💡 Health tips</h2>
     <button id="dailyTipBtn" class="btn">Tip of the day</button>
@@ -163,22 +138,64 @@
 </section>
 
 <section class="contact-section contact-en">
-    <div class="container">
-        <h2>Contact us</h2>
-        <p>You can reach us through any of the following channels:</p>
-        <div class="contact-links">
-            <a href="mailto:momoahead89@gmail.com" class="contact-btn">
-                <span>📧</span><span>Email</span>
-            </a>
-            <a href="#" target="_blank" class="contact-btn">
-                <span>📘</span><span>Facebook</span>
-            </a>
-            <a href="https://www.instagram.com/PharmacyMarts" target="_blank" class="contact-btn">
-                <span>📸</span><span>Instagram</span>
-            </a>
-            <a href="https://wa.me/201234567890" target="_blank" class="contact-btn">
-                <span>💬</span><span>WhatsApp</span>
-            </a>
+    <div class="contact-container">
+        <div class="footer-grid">
+            <!-- 1) اللوجو + الوصف -->
+            <div class="footer-col footer-about">
+                <div class="footer-logo">
+                    <img src="@(Url.Content("~/images/icons/medicine-logo.svg"))"
+                         alt="PharmacyDeliverySystem logo" />
+                </div>
+                <p>
+                    PharmacyDeliverySystem is a digital marketplace that connects
+                    pharmacies and medical suppliers to easily, conveniently and
+                    quickly access and receive medicine, medical supplies and
+                    cosmetics at the best prices.
+                </p>
+            </div>
+
+            <!-- 2) اللينكات -->
+            <div class="footer-col footer-links">
+                <h3>Menu</h3>
+                <ul>
+                    <li>
+                        <a href="@Url.Action("Index", "Home")">Home</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Contact", "Home")">Contact Us</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Index", "Products")">Find a Product</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 3) بيانات التواصل -->
+            <div class="footer-col footer-contact">
+                <h3>Contact us</h3>
+                <p>📞 01208888148</p>
+                <p>✉ help@pharmacymarts.com</p>
+            </div>
+
+            <!-- 4) السوشيال + زرار Sign in / Sign up -->
+            <div class="footer-col footer-connect">
+                <h3>Connect with us</h3>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook">📘</a>
+                    <a href="#" aria-label="LinkedIn">🔗</a>
+                    <a href="https://www.instagram.com/PharmacyMarts"
+                       target="_blank" aria-label="Instagram">📸</a>
+                    <a href="#" aria-label="X / Twitter">✖</a>
+                </div>
+
+                <a href="@Url.Action("Login", "CustomerAuth")"
+                   class="footer-auth-btn">
+                    Sign in / Sign up
+                </a>
+            </div>
         </div>
     </div>
 </section>
