@@ -1,0 +1,129 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Product>
+
+@{
+    ViewData["Title"] = "Cart";
+    Layout = "_Layout";
+
+    // هل اليوزر عامل Login ولا لأ؟
+    bool isLoggedIn = User?.Identity?.IsAuthenticated == true;
+}
+
+@section Head {
+    @* ستايلات عامة + ستايل صفحة الكارت *@
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cart-page.css" asp-append-version="true" />
+}
+
+<section class="cart-page">
+    <h1 class="cart-page-title">Shopping Cart</h1>
+
+    <div class="cart-page-inner">
+        <!-- العمود الشمال: المنتجات -->
+        <section class="products cart-page-products">
+            <div class="product-grid">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var product in Model)
+                    {
+                        <div class="product product-compact"
+                             data-name="@product.Name"
+                             data-price="@product.Price"
+                             data-product-id="@product.ProId">
+
+                            <div class="product-compact-image">
+                                @if (isLoggedIn)
+                                {
+                                    <img src="@(string.IsNullOrWhiteSpace(product.ImageUrl)
+                                                                                         ? Url.Content("~/images/icons/product-default.svg")
+                                                                                         : product.ImageUrl)"
+                             alt="@product.Name"
+                             class="product-img" />
+                                                }
+                                else
+                                {
+                                    <!-- ما نعرضش صورة المنتج قبل الـ Login -->
+                                    <div class="locked-placeholder">
+                                        <span class="lock-icon">🔒</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="product-compact-content">
+                                <h3 class="product-name">@product.Name</h3>
+
+                                @if (isLoggedIn)
+                                {
+                                    <p class="product-desc">
+                                        @((product.Description ?? product.Dosage) ?? "Available product")
+                                    </p>
+
+                                    <p class="price">
+                                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                                        {
+                                            <span class="old-price">
+                                                @product.OldPrice.Value.ToString("0.00 EGP")
+                                            </span>
+                                        }
+                                        @product.Price.ToString("0.00 EGP")
+                                    </p>
+
+                                    <button class="btn add-to-cart"
+                                            data-product-id="@product.ProId">
+                                        Add to cart
+                                    </button>
+                                }
+                                else
+                                {
+                                    <hr class="login-note-separator" />
+                                    <p class="login-note">
+                                        you need to login to see the price
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No products available.</p>
+                }
+            </div>
+        </section>
+
+        <!-- العمود اليمين: الكارت -->
+        <aside class="cart-sidebar-page">
+            <header class="drawer-header">
+                <strong id="cartTitle">Shopping Cart</strong>
+                <button type="button"
+                        class="icon-btn"
+                        aria-label="Close cart"
+                        onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='@Url.Action("Index", "Home")'; }">
+                    ✕
+                </button>
+            </header>
+
+            <div id="cartList" class="drawer-body"></div>
+
+            <footer class="drawer-footer">
+                <div class="drawer-total-row">
+                    <span id="totalLabel">Total Amount</span>
+                    <strong id="cartTotal">0 EGP</strong>
+                </div>
+
+                <button id="checkoutBtn"
+                        type="button"
+                        onclick="checkout()"
+                        data-is-authenticated="@(isLoggedIn ? "true" : "false")"
+                        data-login-url="@Url.Action("Login", "CustomerAuth")">
+                    Checkout
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger w-100"
+                        onclick="clearCart()">
+                    <span id="clearCartText">Clear cart</span>
+                </button>
+            </footer>
+        </aside>
+    </div>
+</section>

@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.Models;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using PharmacyDeliverySystem.Business.Interfaces;
-using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -18,15 +19,18 @@ namespace PharmacyDeliverySystem.Controllers
             _productManager = productManager;
         }
 
+        // =============================
+        // الصفحة الرئيسية
+        // =============================
         public IActionResult Index()
         {
-            // عرض المنتجات اللي عليها خصم فقط
+            // المنتجات اللي عليها خصم فقط
             var offersProducts = _productManager.GetAll()
                                  .Where(p => p.OldPrice.HasValue &&
                                              p.OldPrice.Value > p.Price)
                                  .ToList();
 
-            ViewBag.OffersProducts = offersProducts;
+            ViewBag.OffersProducts = offersProducts;   // للأوفرز فقط
 
             return View();
         }
@@ -62,13 +66,14 @@ namespace PharmacyDeliverySystem.Controllers
 
             return View("SearchResults", results);
         }
-       
+
         public IActionResult ChatRedirect()
         {
             // لو مش عامل Login أصلاً
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Login", "CustomerAccount");
+                // نودّيه على صفحة اللوجين بتاعة CustomerAuth
+                return RedirectToAction("Login", "CustomerAuth");
             }
 
             var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
@@ -92,11 +97,9 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("AccessDenied", "Account");
         }
 
-        
-
         public IActionResult GoToChat()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity!.IsAuthenticated)
             {
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -111,5 +114,16 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Login", "CustomerAuth");
         }
 
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        public IActionResult Cart()
+        {
+            // هنا عايزين كل المنتجات علشان تظهر في العمود الشمال
+            var products = _productManager.GetAll().ToList();
+            return View(products);
+        }
     }
 }
