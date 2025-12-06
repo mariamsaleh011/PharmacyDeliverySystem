@@ -37,7 +37,17 @@ body {
 /* -------- Layout عام -------- */
 
 main {
-    padding: 16px 3%;
+    padding: 16px 0;
+}
+
+/* خلي الكونتينر بتاع الهوم يعرضه Full width */
+.container-full {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 /* -------- Topbar / Navbar موحد (Glass + Animations) -------- */
@@ -106,7 +116,7 @@ main {
         background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-         background-clip: text; 
+        background-clip: text;
     }
 
 /* --- Search (في النص) --- */
@@ -426,6 +436,20 @@ section {
     padding-right: 3%;
 }
 
+/* خلي Health tips و Contact يغطوا العرض كله */
+.health-tips,
+.contact-section.contact-en {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+    /* جوه الكونتاكت نحافظ على الهوامش جوه فقط */
+    .contact-section.contact-en .contact-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 3%;
+    }
+
 /* -------- Footer -------- */
 
 .main-footer {
@@ -507,9 +531,9 @@ section {
 
 #toTop {
     position: fixed;
-    left: 50%; /* نحطه في نصف الصفحة */
-    bottom: 20px; /* المسافة من الأسفل */
-    transform: translateX(-50%) translateY(20px); /* نضبط المركزية + حركة الظهور */
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%) translateY(20px);
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -528,7 +552,7 @@ section {
     #toTop.show {
         opacity: 1;
         pointer-events: auto;
-        transform: translateX(-50%) translateY(0); /* يطلع لفوق مع الأنيميشن */
+        transform: translateX(-50%) translateY(0);
     }
 
 /* ===== Overlay + Drawer (Cart) ===== */
@@ -554,8 +578,8 @@ section {
 .drawer {
     position: fixed;
     top: 0;
-    right: -420px;
-    width: 380px;
+    right: -420px; /* عشان يختفي بالكامل */
+    width: 420px; /* نفس عرض الكارت الكبيرة */
     max-width: 100%;
     height: 100%;
     display: flex;
@@ -862,6 +886,7 @@ section {
     .drawer {
         width: 100%;
         border-radius: 0;
+        right: 0;
     }
 }
 

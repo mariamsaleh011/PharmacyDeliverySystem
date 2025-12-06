@@ -1,34 +1,29 @@
 ﻿@using PharmacyDeliverySystem.Models
-
 @{
-    ViewData["Title"] = "Products";
+    ViewData["Title"] = "Special Offers";
     Layout = "_Layout";
 
-    var productsList = ViewBag.ProductsList as IEnumerable<Product>;
-    var total = productsList?.Count() ?? 0;
+    var offers = ViewBag.OffersProducts as List<Product>;
+    var total = offers?.Count ?? 0;
 }
 
-@section Head {
-    <link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
-}
+<link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
 
 <section class="products products-en">
-    <!-- ===== Header (icon + title + count + search) ===== -->
     <div class="products-header">
         <div class="products-header-left">
             <div class="products-header-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <!-- أيقونة Products (مربعات مثلاً) -->
-                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <!-- أيقونة خصم (%) -->
+                    <circle cx="8" cy="8" r="2.5"></circle>
+                    <circle cx="16" cy="16" r="2.5"></circle>
+                    <line x1="6" y1="18" x2="18" y2="6"></line>
                 </svg>
             </div>
             <div>
-                <h2 class="products-title-en">Products</h2>
+                <h2 class="products-title-en">Special offers</h2>
                 <p class="products-subtitle-en">
-                    <span class="category-count">@total items</span> available
+                    <span class="category-count">@total items</span> on offer
                 </p>
             </div>
         </div>
@@ -40,15 +35,14 @@
             </svg>
             <input type="search"
                    class="category-search-input"
-                   placeholder="Search @total products..." />
+                   placeholder="Search @total offers..." />
         </div>
     </div>
 
-    <!-- ===== Products grid ===== -->
     <div class="product-grid">
-        @if (productsList != null && productsList.Any())
+        @if (offers != null && offers.Any())
         {
-            foreach (var product in productsList)
+            foreach (var product in offers)
             {
                 <div class="product"
                      data-name="@product.Name"
@@ -65,7 +59,7 @@
                         var imgClass = "product-img" + (!hasImage ? " default-icon" : "");
                     }
 
-                    <img src="@imgSrc" alt="@product.Name" class="@imgClass" />
+                    <img src="@imgSrc" alt="Offer @product.Name" class="@imgClass" />
 
                     <h3>@product.Name</h3>
 
@@ -91,7 +85,7 @@
         }
         else
         {
-            <p>No products available right now.</p>
+            <p>No special offers available right now.</p>
         }
     </div>
 </section>

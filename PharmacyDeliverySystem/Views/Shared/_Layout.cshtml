@@ -23,6 +23,9 @@
         bool isAuthPage =
         controller == "CustomerAuth" ||
         controller == "PharmacyAuth";
+
+        // صفحة الكارت الجديدة Home/Cart
+        bool isCartPage = controller == "Home" && action == "Cart";
     }
 
     @if (!isAuthPage)
@@ -89,7 +92,6 @@
                         </a>
                     </nav>
 
-
                     <!-- Actions: Login/Logout + Language + Theme + Cart -->
                     <div class="top-actions">
 
@@ -122,7 +124,9 @@
                                 class="action-card btn-cart"
                                 type="button"
                                 title="Cart"
-                                aria-label="Open cart">
+                                aria-label="Open cart"
+                                data-mode="page"
+                                data-cart-url="@Url.Action("Cart", "Home")">
                             <span class="action-icon">🛒</span>
                             <span class="action-text" id="cartText">Cart</span>
                             <span id="cartCount" class="badge" aria-live="polite">0</span>
@@ -171,7 +175,7 @@
     }
 
     <!-- Page content -->
-    <div class="container">
+    <div class="container @(((controller == "Home" && action == "Index") || isCartPage) ? "container-full" : "")">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -198,39 +202,42 @@
         <!-- Back to top button -->
         <button id="toTop" type="button" title="Back to top">↑</button>
 
-        <!-- Overlay + Cart drawer -->
-        <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
+        @* Overlay + drawer في كل الصفحات ما عدا صفحة الكارت *@
+        @if (!isCartPage)
+        {
+            <!-- Overlay + Cart drawer -->
+            <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
 
-        <aside id="drawer" class="drawer" aria-label="Shopping cart" aria-live="polite">
-            <div class="drawer-header">
-                <strong id="cartTitle">Shopping Cart</strong>
-                <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="Close cart">✕</button>
-            </div>
-
-            <div id="cartList" class="drawer-body"></div>
-            <div class="drawer-footer">
-                <div class="drawer-total-row">
-                    <span id="totalLabel">Total Amount</span>
-                    <strong id="cartTotal">0 EGP</strong>
+            <aside id="drawer" class="drawer" aria-label="Shopping cart" aria-live="polite">
+                <div class="drawer-header">
+                    <strong id="cartTitle">Shopping Cart</strong>
+                    <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="Close cart">✕</button>
                 </div>
 
-                <!-- Checkout button -->
-                <button id="checkoutBtn"
-                        type="button"
-                        onclick="checkout()"
-                        data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
-                        data-login-url="@Url.Action("Login", "CustomerAuth")">
-                    Checkout
-                </button>
+                <div id="cartList" class="drawer-body"></div>
+                <div class="drawer-footer">
+                    <div class="drawer-total-row">
+                        <span id="totalLabel">Total Amount</span>
+                        <strong id="cartTotal">0 EGP</strong>
+                    </div>
 
-                <button type="button"
-                        class="btn btn-danger w-100"
-                        onclick="clearCart()">
-                    <span id="clearCartText">Clear cart</span>
-                </button>
-            </div>
+                    <!-- Checkout button -->
+                    <button id="checkoutBtn"
+                            type="button"
+                            onclick="checkout()"
+                            data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
+                            data-login-url="@Url.Action("Login", "CustomerAuth")">
+                        Checkout
+                    </button>
 
-        </aside>
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            onclick="clearCart()">
+                        <span id="clearCartText">Clear cart</span>
+                    </button>
+                </div>
+            </aside>
+        }
     }
 
     <!-- Scripts -->
