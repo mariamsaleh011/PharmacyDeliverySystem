@@ -1,0 +1,19 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.PharmacyAdmin>
+
+<h2>Admins for this Pharmacy</h2>
+
+<table class="table">
+    <tr>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Created At</th>
+    </tr>
+@foreach(var admin in Model)
+{
+    <tr>
+        <td>@admin.FullName</td>
+        <td>@admin.Email</td>
+        <td>@admin.CreatedAt.ToString("dd/MM/yyyy")</td>
+    </tr>
+}
+</table>

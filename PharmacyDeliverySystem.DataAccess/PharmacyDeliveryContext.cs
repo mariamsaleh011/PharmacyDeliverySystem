@@ -30,6 +30,8 @@ namespace PharmacyDeliverySystem.DataAccess
 
         // ✅ استخدمنا Return مش Returnn
         public virtual DbSet<Return> Returns { get; set; }
+        public virtual DbSet<PharmacyAdmin> PharmacyAdmins { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

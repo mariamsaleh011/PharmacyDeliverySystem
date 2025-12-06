@@ -146,5 +146,55 @@ namespace PharmacyDeliverySystem.Controllers
 
             return RedirectToAction("OpenChat", new { chatId = chatId });
         }
+
+        // =========================
+        // Admin/Owner Actions
+        // =========================
+
+        // GET: Add Admin form
+        public IActionResult AddAdmin()
+        {
+            return View(); // Views/Pharmacy/AddAdmin.cshtml
+        }
+
+        // POST: Add Admin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddAdmin(PharmacyAdmin admin)
+        {
+            int pharmId = GetPharmacyId();
+            if (pharmId == 0) return Unauthorized();
+
+            admin.PharmId = pharmId;
+            admin.CreatedAt = DateTime.Now;
+
+            _manager.CreateAdmin(admin); // لازم تضيفي Method في IPharmacyManager وBusiness Layer
+            return RedirectToAction("Dashboard");
+        }
+
+        // GET: List all Admins for this pharmacy
+        public IActionResult ListAdmins()
+        {
+            int pharmId = GetPharmacyId();
+            if (pharmId == 0) return Unauthorized();
+
+            var admins = _manager.GetAdminsByPharmacyId(pharmId); // Business Layer
+            return View(admins); // Views/Pharmacy/ListAdmins.cshtml
+        }
+
+        public IActionResult Dashboard()
+        {
+            int pharmId = GetPharmacyId(); // دالة بتجيب PharmId للصيدلية المسجلة دخول
+            if (pharmId == 0)
+                return RedirectToAction("Login", "PharmacyAuth");
+
+            // مثال: بيانات بسيطة للـ Dashboard
+            ViewBag.TotalOrders = _manager.GetOrdersCount(pharmId);
+            ViewBag.TotalProducts = _manager.GetProductsCount(pharmId);
+
+            return View(); // MVC هيدور على Views/Pharmacy/Dashboard.cshtml
+        }
+
+
     }
 }

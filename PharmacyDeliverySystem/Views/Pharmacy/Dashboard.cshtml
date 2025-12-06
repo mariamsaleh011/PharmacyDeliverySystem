@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Pharmacy Dashboard";
+}
+
+<h2>Welcome to Your Pharmacy Dashboard</h2>
+
+<div class="dashboard-buttons">
+    <!-- زر لإضافة Admin جديد -->
+    <a asp-controller="Pharmacy" asp-action="AddAdmin" class="btn btn-primary m-2">
+        Add Owner/Admin
+    </a>
+
+    <!-- زر لعرض كل Admins -->
+    <a asp-controller="Pharmacy" asp-action="ListAdmins" class="btn btn-secondary m-2">
+        View All Owners/Admins
+    </a>
+</div>
+
+<hr />
+
+<!-- مثال على إحصائيات بسيطة -->
+<div class="dashboard-stats">
+    <p>Total Orders: @ViewBag.TotalOrders</p>
+    <p>Total Products: @ViewBag.TotalProducts</p>
+</div>

@@ -25,5 +25,8 @@ namespace PharmacyDeliverySystem.Models
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+
+        public virtual ICollection<PharmacyAdmin> PharmacyAdmins { get; set; } = new List<PharmacyAdmin>();
+
     }
 }

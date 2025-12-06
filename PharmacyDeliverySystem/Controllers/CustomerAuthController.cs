@@ -98,7 +98,7 @@ namespace PharmacyDeliverySystem.Controllers
             return role switch
             {
                 "Customer" => RedirectToAction("Index", "Home"),
-                "Pharmacy" => RedirectToAction("Admin", "Product"),
+                "Pharmacy" => RedirectToAction("Index", "Home"),
                 _ => RedirectToAction("Index", "Home")
             };
         }

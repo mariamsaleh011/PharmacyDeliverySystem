@@ -11,19 +11,70 @@
 }
 
 <section class="hero hero-en">
-    <div class="hero-content">
-        <h2 class="headline-en">
-            Your <span class="accent">all-in-one</span> platform to supply
-            <span class="accent">your pharmacy</span>
-        </h2>
-        <p>
-            Browse, order and get everything delivered to your pharmacy fast and safely.
-        </p>
-        <button type="button" onclick="orderNow()">
-            Order now
-        </button>
+    <div class="hero-section">
+        <div class="hero-content hero-modern">
+            <h1 class="headline-en">
+                <span class="accent-gradient">All-in-One</span> <br />
+                Platform for Your <span class="accent-gradient">Pharmacy</span>
+            </h1>
+            <p class="hero-subtitle">
+                Browse, order, and get all pharmacy supplies delivered quickly and safely.
+            </p>
+            <div class="hero-buttons">
+                <button type="button" class="btn-hero-primary" onclick="orderNow()">
+                    Order Now
+                </button>
+            </div>
+
+            <!-- إضافات شكلية ديناميكية -->
+            <div class="hero-shapes">
+                <span class="shape-circle circle-1"></span>
+                <span class="shape-circle circle-2"></span>
+                <span class="shape-wave wave-1"></span>
+                <span class="shape-wave wave-2"></span>
+
+            </div>
+        </div>
     </div>
+
 </section>
+@if (User.IsInRole("Pharmacy") && ViewBag.TotalOrders != null)
+{
+    <div class="dashboard-buttons">
+        <h3>Pharmacy Dashboard</h3>
+
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-success m-2">
+            Total Orders: @ViewBag.TotalOrders
+        </a>
+
+        <a asp-controller="Products" asp-action="Index" class="btn btn-info m-2">
+            Total Products: @ViewBag.TotalProducts
+        </a>
+
+        <a asp-controller="Pharmacy" asp-action="AddAdmin" class="btn btn-primary m-2">
+            Add Owner/Admin
+        </a>
+
+        <!-- زرار Product Management -->
+        <a asp-controller="Product" asp-action="Admin" class="btn btn-success">
+            Product Management
+        </a>
+
+        <!-- زرار Chats -->
+        <a asp-controller="PharmacyChat" asp-action="Chats" class="btn btn-info">
+            View Chats
+        </a>
+
+        @* <h4>Admins / Owners</h4>
+        @foreach (var admin in ViewBag.Admins)
+        {
+            <a asp-controller="Pharmacy" asp-action="AdminDetails"
+               asp-route-id="@admin.AdminId" class="btn btn-warning m-1">
+                @admin.FullName (@admin.Email)
+            </a>
+        } *@
+    </div>
+}
 
 <section class="categories categories-en">
     <div class="categories-header">
@@ -101,6 +152,8 @@
         </button>
     </div>
 </section>
+
+
 
 <section class="offers-section offers-en" id="offers">
     <h2>Special offers</h2>
@@ -181,4 +234,5 @@
             </a>
         </div>
     </div>
+ 
 </section>
