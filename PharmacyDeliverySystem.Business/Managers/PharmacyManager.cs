@@ -87,18 +87,7 @@ namespace PharmacyDeliverySystem.Business.Managers
             return _context.Pharmacies.FirstOrDefault(p => p.Email == email);
         }
 
-        public void CreateAdmin(PharmacyAdmin admin)
-        {
-            _context.PharmacyAdmins.Add(admin);
-            _context.SaveChanges();
-        }
 
-        public IEnumerable<PharmacyAdmin> GetAdminsByPharmacyId(int pharmId)
-        {
-            return _context.PharmacyAdmins
-                .Where(a => a.PharmId == pharmId)
-                .ToList();
-        }
 
         public int GetOrdersCount(int pharmId)
         {

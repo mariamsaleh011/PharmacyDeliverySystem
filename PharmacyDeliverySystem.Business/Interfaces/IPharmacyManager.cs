@@ -12,7 +12,6 @@ namespace PharmacyDeliverySystem.Business.Interfaces
         void Update(Pharmacy pharmacy);
         void Delete(int id);
         // IPharmacyManager.cs
-        void CreateAdmin(PharmacyAdmin admin);
         void SendMessage(int chatId, string message, string senderType);
 
         int GetOrdersCount(int pharmId);
@@ -23,7 +22,6 @@ namespace PharmacyDeliverySystem.Business.Interfaces
         List<Chat> GetChatsByPharmacyId(int pharmacyId);
         Chat GetChatById(int chatId);
         Pharmacy GetPharmacyByEmail(string email);
-        IEnumerable<PharmacyAdmin> GetAdminsByPharmacyId(int pharmId);
 
 
     }

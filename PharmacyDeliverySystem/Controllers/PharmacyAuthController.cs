@@ -76,6 +76,68 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Login");
         }
 
+
+        /* ==================== ADD ADMIN ==================== */
+
+        // GET: /PharmacyAuth/AddAdmin
+        //[HttpGet]
+        //public IActionResult AddAdmin()
+        //{
+        //    // جلب كل الـ Owners الموجودين
+        //    var email = User.FindFirstValue(ClaimTypes.Email);
+        //    var owners = _pharmacyManager.GetAdminsByPharmacyEmail(email);
+
+        //    ViewBag.Owners = owners;
+
+        //    return View(new PharmacyRegisterViewModel());
+        //}
+
+        //POST: /PharmacyAuth/AddAdmin
+        // GET: /PharmacyAuth/AddAdmin
+        [HttpGet]
+        public IActionResult AddAdmin()
+        {
+            // جلب كل الـ Admins الموجودين
+            ViewBag.Owners = _context.Pharmacy.ToList();
+            return View(new PharmacyRegisterViewModel());
+        }
+
+        // POST: /PharmacyAuth/AddAdmin
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddAdmin(PharmacyRegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Owners = _context.Pharmacies.ToList();
+                return View(model);
+            }
+
+            // تحقق إذا موجود بالفعل
+            var existing = _context.Pharmacy
+                .FirstOrDefault(p => p.Name == model.Name || p.Email == model.Email);
+
+            if (existing != null)
+            {
+                ModelState.AddModelError("", "Owner/Admin already exists!");
+                ViewBag.Owners = _context.Pharmacies.ToList();
+                return View(model);
+            }
+
+            // إنشاء Admin جديد
+            var newAdmin = new Pharmacy
+            {
+                Name = model.Name,
+                Email = model.Email,
+                PasswordHash = model.Password
+            };
+
+            _context.Pharmacies.Add(newAdmin);
+            _context.SaveChanges(); // مهم جدًا للحفظ الفعلي في الداتابيز
+
+            return RedirectToAction("AddAdmin");
+        }
+
         /* ==================== REGISTER ==================== */
 
         // GET: PharmacyAuth/Register
@@ -120,38 +182,38 @@ namespace PharmacyDeliverySystem.Controllers
         //}
 
         // GET: Add Owner/Admin Form
-        public IActionResult AddOwner()
-        {
-            return View();
-        }
+        //public IActionResult AddOwner()
+        //{
+        //    return View();
+        //}
 
-        // POST: Add Owner/Admin
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddOwner(Pharmacy model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
+        //// POST: Add Owner/Admin
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult AddOwner(Pharmacy model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);
 
-            // استخدمي نفس الصيدلية اللي عامل Login
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var pharmacy = _pharmacyManager.GetPharmacyByEmail(email);
-            if (pharmacy == null)
-                return BadRequest("Pharmacy not found.");
-            var existing = _pharmacyManager.GetAllPharmacies()
-                    .FirstOrDefault(p => p.Name == model.Name
-                                      || p.LicenceNo == model.LicenceNo);
-            if (existing != null)
-            {
-                ModelState.AddModelError("", "Owner/Admin already exists!");
-                return View(model);
-            }
-            // هنا نضيف الشخص الجديد كـ Owner/Admin بنفس الصلاحيات
-            model.LicenceNo = pharmacy.LicenceNo; // ممكن تعملي نسخة من الترخيص لو حابة
-            model.TaxId = pharmacy.TaxId;         // أو تحطي بيانات جديدة
-            _pharmacyManager.Create(model);
+        //    // استخدمي نفس الصيدلية اللي عامل Login
+        //    var email = User.FindFirstValue(ClaimTypes.Email);
+        //    var pharmacy = _pharmacyManager.GetPharmacyByEmail(email);
+        //    if (pharmacy == null)
+        //        return BadRequest("Pharmacy not found.");
+        //    var existing = _pharmacyManager.GetAllPharmacies()
+        //            .FirstOrDefault(p => p.Name == model.Name
+        //                             );
+        //    if (existing != null)
+        //    {
+        //        ModelState.AddModelError("", "Owner/Admin already exists!");
+        //        return View(model);
+        //    }
+        //    // هنا نضيف الشخص الجديد كـ Owner/Admin بنفس الصلاحيات
+        //    model.LicenceNo = pharmacy.LicenceNo; // ممكن تعملي نسخة من الترخيص لو حابة
+        //    model.TaxId = pharmacy.TaxId;         // أو تحطي بيانات جديدة
+        //    _pharmacyManager.Create(model);
 
-            return RedirectToAction("Index", "Home");
-        }
+        //    return RedirectToAction("Index", "Home");
+        //}
     }
 }

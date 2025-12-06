@@ -45,7 +45,6 @@ namespace PharmacyDeliverySystem.Controllers
                     {
                         ViewBag.TotalOrders = _pharmacyManager.GetOrdersCount(pharmacy.PharmId);
                         ViewBag.TotalProducts = _pharmacyManager.GetProductsCount(pharmacy.PharmId);
-                        ViewBag.Admins = _pharmacyManager.GetAdminsByPharmacyId(pharmacy.PharmId);
                     }
                 }
             }
