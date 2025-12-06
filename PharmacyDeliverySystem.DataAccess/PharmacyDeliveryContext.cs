@@ -31,6 +31,7 @@ namespace PharmacyDeliverySystem.DataAccess
         // ✅ استخدمنا Return مش Returnn
         public virtual DbSet<Return> Returns { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chat>(entity =>
@@ -151,9 +152,7 @@ namespace PharmacyDeliverySystem.DataAccess
 
                 entity.ToTable("Pharmacy");
 
-                entity.Property(e => e.LicenceNo).HasMaxLength(20);
                 entity.Property(e => e.Name).HasMaxLength(30);
-                entity.Property(e => e.TaxId).HasMaxLength(20);
             });
 
             modelBuilder.Entity<Prescription>(entity =>

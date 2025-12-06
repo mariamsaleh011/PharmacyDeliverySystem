@@ -1,0 +1,77 @@
+﻿@model PharmacyDeliverySystem.ViewModels.PharmacyRegisterViewModel
+@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<h2 class="auth-title">Add New Owner/Admin</h2>
+<p class="auth-subtitle">
+    Register a new admin for your pharmacy.
+</p>
+
+<form asp-action="AddAdmin" method="post" class="mt-3">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Owner Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+
+    <div class="row">
+        <div class="mb-3 col-md-6">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-md-6">
+            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="auth-footer-actions">
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="auth-cancel-link">
+            Cancel
+        </a>
+
+        <button type="submit" class="auth-submit auth-submit--small">
+            Add Admin
+        </button>
+    </div>
+</form>
+
+<section>
+    <h3 class="mt-4">Current Owners</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Owner Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+              @if (ViewBag.Owners != null)
+    {
+            @foreach (var owner in ViewBag.Owners)
+            {
+                <tr>
+                    <td>@owner.Name</td>
+                    <td>@owner.Email</td>
+                </tr>
+            }
+    }
+        </tbody>
+    </table>
+</section>

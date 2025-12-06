@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.Business.Managers;
 using PharmacyDeliverySystem.Models;
 using System.Diagnostics;
 using System.Linq;
@@ -12,11 +13,13 @@ namespace PharmacyDeliverySystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductManager _productManager;
+        private readonly IPharmacyManager _pharmacyManager;
 
-        public HomeController(ILogger<HomeController> logger, IProductManager productManager)
+        public HomeController(ILogger<HomeController> logger, IProductManager productManager, IPharmacyManager pharmacyManager)
         {
             _logger = logger;
             _productManager = productManager;
+            _pharmacyManager = pharmacyManager;
         }
 
         // =============================
@@ -31,6 +34,24 @@ namespace PharmacyDeliverySystem.Controllers
                                  .ToList();
 
             ViewBag.OffersProducts = offersProducts;   // للأوفرز فقط
+
+
+            // Dashboard للصيدلية
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                if (roleClaim != null && roleClaim.Value == "Pharmacy")
+                {
+                    var email = User.FindFirstValue(ClaimTypes.Email);
+                    var pharmacy = _pharmacyManager.GetPharmacyByEmail(email);
+
+                    if (pharmacy != null)
+                    {
+                        ViewBag.TotalOrders = _pharmacyManager.GetOrdersCount(pharmacy.PharmId);
+                        ViewBag.TotalProducts = _pharmacyManager.GetProductsCount(pharmacy.PharmId);
+                    }
+                }
+            }
 
             return View();
         }
@@ -89,7 +110,7 @@ namespace PharmacyDeliverySystem.Controllers
                 // لو الصيدلي
                 if (roleClaim.Value == "Pharmacy")
                 {
-                    return RedirectToAction("Chats", "PharmacyChat");
+                    return RedirectToAction("Index", "Home");
                 }
             }
 
@@ -104,10 +125,10 @@ namespace PharmacyDeliverySystem.Controllers
                 var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
                 if (role == "Customer")
-                    return RedirectToAction("Index", "Chat"); // صفحة الدردشة للعميل
+                    return RedirectToAction("Index", "Home"); // صفحة الدردشة للعميل
 
                 if (role == "Pharmacy")
-                    return RedirectToAction("Chats", "PharmacyChat"); // صفحة الدردشة للصيدلي
+                    return RedirectToAction("Index", "Home"); // صفحة الدردشة للصيدلي
             }
 
             // إذا لم يكن مسجل دخول

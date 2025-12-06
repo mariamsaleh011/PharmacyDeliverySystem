@@ -87,6 +87,19 @@ namespace PharmacyDeliverySystem.Business.Managers
             return _context.Pharmacies.FirstOrDefault(p => p.Email == email);
         }
 
+
+
+        public int GetOrdersCount(int pharmId)
+        {
+            return _context.Orders.Count(o => o.PharmId == pharmId);
+        }
+
+        public int GetProductsCount(int pharmId)
+        {
+            return _context.Products.Count(p => p.PharmId == pharmId);
+        }
+
+
     }
 }
 

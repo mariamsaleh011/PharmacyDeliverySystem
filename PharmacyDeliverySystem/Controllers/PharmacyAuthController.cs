@@ -1,23 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PharmacyDeliverySystem.Controllers
 {
     public class PharmacyAuthController : Controller
     {
         private readonly PharmacyDeliveryContext _context;
+        private readonly IPharmacyManager _pharmacyManager;
 
-        public PharmacyAuthController(PharmacyDeliveryContext context)
+        public PharmacyAuthController(PharmacyDeliveryContext context , IPharmacyManager pharmacyManager)
         {
             _context = context;
+            _pharmacyManager = pharmacyManager;
+
         }
 
         /* ==================== LOGIN ==================== */
@@ -62,8 +66,8 @@ namespace PharmacyDeliverySystem.Controllers
                     ExpiresUtc = System.DateTime.UtcNow.AddHours(8)
                 });
 
-            // بعد اللوجين يروح على صفحة الشات الخاصة بالصيدلي
-            return RedirectToAction("Chats", "PharmacyChat");
+            // بعد اللوجين يروح على الصفحه الرئيسيه ال Home
+            return RedirectToAction("Index", "Home");
         }
 
         public async Task<IActionResult> Logout()
@@ -72,47 +76,144 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Login");
         }
 
-        /* ==================== REGISTER ==================== */
 
-        // GET: PharmacyAuth/Register
+        /* ==================== ADD ADMIN ==================== */
+
+        // GET: /PharmacyAuth/AddAdmin
+        //[HttpGet]
+        //public IActionResult AddAdmin()
+        //{
+        //    // جلب كل الـ Owners الموجودين
+        //    var email = User.FindFirstValue(ClaimTypes.Email);
+        //    var owners = _pharmacyManager.GetAdminsByPharmacyEmail(email);
+
+        //    ViewBag.Owners = owners;
+
+        //    return View(new PharmacyRegisterViewModel());
+        //}
+
+        //POST: /PharmacyAuth/AddAdmin
+        // GET: /PharmacyAuth/AddAdmin
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult AddAdmin()
         {
+            // جلب كل الـ Admins الموجودين
+            ViewBag.Owners = _context.Pharmacy.ToList();
             return View(new PharmacyRegisterViewModel());
         }
 
-        // POST: PharmacyAuth/Register
+        // POST: /PharmacyAuth/AddAdmin
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(PharmacyRegisterViewModel model)
+        public IActionResult AddAdmin(PharmacyRegisterViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
-
-            // تأكد إن الإيميل مش متسجل قبل كده
-            bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
-            if (emailExists)
             {
-                ModelState.AddModelError("Email", "This email is already registered.");
+                ViewBag.Owners = _context.Pharmacies.ToList();
                 return View(model);
             }
 
-            // إنشاء كيان الصيدلية الجديد
-            var pharmacy = new Pharmacy
+            // تحقق إذا موجود بالفعل
+            var existing = _context.Pharmacy
+                .FirstOrDefault(p => p.Name == model.Name || p.Email == model.Email);
+
+            if (existing != null)
+            {
+                ModelState.AddModelError("", "Owner/Admin already exists!");
+                ViewBag.Owners = _context.Pharmacies.ToList();
+                return View(model);
+            }
+
+            // إنشاء Admin جديد
+            var newAdmin = new Pharmacy
             {
                 Name = model.Name,
                 Email = model.Email,
-                LicenceNo = model.LicenceNo,
-                TaxId = model.TaxId,
-                // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
                 PasswordHash = model.Password
             };
 
-            _context.Pharmacies.Add(pharmacy);
-            _context.SaveChanges();
+            _context.Pharmacies.Add(newAdmin);
+            _context.SaveChanges(); // مهم جدًا للحفظ الفعلي في الداتابيز
 
-            // بعد الريجستر نرجّع الصيدلي لصفحة اللوجين بتاعته
-            return RedirectToAction("Login", "PharmacyAuth");
+            return RedirectToAction("AddAdmin");
         }
+
+        /* ==================== REGISTER ==================== */
+
+        // GET: PharmacyAuth/Register
+        //[HttpGet]
+        //public IActionResult Register()
+        //{
+        //    return View(new PharmacyRegisterViewModel());
+        //}
+
+        //// POST: PharmacyAuth/Register
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Register(PharmacyRegisterViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);
+
+        //    // تأكد إن الإيميل مش متسجل قبل كده
+        //    bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
+        //    if (emailExists)
+        //    {
+        //        ModelState.AddModelError("Email", "This email is already registered.");
+        //        return View(model);
+        //    }
+
+        //    // إنشاء كيان الصيدلية الجديد
+        //    var pharmacy = new Pharmacy
+        //    {
+        //        Name = model.Name,
+        //        Email = model.Email,
+        //        LicenceNo = model.LicenceNo,
+        //        TaxId = model.TaxId,
+        //        // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
+        //        PasswordHash = model.Password
+        //    };
+
+        //    _context.Pharmacies.Add(pharmacy);
+        //    _context.SaveChanges();
+
+        //    // بعد الريجستر نرجّع الصيدلي لصفحة اللوجين بتاعته
+        //    return RedirectToAction("Login", "PharmacyAuth");
+        //}
+
+        // GET: Add Owner/Admin Form
+        //public IActionResult AddOwner()
+        //{
+        //    return View();
+        //}
+
+        //// POST: Add Owner/Admin
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult AddOwner(Pharmacy model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);
+
+        //    // استخدمي نفس الصيدلية اللي عامل Login
+        //    var email = User.FindFirstValue(ClaimTypes.Email);
+        //    var pharmacy = _pharmacyManager.GetPharmacyByEmail(email);
+        //    if (pharmacy == null)
+        //        return BadRequest("Pharmacy not found.");
+        //    var existing = _pharmacyManager.GetAllPharmacies()
+        //            .FirstOrDefault(p => p.Name == model.Name
+        //                             );
+        //    if (existing != null)
+        //    {
+        //        ModelState.AddModelError("", "Owner/Admin already exists!");
+        //        return View(model);
+        //    }
+        //    // هنا نضيف الشخص الجديد كـ Owner/Admin بنفس الصلاحيات
+        //    model.LicenceNo = pharmacy.LicenceNo; // ممكن تعملي نسخة من الترخيص لو حابة
+        //    model.TaxId = pharmacy.TaxId;         // أو تحطي بيانات جديدة
+        //    _pharmacyManager.Create(model);
+
+        //    return RedirectToAction("Index", "Home");
+        //}
     }
 }

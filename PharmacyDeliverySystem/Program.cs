@@ -28,13 +28,14 @@ builder.Services.AddScoped<IRefundManager, RefundManager>();
 builder.Services.AddScoped<IChatManager, ChatManager>();
 builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
 builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
+builder.Services.AddScoped<IPharmacyManager, PharmacyManager>();
 
 // Authentication & Authorization
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل دخول
+        options.LoginPath = "/PharmacyAuth/Login";   // صفحة تسجيل دخول
         options.LogoutPath = "/CustomerAuth/Logout";
         options.AccessDeniedPath = "/Home/Index";    // redirect if unauthorized
         options.Cookie.Name = "PharmacyAuthCookie";

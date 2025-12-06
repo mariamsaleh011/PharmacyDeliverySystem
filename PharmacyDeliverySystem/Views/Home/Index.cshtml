@@ -1,4 +1,4 @@
-﻿@using PharmacyDeliverySystem.Models
+@using PharmacyDeliverySystem.Models
 @{
     ViewData["Title"] = "Home";
     Layout = "_Layout";
@@ -11,16 +11,60 @@
 }
 
 <section class="hero hero-en">
-    <div class="hero-content">
-        <h2 class="headline-en">
-            Your <span class="accent">all-in-one</span> platform to supply
-            <span class="accent">your pharmacy</span>
-        </h2>
-        <p>
-            Browse, order and get everything delivered to your pharmacy fast and safely.
-        </p>
+    <div class="hero-section">
+        <div class="hero-content hero-modern">
+            <h1 class="headline-en">
+                <span class="accent-gradient">All-in-One</span> <br />
+                Platform for Your <span class="accent-gradient">Pharmacy</span>
+            </h1>
+            <p class="hero-subtitle">
+                Browse, order, and get all pharmacy supplies delivered quickly and safely.
+            </p>
+            <div class="hero-buttons">
+                <button type="button" class="btn-hero-primary" onclick="orderNow()">
+                    Order Now
+                </button>
+            </div>
+
+            <!-- إضافات شكلية ديناميكية -->
+            <div class="hero-shapes">
+                <span class="shape-circle circle-1"></span>
+                <span class="shape-circle circle-2"></span>
+                <span class="shape-wave wave-1"></span>
+                <span class="shape-wave wave-2"></span>
+            </div>
+        </div>
     </div>
 </section>
+
+@if (User.IsInRole("Pharmacy") && ViewBag.TotalOrders != null)
+{
+    <div class="dashboard-buttons">
+        <h3>Pharmacy Dashboard</h3>
+
+        <a asp-controller="Orders" asp-action="Index" class="btn btn-success m-2">
+            Total Orders: @ViewBag.TotalOrders
+        </a>
+
+        <a asp-controller="Products" asp-action="Index" class="btn btn-info m-2">
+            Total Products: @ViewBag.TotalProducts
+        </a>
+
+        <a asp-controller="PharmacyAuth" asp-action="AddAdmin" class="btn btn-primary m-2">
+            Add Owner/Admin
+        </a>
+
+        <!-- زرار Product Management -->
+        <a asp-controller="Product" asp-action="Admin" class="btn btn-success">
+            Product Management
+        </a>
+
+        <!-- زرار Chats -->
+        <a asp-controller="PharmacyChat" asp-action="Chats" class="btn btn-info">
+            View Chats
+        </a>
+    </div>
+}
 
 <section class="categories categories-en">
     <div class="categories-header">
@@ -128,6 +172,60 @@
                 aria-label="Next categories">
             ›
         </button>
+    </div>
+</section>
+
+<section class="offers-section offers-en" id="offers">
+    <h2>Special offers</h2>
+    <div class="product-grid">
+        @if (offerList != null && offerList.Any())
+        {
+            foreach (var product in offerList)
+            {
+                <div class="product"
+                     data-name="@product.Name"
+                     data-price="@product.Price"
+                     data-product-id="@product.ProId">
+
+                    @{
+                        // لو عنده صورة نستخدمها، لو مفيش نستخدم الأيقونة الافتراضية
+                        var hasImage = !string.IsNullOrWhiteSpace(product.ImageUrl);
+
+                        var imgSrc = hasImage
+                            ? product.ImageUrl
+                            : Url.Content("~/images/icons/product-default.svg");
+
+                        var imgClass = "product-img" + (!hasImage ? " default-icon" : "");
+                    }
+
+                    <img src="@imgSrc" alt="Offer @product.Name" class="@imgClass" />
+
+                    <h3>@product.Name</h3>
+
+                    <p>
+                        @((product.Description ?? product.Dosage) ?? "Available product")
+                    </p>
+
+                    <p class="price">
+                        @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
+                        {
+                            <span class="old-price">
+                                @product.OldPrice.Value.ToString("0.00 EGP")
+                            </span>
+                        }
+                        @product.Price.ToString("0.00 EGP")
+                    </p>
+
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        Add to cart
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No special offers available right now.</p>
+        }
     </div>
 </section>
 

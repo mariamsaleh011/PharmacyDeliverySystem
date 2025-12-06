@@ -146,5 +146,19 @@ namespace PharmacyDeliverySystem.Controllers
 
             return RedirectToAction("OpenChat", new { chatId = chatId });
         }
+
+        // =========================
+        // Admin/Owner Actions
+        // =========================
+
+        // GET: Add Admin form
+        //public IActionResult AddAdmin()
+        //{
+        //    return View(); // Views/Pharmacy/AddAdmin.cshtml
+        //}
+
+       
+
+
     }
 }

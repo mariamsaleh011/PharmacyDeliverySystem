@@ -1,49 +1,147 @@
-﻿/* =========================================
+/* =========================================
    Home Page Styles (Hero, Categories, Offers, Tips, Contact)
    ========================================= */
 
 /* -------- Hero -------- */
 
-.hero {
-    background-image: url("https://images.unsplash.com/photo-1580281658629-25b94e37a32a?auto=format&fit=crop&w=1200&q=60");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: white;
-    text-align: center;
-    padding: 100px 5%;
-    position: relative;
-    margin-bottom: 30px;
+/* ================= Hero Section Scoped ================= */
+.hero-section {
+    /* يمكن التحكم في الخلفية العامة للـ Hero */
+    --bg-hero: #f9f9f9;
+    --text-main: #004d40;
+    --text-sub: #00796b;
+    --accent-gradient-start: #00bfa5;
+    --accent-gradient-end: #00cfff;
+    --btn-primary-bg: linear-gradient(135deg, #00cfff, #00bfa5);
+    --btn-secondary-bg: rgba(255,255,255,0.7);
+    --btn-secondary-color: #00796b;
 }
 
-    .hero::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-color: rgba(0, 132, 176, 0.7);
+/* Dark Mode */
+[data-theme="dark"] .hero-section {
+    --bg-hero: #0f1214;
+    --text-main: #ffffff;
+    --text-sub: #e0f7ff;
+    --accent-gradient-start: #00c6ff;
+    --accent-gradient-end: #0072ff;
+    --btn-primary-bg: linear-gradient(135deg, #00c6ff, #0072ff);
+    --btn-secondary-bg: rgba(255,255,255,0.15);
+    --btn-secondary-color: #ffffff;
+}
+
+/* Hero content داخل الصنف hero-section */
+.hero-section .hero-modern {
+    position: relative;
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+    z-index: 2;
+    color: var(--text-main);
+    background-color: var(--bg-hero);
+    padding: 80px 20px;
+    border-radius: 20px;
+}
+
+.hero-section .hero-modern h1 {
+    font-family: 'Arial', sans-serif;
+}
+
+.hero-section .accent-gradient {
+    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-section .hero-subtitle {
+    color: var(--text-sub);
+}
+
+.btn-hero-primary {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+}
+
+/* الأشكال والأيقونات داخل hero-section فقط */
+.hero-section .hero-shapes span {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: float 6s ease-in-out infinite alternate;
+}
+
+.hero-section .circle-1 {
+    width: 120px;
+    height: 120px;
+    background: var(--accent-gradient-start);
+    top: 10%;
+    left: 5%;
+}
+
+.hero-section .circle-2 {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-gradient-end);
+    bottom: 15%;
+    right: 10%;
+}
+
+.hero-section .shape-wave {
+    width: 200px;
+    height: 200px;
+    background: rgba(0,199,175,0.2);
+    border-radius: 50%;
+    animation-duration: 8s;
+}
+
+.hero-section .floating-icon {
+    font-size: 2rem;
+    position: absolute;
+    opacity: 0.8;
+    animation: floatIcon 5s ease-in-out infinite alternate;
+}
+
+/* Keyframes */
+@keyframes float {
+    0% {
+        transform: translateY(0px) translateX(0px);
     }
 
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 700px;
-    margin: 0 auto;
+    100% {
+        transform: translateY(-20px) translateX(10px);
+    }
 }
 
-.headline,
+@keyframes floatIcon {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-25px) rotate(15deg);
+    }
+}
+
+/*.headline,
 .headline-en {
     font-size: 32px;
     margin-bottom: 12px;
-}
+}*/
 
-.accent {
+/*.accent {
     color: #fffb;
-}
-
-.hero p {
-    font-size: 16px;
-    margin-bottom: 20px;
-}
+}*/
 
 /* -------- Categories (horizontal strip + arrows) -------- */
 
@@ -52,10 +150,10 @@
     position: relative;
 }
 
-    .categories h3 {
-        font-size: 22px;
-        margin-bottom: 12px;
-    }
+.categories h3 {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
 
 /* الهيدر */
 .categories-header {
@@ -77,9 +175,9 @@
     padding: 20px 70px;
 }
 
-    .cat-grid::-webkit-scrollbar {
-        display: none;
-    }
+.cat-grid::-webkit-scrollbar {
+    display: none;
+}
 
 /* الكارت */
 .cat-card {
@@ -97,10 +195,14 @@
     transition: 0.25s ease;
 }
 
-    .cat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.22);
-    }
+[data-theme="dark"] .cat-card {
+    border-color: #004d40;
+}
+
+.cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+}
 
 /* الايقونة */
 .cat-icon {
@@ -163,10 +265,10 @@
     text-align: center;
 }
 
-    .offers-section h2 {
-        color: var(--brand);
-        margin-bottom: 25px;
-    }
+.offers-section h2 {
+    color: var(--brand);
+    margin-bottom: 25px;
+}
 
 .product-grid {
     display: grid;
@@ -184,10 +286,10 @@
     transition: background-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
-    .product:hover {
-        transform: translateY(-5px) scale(1.03);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
+.product:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
 
 .product-img {
     width: 100%;
@@ -197,11 +299,11 @@
     margin-bottom: 10px;
 }
 
-    .product-img.default-icon {
-        filter: none !important;
-        background-color: #ffffff;
-        border-radius: 10px;
-    }
+.product-img.default-icon {
+    filter: none !important;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
 
 [data-theme="dark"] .product-img.default-icon {
     background-color: #ffffff;
@@ -241,10 +343,10 @@
     transition: 0.3s;
 }
 
-    .btn:hover,
-    .product .btn:hover {
-        background-color: #0083B0;
-    }
+.btn:hover,
+.product .btn:hover {
+    background-color: #0083B0;
+}
 
 /* -------- Health Tips -------- */
 
@@ -367,9 +469,9 @@
     transition: color 0.2s ease;
 }
 
-    .footer-links a:hover {
-        color: var(--brand);
-    }
+.footer-links a:hover {
+    color: var(--brand);
+}
 
 .footer-contact p {
     margin: 4px 0;
@@ -382,25 +484,25 @@
     margin-bottom: 12px;
 }
 
-    .footer-social a {
-        width: 34px;
-        height: 34px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        background: var(--card);
-        box-shadow: var(--shadow);
-        font-size: 16px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
+.footer-social a {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    font-size: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
 
-        .footer-social a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-            background: #e0f2fe;
-        }
+.footer-social a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    background: #e0f2fe;
+}
 
 .footer-auth-btn {
     display: inline-flex;
@@ -417,10 +519,10 @@
     transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-    .footer-auth-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 26px rgba(0,180,219,0.7);
-    }
+.footer-auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(0,180,219,0.7);
+}
 
 /* ريسبونسيف للفوتر */
 
