@@ -18,6 +18,8 @@ namespace PharmacyDeliverySystem.Models
         public string? PaymentId { get; set; }
         public int? CustomerId { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
         public virtual Customer? Customer { get; set; }

@@ -1,0 +1,31 @@
+﻿@model PharmacyDeliverySystem.ViewModels.Refunds.RefundCreateVm
+
+@{
+    ViewData["Title"] = "Create Refund";
+    Layout = "_Layout";
+}
+
+<h2>Create Refund</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="PayId" class="form-label"></label>
+        <input asp-for="PayId" class="form-control" />
+        <span asp-validation-for="PayId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reason" class="form-label"></label>
+        <textarea asp-for="Reason" class="form-control"></textarea>
+        <span asp-validation-for="Reason" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

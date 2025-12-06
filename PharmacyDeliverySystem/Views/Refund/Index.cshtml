@@ -1,0 +1,45 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Refund>
+
+@{
+    ViewData["Title"] = "Refunds";
+    Layout = "_Layout";
+}
+
+<h2>Refunds</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Refund</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Payment Id</th>
+            <th>Amount</th>
+            <th>Reason</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.RefId</td>
+                <td>@item.PayId</td>
+                <td>@item.Amount</td>
+                <td>@item.Reason</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.RefId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Edit" asp-route-id="@item.RefId" class="btn btn-sm btn-warning">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@item.RefId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete this refund?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

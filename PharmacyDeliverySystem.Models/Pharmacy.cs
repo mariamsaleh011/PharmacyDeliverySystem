@@ -8,10 +8,6 @@ namespace PharmacyDeliverySystem.Models
     {
         public int PharmId { get; set; }
 
-        public string LicenceNo { get; set; } = null!;
-
-        public string? TaxId { get; set; }
-
         public string Name { get; set; } = null!;
 
         public string Email { get; set; } = null!;

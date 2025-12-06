@@ -1,0 +1,89 @@
+﻿@model PharmacyDeliverySystem.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "_Layout";
+}
+
+<section class="order-details-page" style="padding:24px 3%;">
+    <h2 class="text-light">Order #@Model.OrderId</h2>
+
+    @* رسالة بعد طلب الـReturn *@
+    @if (TempData["ReturnMessage"] != null)
+    {
+        <div class="alert alert-success mt-2">
+            @TempData["ReturnMessage"]
+        </div>
+    }
+
+    <div class="card mb-3 mt-3">
+        <div class="card-body">
+            <p>
+                <strong>Date:</strong>
+                @Model.CreatedAt
+            </p>
+            <p><strong>Status:</strong> @Model.Status</p>
+            <p><strong>Total:</strong> @Model.TotalPrice</p> @* أو Price حسب الموديل *@
+        </div>
+    </div>
+
+    <h4 class="text-light">Items</h4>
+    <table class="table table-bordered table-dark align-middle">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit price</th>
+                <th>Subtotal</th>
+                <th>Item status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                var qty = item.Quantity ?? 0;
+                var price = item.Price ?? 0m;
+
+                <tr>
+                    <td>@item.Product?.Name</td>
+                    <td>@qty</td>
+                    <td>@price</td>
+                    <td>@(qty* price)</td>
+                    <td>@item.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <hr />
+
+    @* عرض حالة الـ Return لو موجود *@
+    @{
+        var lastReturn = Model.Returns?.OrderByDescending(r => r.ReturnId).FirstOrDefault();
+    }
+
+    @if (lastReturn != null)
+    {
+        <div class="alert alert-info mt-2">
+            <strong>Return status:</strong> @lastReturn.Status <br />
+            <strong>Reason:</strong> @lastReturn.Reason
+        </div>
+    }
+    else
+    {
+        <p class="text-light mt-2">No return requested for this order yet.</p>
+    }
+
+    <p class="mt-3">
+        <a asp-controller="Return"
+           asp-action="Create"
+           asp-route-orderId="@Model.OrderId"
+           class="btn btn-outline-danger">
+            Request return
+        </a>
+
+        <a asp-action="MyOrders" class="btn btn-secondary ms-2">
+            Back to my orders
+        </a>
+    </p>
+</section>

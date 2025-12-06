@@ -1,0 +1,43 @@
+﻿@model PharmacyDeliverySystem.ViewModels.Returns.ReturnCreateVm
+
+@{
+    ViewData["Title"] = "Request Return";
+    Layout = "_Layout";
+}
+
+<h2>Request Return</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- Order info (read-only for the customer) -->
+    <div class="mb-3">
+        <label class="form-label">Order ID</label>
+        <input class="form-control" value="@Model.OrderId" readonly />
+        <input type="hidden" asp-for="OrderId" />
+        <span asp-validation-for="OrderId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reason" class="form-label"></label>
+        <textarea asp-for="Reason" class="form-control"></textarea>
+        <span asp-validation-for="Reason" class="text-danger"></span>
+    </div>
+
+    @* Status hidden (Requested) *@
+    <input type="hidden" asp-for="Status" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+    <!-- يرجع لتفاصيل الأوردر أو MyOrders بدل Index بتاعة الإدمن -->
+    <a asp-controller="Order"
+       asp-action="MyOrderDetails"
+       asp-route-id="@Model.OrderId"
+       class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

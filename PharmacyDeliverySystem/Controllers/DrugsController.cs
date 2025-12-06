@@ -23,7 +23,7 @@ namespace PharmacyDeliverySystem.Controllers
         public IActionResult Index()
         {
             var drugsProducts = _productManager.GetAll()
-                                .Where(p => p.DrugType == "drugs")
+                                .Where(p => p.DrugType == "Drugs")
                                 .ToList();
 
             ViewBag.DrugsProducts = drugsProducts;

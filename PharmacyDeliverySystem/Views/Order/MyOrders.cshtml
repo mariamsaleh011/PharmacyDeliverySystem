@@ -1,0 +1,49 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Order>
+
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "_Layout";
+}
+
+<section class="orders-page" style="padding:24px 3%;">
+    <h2 class="mb-3 text-light">My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You have no orders yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td>@o.OrderId</td>
+                        <td>@o.CreatedAt</td>      @* غيّر الاسم لو عندك OrderDate *@
+                        <td>@o.TotalPrice</td>     @* أو Price حسب موديلك *@
+                        <td>@o.Status</td>
+                        <td>
+                            <a asp-action="MyOrderDetails"
+                               asp-route-id="@o.OrderId"
+                               class="btn btn-sm btn-outline-info">
+                                View details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

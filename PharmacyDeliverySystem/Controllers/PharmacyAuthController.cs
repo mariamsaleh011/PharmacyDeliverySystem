@@ -102,8 +102,6 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 Name = model.Name,
                 Email = model.Email,
-                LicenceNo = model.LicenceNo,
-                TaxId = model.TaxId,
                 // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
                 PasswordHash = model.Password
             };

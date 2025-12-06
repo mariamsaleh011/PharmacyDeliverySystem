@@ -24,13 +24,25 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         public IActionResult Index()
         {
-            // المنتجات اللي عليها خصم فقط
-            var offersProducts = _productManager.GetAll()
+            // نجيب كل المنتجات مرة واحدة
+            var allProducts = _productManager.GetAll().ToList();
+
+            // المنتجات اللي عليها خصم فقط (للأوفرز)
+            var offersProducts = allProducts
                                  .Where(p => p.OldPrice.HasValue &&
                                              p.OldPrice.Value > p.Price)
                                  .ToList();
 
             ViewBag.OffersProducts = offersProducts;   // للأوفرز فقط
+
+            // أعلى المنتجات مبيعًا (هنا بنختار 4 برودكت مميزة)
+            // تقدر لاحقًا تبدّل الترتيب ده بترتيب حسب المبيعات الفعلية
+            var topSellingProducts = allProducts
+                                     .OrderByDescending(p => p.ProId) // مؤقتًا بالـ Id
+                                     .Take(4)
+                                     .ToList();
+
+            ViewBag.TopSellingProducts = topSellingProducts;
 
             return View();
         }

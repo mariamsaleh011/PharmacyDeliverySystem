@@ -5,6 +5,8 @@ using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels.Order;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;   
+
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -209,6 +211,62 @@ namespace PharmacyDeliverySystem.Controllers
                 values: new { orderId = newOrderId });
 
             return Json(new { success = true, redirectUrl });
+        }
+        // ========== Customer Area: My Orders & Details ==========
+
+        public IActionResult MyOrders()
+        {
+            // 1) نجيب الإيميل من الـ Claims (أنت أصلاً عامل كده في Checkout)
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+            {
+                // لو مفيش لوجين
+                return RedirectToAction("Login", "Account");   // عدّل اسم الكونترولر لو مختلف
+            }
+
+            // 2) نجيب الـCustomer من الداتابيز
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
+            if (customer == null)
+            {
+                return Unauthorized();
+            }
+
+            // 3) نجيب أوامر العميل ده فقط
+            var orders = _context.Orders
+                                 .Where(o => o.CustomerId == customer.CustomerId)
+                                 .OrderByDescending(o => o.OrderId)
+                                 .AsNoTracking()
+                                 .ToList();
+
+            return View("MyOrders", orders); // View منفصل عن Index بتاعة الأدمن
+        }
+
+        public IActionResult MyOrderDetails(int id)
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
+            if (customer == null)
+            {
+                return Unauthorized();
+            }
+
+            // 1) نجيب الأوردر بتاع العميل ده بس، ومعاه الـItems والـProduct
+            var order = _context.Orders
+                                .Include(o => o.OrderItems)
+                                    .ThenInclude(oi => oi.Product)
+                                .Include(o => o.Returns) // لو عندك navigation للـReturns
+                                .FirstOrDefault(o => o.OrderId == id
+                                                  && o.CustomerId == customer.CustomerId);
+
+            if (order == null)
+                return NotFound();
+
+            return View("MyOrderDetails", order);
         }
 
     }

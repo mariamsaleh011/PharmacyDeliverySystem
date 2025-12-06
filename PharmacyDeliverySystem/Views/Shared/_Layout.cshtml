@@ -90,6 +90,17 @@
                            id="navChat">
                             Chat with Pharmacy
                         </a>
+
+                        @* My Orders تظهر بس لو اليوزر عامل Login *@
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <a asp-area=""
+                               asp-controller="Order"
+                               asp-action="MyOrders"
+                               id="navMyOrders">
+                                My Orders
+                            </a>
+                        }
                     </nav>
 
                     <!-- Actions: Login/Logout + Language + Theme + Cart -->
