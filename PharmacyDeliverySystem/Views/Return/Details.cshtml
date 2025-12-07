@@ -1,0 +1,50 @@
+﻿@model PharmacyDeliverySystem.Models.Return
+
+@{
+    ViewData["Title"] = "Return Details";
+    Layout = "_Layout";
+}
+
+<h2>Return Details</h2>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Return Id</dt>
+            <dd class="col-sm-9">@Model.ReturnId</dd>
+
+            <dt class="col-sm-3">Order Id</dt>
+            <dd class="col-sm-9">@Model.OrderId</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@Model.Status</dd>
+
+            <dt class="col-sm-3">Reason</dt>
+            <dd class="col-sm-9">@Model.Reason</dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Admin status change (optional) -->
+<form asp-action="SetStatus" method="post" class="mt-3">
+    <input type="hidden" name="id" value="@Model.ReturnId" />
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Change Status</label>
+            <select name="status" class="form-select">
+                <option value="Requested" selected>Requested</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+    </div>
+</form>
+
+<p class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.ReturnId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

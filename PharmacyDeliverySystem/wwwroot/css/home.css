@@ -1,35 +1,165 @@
 ﻿/* =========================================
+<<<<<<< HEAD
+   Home Page Styles (Hero, Categories, Offers, Tips, Contact)
+   ========================================= */
+=======
    Home Page Styles (Hero, Categories, Offers, Tips, Contact, Cart)
    ========================================= */
 
 /* -------- Hero -------- */
+>>>>>>> upstream/Kamal-Branch
 
+/* -------- Hero Wrapper عام للسيكشن -------- */
 .hero {
-    background-image: url("https://images.unsplash.com/photo-1580281658629-25b94e37a32a?auto=format&fit=crop&w=1200&q=60");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: white;
-    text-align: center;
-    padding: 100px 5%;
+    padding: 80px 3% 100px;
+    margin-bottom: 40px;
     position: relative;
-    margin-bottom: 30px;
+    text-align: center;
 }
 
+<<<<<<< HEAD
+/* ================= Hero Section Scoped ================= */
+.hero-section {
+    /* يمكن التحكم في الخلفية العامة للـ Hero */
+    --bg-hero: #f9f9f9;
+    --text-main: #004d40;
+    --text-sub: #00796b;
+    --accent-gradient-start: #00bfa5;
+    --accent-gradient-end: #00cfff;
+    --btn-primary-bg: linear-gradient(135deg, #00cfff, #00bfa5);
+    --btn-secondary-bg: rgba(255,255,255,0.7);
+    --btn-secondary-color: #00796b;
+}
+=======
     .hero::after {
         content: "";
         position: absolute;
         inset: 0;
         background-color: rgba(0, 132, 176, 0.7); /* overlay أزرق بدل الأخضر */
     }
+>>>>>>> upstream/Kamal-Branch
 
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 700px;
-    margin: 0 auto;
+/* Dark Mode */
+[data-theme="dark"] .hero-section {
+    --bg-hero: #0f1214;
+    --text-main: #ffffff;
+    --text-sub: #e0f7ff;
+    --accent-gradient-start: #00c6ff;
+    --accent-gradient-end: #0072ff;
+    --btn-primary-bg: linear-gradient(135deg, #00c6ff, #0072ff);
+    --btn-secondary-bg: rgba(255,255,255,0.15);
+    --btn-secondary-color: #ffffff;
 }
 
+/* Hero card نفسه */
+.hero-section .hero-modern {
+    position: relative;
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto;
+    z-index: 2;
+    color: var(--text-main);
+    background-color: var(--bg-hero);
+    padding: 80px 20px;
+    border-radius: 20px;
+}
+
+<<<<<<< HEAD
+    .hero-section .hero-modern h1 {
+        font-family: 'Arial', sans-serif;
+    }
+
+/* العنوان الجريدينت */
+.hero-section .accent-gradient {
+    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-section .hero-subtitle {
+    color: var(--text-sub);
+}
+
+/* زر لو حبيتي تفعليه */
+.btn-hero-primary {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+    .btn-hero-primary:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    }
+
+/* الأشكال المتحركة داخل الهيرو */
+.hero-section .hero-shapes span {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: float 6s ease-in-out infinite alternate;
+}
+
+.hero-section .circle-1 {
+    width: 120px;
+    height: 120px;
+    background: var(--accent-gradient-start);
+    top: 10%;
+    left: 5%;
+}
+
+.hero-section .circle-2 {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-gradient-end);
+    bottom: 15%;
+    right: 10%;
+}
+
+.hero-section .shape-wave {
+    width: 200px;
+    height: 200px;
+    background: rgba(0,199,175,0.2);
+    border-radius: 50%;
+    animation-duration: 8s;
+}
+
+.hero-section .floating-icon {
+    font-size: 2rem;
+    position: absolute;
+    opacity: 0.8;
+    animation: floatIcon 5s ease-in-out infinite alternate;
+}
+
+/* Keyframes للحركة */
+@keyframes float {
+    0% {
+        transform: translateY(0px) translateX(0px);
+    }
+
+    100% {
+        transform: translateY(-20px) translateX(10px);
+    }
+}
+
+@keyframes floatIcon {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-25px) rotate(15deg);
+    }
+}
+
+=======
 .headline,
 .headline-en {
     font-size: 32px;
@@ -61,6 +191,7 @@
         color: #ffffff;
     }
 
+>>>>>>> upstream/Kamal-Branch
 /* -------- Categories (horizontal strip + arrows) -------- */
 
 .categories {
@@ -113,11 +244,23 @@
     transition: 0.25s ease;
 }
 
+<<<<<<< HEAD
+[data-theme="dark"] .cat-card {
+    border-color: #004d40;
+}
+
+.cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+}
+
+=======
     .cat-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 6px 18px rgba(0,0,0,0.22);
     }
 
+>>>>>>> upstream/Kamal-Branch
 /* الايقونة */
 .cat-icon {
     width: 48px;
@@ -235,7 +378,11 @@
 
 .price {
     font-weight: bold;
+<<<<<<< HEAD
+    color: #00B4DB;
+=======
     color: #00B4DB; /* كان أخضر، بقى الأزرق الـ brand */
+>>>>>>> upstream/Kamal-Branch
     margin-top: 4px;
 }
 
@@ -245,10 +392,17 @@
     margin-left: 8px;
 }
 
+<<<<<<< HEAD
+/* الأزرار العامة */
+.btn,
+.product .btn {
+    background-color: #00B4DB;
+=======
 /* الأزرار العامة في الصفحة (Offers, Tips, Contact...) */
 .btn,
 .product .btn {
     background-color: #00B4DB; /* كان #00b3b3 */
+>>>>>>> upstream/Kamal-Branch
     color: white;
     border: none;
     padding: 10px 20px;
@@ -259,7 +413,11 @@
 
     .btn:hover,
     .product .btn:hover {
+<<<<<<< HEAD
+        background-color: #0083B0;
+=======
         background-color: #0083B0; /* كان #008080 */
+>>>>>>> upstream/Kamal-Branch
     }
 
 /* -------- Health Tips -------- */
@@ -316,6 +474,158 @@
     font-weight: 600;
 }
 
+<<<<<<< HEAD
+/* -------- Contact / Footer Section -------- */
+
+.contact-section {
+    padding: 40px 3% 50px;
+    background-color: #ffffff;
+}
+
+[data-theme="dark"] .contact-section {
+    background-color: #020617;
+}
+
+.contact-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.contact-section p {
+    color: var(--muted);
+}
+
+.contact-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.2fr;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.footer-col h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.footer-about p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.footer-logo img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 6px;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+    .footer-links a:hover {
+        color: var(--brand);
+    }
+
+.footer-contact p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+.footer-social {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+    .footer-social a {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        font-size: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+        .footer-social a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+            background: #e0f2fe;
+        }
+
+.footer-auth-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(0,180,219,0.5);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+    .footer-auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(0,180,219,0.7);
+    }
+
+/* ريسبونسيف للفوتر */
+
+@media (max-width: 900px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        row-gap: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-section {
+        text-align: center;
+    }
+
+    .footer-social {
+        justify-content: center;
+    }
+
+    .footer-links ul {
+        text-align: center;
+    }
+}
+
+/* موبايل للهيرو والكروزر */
+=======
 /* -------- Contact Section -------- */
 
 .contact-section {
@@ -644,10 +954,11 @@
 }
 
 /* -------- Responsive -------- */
+>>>>>>> upstream/Kamal-Branch
 
 @media (max-width: 768px) {
     .hero {
-        padding: 70px 20px;
+        padding: 70px 20px 90px;
     }
 
     .headline,
@@ -660,6 +971,178 @@
         height: 28px;
         font-size: 16px;
     }
+<<<<<<< HEAD
+}
+
+/* =========================================
+   Featured products + Stats + Services
+   ========================================= */
+
+/* ===== Featured products ===== */
+.featured-products {
+    padding: 40px 5%;
+    text-align: center;
+}
+
+.section-title-en,
+.section-title-ar {
+    font-size: 28px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.section-subtitle-en {
+    margin-bottom: 24px;
+    color: var(--muted);
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
+
+.featured-card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 18px 18px 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #fff;
+}
+
+.badge-hot {
+    background: #f97316;
+}
+
+.badge-new {
+    background: #22c55e;
+}
+
+.badge-discount {
+    background: #ef4444;
+}
+
+.featured-img-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.featured-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+.featured-name {
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.featured-desc {
+    font-size: 13px;
+    color: var(--muted);
+    min-height: 36px;
+    margin-bottom: 10px;
+}
+
+.featured-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.featured-price {
+    font-weight: 700;
+}
+
+.featured-btn {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: none;
+    background: var(--brand);
+    color: #fff;
+    font-size: 13px;
+}
+
+/* ===== Stats strip ===== */
+.stats-strip {
+    margin-top: 20px;
+    padding: 24px 5%;
+    background: linear-gradient(90deg, #006c86, #00b4db);
+    color: #fff;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.stat-label {
+    font-size: 14px;
+}
+
+/* ===== Services ===== */
+.services-section {
+    padding: 40px 5% 20px;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+    margin-top: 22px;
+}
+
+.service-card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 20px 18px;
+    text-align: right;
+}
+
+.service-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 180, 219, 0.12);
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.service-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.service-text {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+=======
 
     .cart-sidebar {
         width: 100%;
@@ -668,4 +1151,5 @@
         border-radius: 0;
         margin: 20px auto;
     }
+>>>>>>> upstream/Kamal-Branch
 }

@@ -14,10 +14,16 @@ namespace PharmacyDeliverySystem.Business.Interfaces
 
         // For Pharmacy Chat
         List<Chat> GetChatsByPharmacyId(int pharmacyId);
+<<<<<<< HEAD
+        Chat? GetChatById(int chatId);
+        void SendMessage(int chatId, string message, string senderType);
+        Pharmacy? GetPharmacyByEmail(string email);
+=======
         Chat GetChatById(int chatId);
         void SendMessage(int chatId, string message, string senderType);
         Pharmacy GetPharmacyByEmail(string email);
 
 
+>>>>>>> upstream/Kamal-Branch
     }
 }

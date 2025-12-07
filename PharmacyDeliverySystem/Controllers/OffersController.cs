@@ -9,12 +9,12 @@ using PharmacyDeliverySystem.Models;
 namespace PharmacyDeliverySystem.Controllers
 {
     [Authorize(Roles = "Customer")]
-    public class DrugsController : Controller
+    public class OffersController : Controller
     {
-        private readonly ILogger<DrugsController> _logger;
+        private readonly ILogger<OffersController> _logger;
         private readonly IProductManager _productManager;
 
-        public DrugsController(ILogger<DrugsController> logger, IProductManager productManager)
+        public OffersController(ILogger<OffersController> logger, IProductManager productManager)
         {
             _logger = logger;
             _productManager = productManager;
@@ -22,11 +22,12 @@ namespace PharmacyDeliverySystem.Controllers
 
         public IActionResult Index()
         {
-            var drugsProducts = _productManager.GetAll()
-                                .Where(p => p.DrugType == "Drugs")
-                                .ToList();
+            // عدّل الفلتر لو عندكم Flag تاني للأوفرز
+            var offers = _productManager.GetAll()
+                            .Where(p => p.OldPrice.HasValue && p.OldPrice.Value > p.Price)
+                            .ToList();
 
-            ViewBag.DrugsProducts = drugsProducts;
+            ViewBag.OffersProducts = offers;
             return View();
         }
 

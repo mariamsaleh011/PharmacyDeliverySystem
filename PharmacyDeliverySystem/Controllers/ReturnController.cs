@@ -14,6 +14,7 @@ namespace PharmacyDeliverySystem.Controllers
             _returnManager = returnManager;
         }
 
+        // ======== Admin list ========
         public IActionResult Index()
         {
             var items = _returnManager.GetAll();
@@ -27,12 +28,22 @@ namespace PharmacyDeliverySystem.Controllers
             return View(item);
         }
 
+        // ======== Create (Customer Request Return) ========
+
+        // GET: /Return/Create?orderId=5
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Create(int orderId)
         {
-            return View(new ReturnCreateVm());
+            var vm = new ReturnCreateVm
+            {
+                OrderId = orderId,      // جاي من MyOrderDetails
+                Status = "Requested"   // القيمة الافتراضية لطلب الإرجاع
+            };
+
+            return View(vm);
         }
 
+        // POST: /Return/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(ReturnCreateVm vm)
@@ -40,16 +51,25 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var entity = new Return      // 👈 هنا كانت Returnn
+            var entity = new Return
             {
-                OrderId = vm.OrderId,    // 👈 تأكد إنها OrderId مش OrderID
+                OrderId = vm.OrderId,
                 Reason = vm.Reason,
-                Status = vm.Status
+                Status = string.IsNullOrWhiteSpace(vm.Status)
+                              ? "Requested"
+                              : vm.Status
             };
 
             _returnManager.Add(entity);
-            return RedirectToAction(nameof(Details), new { id = entity.ReturnId });
+
+            // رسالة للكاستمر إنه الطلب اتسجّل
+            TempData["ReturnMessage"] = "Your return request has been submitted.";
+
+            // ✅ رجّع الكاستمر لصفحة تفاصيل الأوردر بتاعه
+            return RedirectToAction("MyOrderDetails", "Order", new { id = vm.OrderId });
         }
+
+        // ======== Edit / Status / Delete (Admin) ========
 
         [HttpGet]
         public IActionResult Edit(int id)
@@ -61,7 +81,7 @@ namespace PharmacyDeliverySystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Return model)   // 👈 هنا برضو Return بدل Returnn
+        public IActionResult Edit(Return model)
         {
             if (!ModelState.IsValid)
                 return View(model);

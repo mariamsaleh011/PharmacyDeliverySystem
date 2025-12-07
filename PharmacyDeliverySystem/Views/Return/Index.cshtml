@@ -1,0 +1,46 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Return>
+
+@{
+    ViewData["Title"] = "Returns";
+    Layout = "_Layout";
+}
+
+<h2>Returns</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Request Return</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Order Id</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ReturnId</td>
+                <td>@item.OrderId</td>
+                <td>@item.Status</td>
+                <td>@item.Reason</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ReturnId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Edit" asp-route-id="@item.ReturnId" class="btn btn-sm btn-warning">Edit</a>
+
+                    <form asp-action="Delete" asp-route-id="@item.ReturnId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete this return request?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

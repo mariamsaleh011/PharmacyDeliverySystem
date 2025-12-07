@@ -1,9 +1,20 @@
+<<<<<<< HEAD
+=======
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
+>>>>>>> upstream/Kamal-Branch
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
+<<<<<<< HEAD
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+=======
+>>>>>>> upstream/Kamal-Branch
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -11,22 +22,38 @@ namespace PharmacyDeliverySystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductManager _productManager;
+        private readonly PharmacyDeliveryContext _context;
 
-        public HomeController(ILogger<HomeController> logger, IProductManager productManager)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IProductManager productManager,
+            PharmacyDeliveryContext context)
         {
             _logger = logger;
             _productManager = productManager;
+            _context = context;
         }
 
+        // =============================
+        // الصفحة الرئيسية
+        // =============================
         public IActionResult Index()
         {
-            // عرض المنتجات اللي عليها خصم فقط
-            var offersProducts = _productManager.GetAll()
+            var allProducts = _productManager.GetAll().ToList();
+
+            var offersProducts = allProducts
                                  .Where(p => p.OldPrice.HasValue &&
                                              p.OldPrice.Value > p.Price)
                                  .ToList();
 
             ViewBag.OffersProducts = offersProducts;
+
+            var topSellingProducts = allProducts
+                                     .OrderByDescending(p => p.ProId)
+                                     .Take(4)
+                                     .ToList();
+
+            ViewBag.TopSellingProducts = topSellingProducts;
 
             return View();
         }
@@ -62,12 +89,64 @@ namespace PharmacyDeliverySystem.Controllers
 
             return View("SearchResults", results);
         }
+<<<<<<< HEAD
+
+        // =============================
+        //  ChatRedirect من النافبار
+        // =============================
+=======
        
+>>>>>>> upstream/Kamal-Branch
         public IActionResult ChatRedirect()
         {
             // لو مش عامل Login أصلاً
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
+<<<<<<< HEAD
+                return RedirectToAction("Login", "CustomerAuth");
+            }
+
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            // ---- لو كاستمر: نختار صيدلية من الـ DB ونعمل شات معاها ----
+            if (role == "Customer")
+            {
+                // هنا بنختار أول صيدلية في الجدول (ممكن بعدين تعملي منيو اختيار)
+                var defaultPharmacyId = _context.Pharmacies
+                                                .Select(p => p.PharmId)
+                                                .OrderBy(id => id)
+                                                .FirstOrDefault();
+
+                if (defaultPharmacyId == 0)
+                {
+                    // مفيش صيدليات في الداتا بيز
+                    return RedirectToAction("Index");
+                }
+
+                return RedirectToAction("Index", "Chat", new { pharmacyId = defaultPharmacyId });
+            }
+
+            // ---- لو صيدلي: يروح على صفحة الشات بتاعة الصيدلي ----
+            if (role == "Pharmacy")
+            {
+                return RedirectToAction("Chats", "PharmacyChat");
+            }
+
+            // لو دور غريب، رجّعيه للهوم
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        public IActionResult Cart()
+        {
+            var products = _productManager.GetAll().ToList();
+            return View(products);
+        }
+=======
                 return RedirectToAction("Login", "CustomerAccount");
             }
 
@@ -111,5 +190,6 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Login", "CustomerAuth");
         }
 
+>>>>>>> upstream/Kamal-Branch
     }
 }

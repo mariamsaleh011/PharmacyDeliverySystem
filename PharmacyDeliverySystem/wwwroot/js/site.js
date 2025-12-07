@@ -2,6 +2,12 @@
 const CART_KEY = 'pharmacy_cart_v1';
 const THEME_KEY = 'pharmacy_theme_v1';
 const LANG_KEY = 'pharmacy_lang_v1';
+<<<<<<< HEAD
+
+// منع تكرار الـ checkout
+let isCheckoutInProgress = false;
+=======
+>>>>>>> upstream/Kamal-Branch
 
 // ===== DOM Elements =====
 const cartBtn = document.getElementById('cartBtn');
@@ -264,17 +270,40 @@ function toggleCart(open) {
 }
 
 if (cartBtn) {
-    cartBtn.addEventListener('click', () => toggleCart());
+    cartBtn.addEventListener('click', (e) => {
+        const mode = cartBtn.dataset.mode || 'drawer';
+
+        if (mode === 'page') {
+            e.preventDefault();
+            const url = cartBtn.dataset.cartUrl || '/Home/Cart';
+            window.location.href = url;
+        } else {
+            toggleCart();
+        }
+    });
 }
+
 
 // ===== Checkout =====
 async function checkout() {
+    if (isCheckoutInProgress) {
+        // لو فيه طلب Checkout شغال تجاهل الضغطات التانية
+        return;
+    }
+    isCheckoutInProgress = true;
+    if (checkoutBtn) checkoutBtn.disabled = true;
+
     const items = readCart();
     const lang = getCurrentLang();
     const t = translations[lang] || translations.en;
 
     if (!items.length) {
         alert(lang === 'ar' ? 'سلتك فارغة' : 'Your cart is empty');
+<<<<<<< HEAD
+        isCheckoutInProgress = false;
+        if (checkoutBtn) checkoutBtn.disabled = false;
+=======
+>>>>>>> upstream/Kamal-Branch
         return;
     }
 
@@ -290,6 +319,8 @@ async function checkout() {
 
     if (!isAuth) {
         window.location.href = loginUrl;
+        isCheckoutInProgress = false;
+        if (checkoutBtn) checkoutBtn.disabled = false;
         return;
     }
 
@@ -337,6 +368,12 @@ async function checkout() {
         alert(lang === 'ar'
             ? 'حدث خطأ في الاتصال. حاول مرة أخرى.'
             : 'A network error occurred. Please try again.');
+<<<<<<< HEAD
+    } finally {
+        isCheckoutInProgress = false;
+        if (checkoutBtn) checkoutBtn.disabled = false;
+=======
+>>>>>>> upstream/Kamal-Branch
     }
 }
 

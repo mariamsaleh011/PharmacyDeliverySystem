@@ -10,28 +10,22 @@ namespace PharmacyDeliverySystem.ViewModels.Pharmacy
         {
             public int? PharmId { get; set; }
 
-            [Required(ErrorMessage = "LicenceNo مطلوب")]
-            [StringLength(50, ErrorMessage = "LicenceNo لا يمكن أن يزيد عن 50 حرف")]
-            public string LicenceNo { get; set; } = null!; // 👈
-
-            [StringLength(50, ErrorMessage = "TaxId لا يمكن أن يزيد عن 50 حرف")]
-            public string? TaxId { get; set; }
-
             [Required(ErrorMessage = "Name مطلوب")]
             [StringLength(100, ErrorMessage = "Name لا يمكن أن يزيد عن 100 حرف")]
-            public string Name { get; set; } = null!; // 👈
+            public string Name { get; set; } = null!;
         }
 
         public class PharmacyResponseViewModel
         {
             public int PharmId { get; set; }
-            public string LicenceNo { get; set; } = null!; // 👈
-            public string? TaxId { get; set; }
-            public string Name { get; set; } = null!; // 👈
+
+            public string Name { get; set; } = null!;
+
             public int ChatsCount { get; set; }
             public int OrdersCount { get; set; }
             public int PrescriptionsCount { get; set; }
             public int ProductsCount { get; set; }
+
             public List<int> OrderIds { get; set; } = new();
             public List<int> ProductIds { get; set; } = new();
             public List<int> ChatIds { get; set; } = new();

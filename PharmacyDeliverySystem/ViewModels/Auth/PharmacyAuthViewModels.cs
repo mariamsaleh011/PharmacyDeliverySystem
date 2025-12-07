@@ -7,12 +7,6 @@ namespace PharmacyDeliverySystem.ViewModels
         [Required, StringLength(100)]
         public string Name { get; set; } = null!;
 
-        [Required, StringLength(50)]
-        public string LicenceNo { get; set; } = null!;
-
-        [Required, StringLength(50)]
-        public string TaxId { get; set; } = null!;
-
         [Required, EmailAddress]
         public string Email { get; set; } = null!;
 

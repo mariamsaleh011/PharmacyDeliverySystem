@@ -1,10 +1,15 @@
+<<<<<<< HEAD
+﻿using System.Linq;
+=======
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+>>>>>>> upstream/Kamal-Branch
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
@@ -20,6 +25,21 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
+<<<<<<< HEAD
+        /* ==================== LOGOUT ==================== */
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // بعد ما يسجّل خروج، يرجع لصفحة اللوجين الموحدة
+            return RedirectToAction("Login", "CustomerAuth");
+        }
+
+        /* ==================== REGISTER (GET) ==================== */
+
+=======
         /* ==================== LOGIN ==================== */
 
         [HttpGet]
@@ -75,13 +95,19 @@ namespace PharmacyDeliverySystem.Controllers
         /* ==================== REGISTER ==================== */
 
         // GET: PharmacyAuth/Register
+>>>>>>> upstream/Kamal-Branch
         [HttpGet]
         public IActionResult Register()
         {
             return View(new PharmacyRegisterViewModel());
         }
 
+<<<<<<< HEAD
+        /* ==================== REGISTER (POST) ==================== */
+
+=======
         // POST: PharmacyAuth/Register
+>>>>>>> upstream/Kamal-Branch
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(PharmacyRegisterViewModel model)
@@ -102,17 +128,26 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 Name = model.Name,
                 Email = model.Email,
+<<<<<<< HEAD
+                // مؤقتاً من غير Hash
+=======
                 LicenceNo = model.LicenceNo,
                 TaxId = model.TaxId,
                 // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
+>>>>>>> upstream/Kamal-Branch
                 PasswordHash = model.Password
             };
 
             _context.Pharmacies.Add(pharmacy);
             _context.SaveChanges();
 
+<<<<<<< HEAD
+            // بعد ما يعمل Sign up كصيدلية → يروح للوجين الموحد
+            return RedirectToAction("Login", "CustomerAuth");
+=======
             // بعد الريجستر نرجّع الصيدلي لصفحة اللوجين بتاعته
             return RedirectToAction("Login", "PharmacyAuth");
+>>>>>>> upstream/Kamal-Branch
         }
     }
 }

@@ -96,7 +96,6 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.Orders.Remove(order);
             _context.SaveChanges();
         }
-
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())
