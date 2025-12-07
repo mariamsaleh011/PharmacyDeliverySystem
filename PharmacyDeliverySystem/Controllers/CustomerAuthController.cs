@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -37,70 +39,113 @@ namespace PharmacyDeliverySystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(CustomerLoginViewModel model, string? returnUrl)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
             {
-                ViewBag.ReturnUrl = returnUrl;
+                ViewBag.Error = "Please fill Email and Password correctly.";
                 return View(model);
             }
 
-            // 1) جرّب كـ Customer
-            var customer = _context.Customers.FirstOrDefault(c => c.Email == model.Email);
-            if (customer != null && customer.PasswordHash == model.Password)
+            var email = model.Email?.Trim();
+            var password = model.Password?.Trim();
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
-                return RedirectAfterLogin(returnUrl, "Customer");
+                ViewBag.Error = "Email and password are required.";
+                return View(model);
             }
 
-            // 2) لو مش Customer.. جرّب كـ Pharmacy
-            var pharmacy = _context.Pharmacies.FirstOrDefault(p => p.Email == model.Email);
-            if (pharmacy != null && pharmacy.PasswordHash == model.Password)
+            // 1) نحاول الأول كـ Pharmacy
+            var pharmacy = await _context.Pharmacies
+                .FirstOrDefaultAsync(p => p.Email == email);
+
+            if (pharmacy != null)
             {
-                await SignInUser(pharmacy.Name, pharmacy.Email, "Pharmacy", pharmacy.PharmId);
-                return RedirectAfterLogin(returnUrl, "Pharmacy");
+                var dbPassword = pharmacy.PasswordHash?.Trim();
+
+                if (!string.Equals(dbPassword, password, StringComparison.Ordinal))
+                {
+                    ViewBag.Error = "Wrong password.";
+                    return View(model);
+                }
+
+                var pharmacyClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name,  pharmacy.Name ?? string.Empty),
+                    new Claim(ClaimTypes.Email, pharmacy.Email ?? string.Empty),
+                    new Claim(ClaimTypes.Role,  "Pharmacy"),
+                    new Claim("PharmacyId", pharmacy.PharmId.ToString())
+                };
+
+                var pharmacyIdentity = new ClaimsIdentity(
+                    pharmacyClaims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var pharmacyPrincipal = new ClaimsPrincipal(pharmacyIdentity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    pharmacyPrincipal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTime.UtcNow.AddHours(8)
+                    });
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+
+                // صيدلي → Home فيها Pharmacy Dashboard
+                return RedirectToAction("Index", "Home");
             }
 
-            // 3) مفيش حد ماتش
-            ViewBag.Error = "Invalid email or password";
-            ViewBag.ReturnUrl = returnUrl;
-            return View(model);
-        }
+            // 2) لو مش صيدلية، نجرب كـ Customer
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Email == email);
 
-        // helper: يعمل SignIn ويحط الـ Role و Id
-        private async Task SignInUser(string? name, string? email, string role, int userId)
-        {
-            var claims = new List<Claim>
+            if (customer == null)
             {
-                new Claim(ClaimTypes.Name,  name  ?? string.Empty),
-                new Claim(ClaimTypes.Email, email ?? string.Empty),
-                new Claim(ClaimTypes.Role,  role)
+                ViewBag.Error = "No account found with this email.";
+                return View(model);
+            }
+
+            var customerPassword = customer.PasswordHash?.Trim(); // حسب اسم العمود عندك
+
+            if (!string.Equals(customerPassword, password, StringComparison.Ordinal))
+            {
+                ViewBag.Error = "Wrong password.";
+                return View(model);
+            }
+
+            var customerClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name,  customer.Name ?? string.Empty),
+                new Claim(ClaimTypes.Email, customer.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role,  "Customer"),
+                new Claim("CustomerId", customer.CustomerId.ToString())
             };
 
-            // إضافة الـ claim الخاص بالـ Id بناءً على الدور
-            if (role == "Customer")
-                claims.Add(new Claim("CustomerId", userId.ToString()));
-            else if (role == "Pharmacy")
-                claims.Add(new Claim("PharmacyId", userId.ToString()));
+            var customerIdentity = new ClaimsIdentity(
+                customerClaims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+            var customerPrincipal = new ClaimsPrincipal(customerIdentity);
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                principal);
-        }
+                customerPrincipal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddHours(8)
+                });
 
-        // helper: يحدد يروح فين بعد الـ Login على حسب الـ Role
-        private IActionResult RedirectAfterLogin(string? returnUrl, string role)
-        {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            return role switch
-            {
-                "Customer" => RedirectToAction("Index", "Home"),
-                "Pharmacy" => RedirectToAction("Admin", "Product"),
-                _ => RedirectToAction("Index", "Home")
-            };
+            // كاستمر → Home العادية
+            return RedirectToAction("Index", "Home");
         }
 
         // =======================
@@ -122,8 +167,9 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // تأكد إن الإيميل مش مكرر في الكاستمر
-            bool emailExists = _context.Customers.Any(c => c.Email == model.Email);
+            bool emailExists = await _context.Customers
+                .AnyAsync(c => c.Email == model.Email);
+
             if (emailExists)
             {
                 ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
@@ -136,14 +182,35 @@ namespace PharmacyDeliverySystem.Controllers
                 PhoneNumber = model.PhoneNumber,
                 Address = model.Address,
                 Email = model.Email,
-                PasswordHash = model.Password   // مؤقتاً من غير Hash
+                // مؤقتاً بدون Hash – بعدين تعملي Hash
+                PasswordHash = model.Password
             };
 
             _context.Customers.Add(customer);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Login تلقائي بعد التسجيل كـ Customer
-            await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
+            // Login تلقائي بعد التسجيل
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name,  customer.Name ?? string.Empty),
+                new Claim(ClaimTypes.Email, customer.Email ?? string.Empty),
+                new Claim(ClaimTypes.Role,  "Customer"),
+                new Claim("CustomerId", customer.CustomerId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddHours(8)
+                });
 
             return RedirectToAction("Index", "Home");
         }
@@ -155,7 +222,9 @@ namespace PharmacyDeliverySystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
             return RedirectToAction("Index", "Home");
         }
     }

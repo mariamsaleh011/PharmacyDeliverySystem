@@ -96,11 +96,6 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.Orders.Remove(order);
             _context.SaveChanges();
         }
-
-<<<<<<< HEAD
-        // ✅ تستخدم في POST Create في DeliveryRunController
-=======
->>>>>>> upstream/main
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())

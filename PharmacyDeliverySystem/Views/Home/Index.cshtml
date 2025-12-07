@@ -1,207 +1,4 @@
-﻿@* @using PharmacyDeliverySystem.Models
-@{
-    ViewData["Title"] = "Home";
-    Layout = "_Layout";
-
-    List<Product>? offerList = ViewBag.OffersProducts as List<Product>;
-}
-
-@section Head {
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-}
-
-<section class="hero hero-en">
-    <div class="hero-content">
-        <h2 class="headline-en">
-            Your <span class="accent">all-in-one</span> platform to supply
-            <span class="accent">your pharmacy</span>
-        </h2>
-        <p>
-            Browse, order and get everything delivered to your pharmacy fast and safely.
-        </p>
-    </div>
-</section>
-
-<section class="categories categories-en">
-    <div class="categories-header">
-        <h3>Shop by category</h3>
-    </div>
-
-    <div class="cat-strip-wrapper">
-
-        <!-- زرار يرجع للي قبل (على الشمال) -->
-        <button type="button"
-                class="cat-scroll-btn cat-scroll-prev"
-                aria-label="Previous categories">
-            ‹
-        </button>
-
-        <!-- الشريط اللي فيه الكروت -->
-        <div class="cat-grid" id="catStrip">
-
-            <!-- Offers -->
-            <a href="@Url.Action("Index", "Offers")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="8" cy="8" r="2.5"></circle>
-                    <circle cx="16" cy="16" r="2.5"></circle>
-                    <line x1="6" y1="18" x2="18" y2="6"></line>
-                </svg>
-                <div class="cat-title">Special offers</div>
-            </a>
-
-            <!-- Drugs -->
-            <a href="@Url.Action("Index", "Drugs")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <!-- كبسولة دواء مثلا -->
-                    <rect x="4" y="3" width="8" height="18" rx="4"></rect>
-                    <rect x="12" y="3" width="8" height="18" rx="4"></rect>
-                    <line x1="8" y1="3" x2="8" y2="21"></line>
-                </svg>
-                <div class="cat-title">Drugs</div>
-            </a>
-
-            <!-- Baby Care -->
-            <a href="@Url.Action("Index", "BabyCare")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="7" r="3"></circle>
-                    <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7"></path>
-                </svg>
-                <div class="cat-title">Baby Care</div>
-            </a>
-
-            <!-- Men Care -->
-            <a href="@Url.Action("Index", "MenCare")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="7" r="4"></circle>
-                    <path d="M4 21c1.5-4 6.5-6 8-6s6.5 2 8 6"></path>
-                </svg>
-                <div class="cat-title">Men Care</div>
-            </a>
-
-            <!-- Women Care -->
-            <a href="@Url.Action("Index", "WomenCare")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="7" r="3"></circle>
-                    <path d="M9 11h6"></path>
-                    <path d="M10 14h4"></path>
-                    <path d="M8 21c0-3 2-6 4-6s4 3 4 6"></path>
-                </svg>
-                <div class="cat-title">Women Care</div>
-            </a>
-
-            <!-- Makeup & Accessories -->
-            <a href="@Url.Action("Index", "Makeup")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="6" height="14" rx="2"></rect>
-                    <rect x="11" y="7" width="4" height="10" rx="1"></rect>
-                    <circle cx="18" cy="15" r="2"></circle>
-                </svg>
-                <div class="cat-title">Makeup & Accessories</div>
-            </a>
-
-            <!-- Fitness & Nutrition -->
-            <a href="@Url.Action("Index", "Fitness")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="9" width="4" height="6" rx="1"></rect>
-                    <rect x="18" y="9" width="4" height="6" rx="1"></rect>
-                    <rect x="7" y="7" width="10" height="10" rx="2"></rect>
-                </svg>
-                <div class="cat-title">Fitness & Nutrition</div>
-            </a>
-
-            <!-- All Products (صفحة كل البرودكتس) -->
-            <a href="@Url.Action("Index", "Products")" class="cat-card">
-                <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="7" height="7" rx="2"></rect>
-                    <rect x="14" y="4" width="7" height="7" rx="2"></rect>
-                    <rect x="3" y="13" width="7" height="7" rx="2"></rect>
-                    <rect x="14" y="13" width="7" height="7" rx="2"></rect>
-                </svg>
-                <div class="cat-title">All Products</div>
-            </a>
-
-        </div>
-
-        <!-- زرار يروح للي بعد (على اليمين) -->
-        <button type="button"
-                class="cat-scroll-btn cat-scroll-next"
-                aria-label="Next categories">
-            ›
-        </button>
-    </div>
-</section>
-
-<section class="health-tips health-tips-en">
-    <h2>💡 Health tips</h2>
-    <button id="dailyTipBtn" class="btn">Tip of the day</button>
-    <p id="dailyTip" style="margin-top:15px;font-weight:600;"></p>
-</section>
-
-<section class="contact-section contact-en">
-    <div class="contact-container">
-        <div class="footer-grid">
-            <!-- 1) اللوجو + الوصف -->
-            <div class="footer-col footer-about">
-                <div class="footer-logo">
-                    <img src="@(Url.Content("~/images/icons/medicine-logo.svg"))"
-                         alt="PharmacyDeliverySystem logo" />
-                </div>
-                <p>
-                    PharmacyDeliverySystem is a digital marketplace that connects
-                    pharmacies and medical suppliers to easily, conveniently and
-                    quickly access and receive medicine, medical supplies and
-                    cosmetics at the best prices.
-                </p>
-            </div>
-
-            <!-- 2) اللينكات -->
-            <div class="footer-col footer-links">
-                <h3>Menu</h3>
-                <ul>
-                    <li>
-                        <a href="@Url.Action("Index", "Home")">Home</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Contact", "Home")">Contact Us</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Index", "Products")">Find a Product</a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- 3) بيانات التواصل -->
-            <div class="footer-col footer-contact">
-                <h3>Contact us</h3>
-                <p>📞 01208888148</p>
-                <p>✉ help@pharmacymarts.com</p>
-            </div>
-
-            <!-- 4) السوشيال + زرار Sign in / Sign up -->
-            <div class="footer-col footer-connect">
-                <h3>Connect with us</h3>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook">📘</a>
-                    <a href="#" aria-label="LinkedIn">🔗</a>
-                    <a href="https://www.instagram.com/PharmacyMarts"
-                       target="_blank" aria-label="Instagram">📸</a>
-                    <a href="#" aria-label="X / Twitter">✖</a>
-                </div>
-
-                <a href="@Url.Action("Login", "CustomerAuth")"
-                   class="footer-auth-btn">
-                    Sign in / Sign up
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
- *@
-@using PharmacyDeliverySystem.Models
+﻿@using PharmacyDeliverySystem.Models
 @{
     ViewData["Title"] = "Home";
     Layout = "_Layout";
@@ -215,16 +12,60 @@
 }
 
 <section class="hero hero-en">
-    <div class="hero-content">
-        <h2 class="headline-en">
-            Your <span class="accent">all-in-one</span> platform to supply
-            <span class="accent">your pharmacy</span>
-        </h2>
-        <p>
-            Browse, order and get everything delivered to your pharmacy fast and safely.
-        </p>
+    <div class="hero-section">
+        <div class="hero-content hero-modern">
+            <h1 class="headline-en">
+                <span class="accent-gradient">All-in-One</span> <br />
+                Platform for Your <span class="accent-gradient">Pharmacy</span>
+            </h1>
+            <p class="hero-subtitle">
+                Browse, order, and get all pharmacy supplies delivered quickly and safely.
+            </p>
+
+            <div class="hero-shapes">
+                <span class="shape-circle circle-1"></span>
+                <span class="shape-circle circle-2"></span>
+                <span class="shape-wave wave-1"></span>
+                <span class="shape-wave wave-2"></span>
+            </div>
+        </div>
     </div>
 </section>
+
+@if (User.IsInRole("Pharmacy"))
+{
+    <section class="pharmacy-dashboard">
+        <h3>Pharmacy Dashboard</h3>
+
+        <div class="dashboard-buttons">
+            <span class="btn btn-info m-2">
+                Total Orders: @(ViewBag.TotalOrders ?? 0)
+            </span>
+
+            <span class="btn btn-info m-2">
+                Total Products: @(ViewBag.TotalProducts ?? 0)
+            </span>
+
+            <a asp-controller="PharmacyAuth"
+               asp-action="Register"
+               class="btn btn-primary m-2">
+                Add Owner/Admin
+            </a>
+
+            <a asp-controller="Admin"
+               asp-action="Admin"
+               class="btn btn-success m-2">
+                Product Management
+            </a>
+
+            <a asp-controller="PharmacyChat"
+               asp-action="Chats"
+               class="btn btn-info m-2">
+                View Chats
+            </a>
+        </div>
+    </section>
+}
 
 <section class="categories categories-en">
     <div class="categories-header">
@@ -232,17 +73,13 @@
     </div>
 
     <div class="cat-strip-wrapper">
-        <!-- زرار يرجع للي قبل (على الشمال) -->
         <button type="button"
                 class="cat-scroll-btn cat-scroll-prev"
                 aria-label="Previous categories">
             ‹
         </button>
 
-        <!-- الشريط اللي فيه الكروت -->
         <div class="cat-grid" id="catStrip">
-
-            <!-- Offers -->
             <a href="@Url.Action("Index", "Offers")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="8" cy="8" r="2.5"></circle>
@@ -252,7 +89,6 @@
                 <div class="cat-title">Special offers</div>
             </a>
 
-            <!-- Drugs -->
             <a href="@Url.Action("Index", "Drugs")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="4" y="3" width="8" height="18" rx="4"></rect>
@@ -262,7 +98,6 @@
                 <div class="cat-title">Drugs</div>
             </a>
 
-            <!-- Baby Care -->
             <a href="@Url.Action("Index", "BabyCare")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="7" r="3"></circle>
@@ -271,7 +106,6 @@
                 <div class="cat-title">Baby Care</div>
             </a>
 
-            <!-- Men Care -->
             <a href="@Url.Action("Index", "MenCare")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="7" r="4"></circle>
@@ -280,7 +114,6 @@
                 <div class="cat-title">Men Care</div>
             </a>
 
-            <!-- Women Care -->
             <a href="@Url.Action("Index", "WomenCare")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="7" r="3"></circle>
@@ -291,7 +124,6 @@
                 <div class="cat-title">Women Care</div>
             </a>
 
-            <!-- Makeup & Accessories -->
             <a href="@Url.Action("Index", "Makeup")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="6" height="14" rx="2"></rect>
@@ -301,7 +133,6 @@
                 <div class="cat-title">Makeup & Accessories</div>
             </a>
 
-            <!-- Fitness & Nutrition -->
             <a href="@Url.Action("Index", "Fitness")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="2" y="9" width="4" height="6" rx="1"></rect>
@@ -311,7 +142,6 @@
                 <div class="cat-title">Fitness & Nutrition</div>
             </a>
 
-            <!-- All Products -->
             <a href="@Url.Action("Index", "Products")" class="cat-card">
                 <svg class="cat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="7" height="7" rx="2"></rect>
@@ -321,10 +151,8 @@
                 </svg>
                 <div class="cat-title">All Products</div>
             </a>
-
         </div>
 
-        <!-- زرار يروح للي بعد (على اليمين) -->
         <button type="button"
                 class="cat-scroll-btn cat-scroll-next"
                 aria-label="Next categories">
@@ -333,7 +161,6 @@
     </div>
 </section>
 
-<!-- ========= Featured products (أكثر مبيعًا) ========= -->
 <section class="featured-products">
     <h2 class="section-title-en">Featured products</h2>
     <p class="section-subtitle-en">Top selling items on our platform</p>
@@ -394,7 +221,6 @@
     </div>
 </section>
 
-<!-- ========= Stats strip ========= -->
 <section class="stats-strip">
     <div class="stat-item">
         <div class="stat-number">24/7</div>
@@ -414,44 +240,39 @@
     </div>
 </section>
 
-<!-- ========= خدماتنا المميزة (من الصورة الثالثة بعد التعديلات) ========= -->
 <section class="services-section">
-    <h2 class="section-title-ar">خدماتنا المميزة</h2>
+    <h2 class="section-title-en">Our Featured Services</h2>
 
     <div class="services-grid">
-        <!-- إرجاع واستبدال سهل -->
         <article class="service-card">
             <div class="service-icon">🔁</div>
-            <h3 class="service-title">إرجاع واستبدال سهل</h3>
+            <h3 class="service-title">Easy Returns & Exchanges</h3>
             <p class="service-text">
-                سياسة إرجاع مرنة لمدة <strong>14 يوم</strong> مع إمكانية استبدال المنتجات بسرعة.
+                Flexible return policy within <strong>14 days</strong> with fast product exchange options.
             </p>
         </article>
 
-        <!-- استشارات طبية مجانية -->
         <article class="service-card">
             <div class="service-icon">👨‍⚕️</div>
-            <h3 class="service-title">استشارات طبية مجانية</h3>
+            <h3 class="service-title">Free Medical Consultations</h3>
             <p class="service-text">
-                فريق من الصيادلة المحترفين متاح للرد على استفساراتك طوال اليوم.
+                A team of professional pharmacists is available to answer your questions all day.
             </p>
         </article>
 
-        <!-- توصيل سريع (مش مجاني) -->
         <article class="service-card">
             <div class="service-icon">🚚</div>
-            <h3 class="service-title">توصيل سريع</h3>
+            <h3 class="service-title">Fast Delivery</h3>
             <p class="service-text">
-                توصيل طلباتك في نفس اليوم داخل المدينة برسوم توصيل مناسبة وواضحة.
+                Same-day delivery within the city with clear and affordable delivery fees.
             </p>
         </article>
 
-        <!-- عروض حصرية -->
         <article class="service-card">
             <div class="service-icon">🎁</div>
-            <h3 class="service-title">عروض حصرية</h3>
+            <h3 class="service-title">Exclusive Offers</h3>
             <p class="service-text">
-                خصومات خاصة وعروض مميزة لعملائنا عند الاشتراك في نشرتنا البريدية.
+                Special discounts and exclusive deals for our customers when subscribing to our newsletter.
             </p>
         </article>
     </div>
@@ -466,7 +287,6 @@
 <section class="contact-section contact-en">
     <div class="contact-container">
         <div class="footer-grid">
-            <!-- 1) اللوجو + الوصف -->
             <div class="footer-col footer-about">
                 <div class="footer-logo">
                     <img src="@(Url.Content("~/images/icons/medicine-logo.svg"))"
@@ -480,33 +300,22 @@
                 </p>
             </div>
 
-            <!-- 2) اللينكات -->
             <div class="footer-col footer-links">
                 <h3>Menu</h3>
                 <ul>
-                    <li>
-                        <a href="@Url.Action("Index", "Home")">Home</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Contact", "Home")">Contact Us</a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Index", "Products")">Find a Product</a>
-                    </li>
+                    <li><a href="@Url.Action("Index", "Home")">Home</a></li>
+                    <li><a href="@Url.Action("Privacy", "Home")">Privacy Policy</a></li>
+                    <li><a href="@Url.Action("Contact", "Home")">Contact Us</a></li>
+                    <li><a href="@Url.Action("Index", "Products")">Find a Product</a></li>
                 </ul>
             </div>
 
-            <!-- 3) بيانات التواصل -->
             <div class="footer-col footer-contact">
                 <h3>Contact us</h3>
                 <p>📞 01208888148</p>
                 <p>✉ help@pharmacymarts.com</p>
             </div>
 
-            <!-- 4) السوشيال + زرار Sign in / Sign up -->
             <div class="footer-col footer-connect">
                 <h3>Connect with us</h3>
                 <div class="footer-social">

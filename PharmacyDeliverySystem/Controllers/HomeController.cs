@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using System.Diagnostics;
 using System.Linq;
@@ -12,11 +13,16 @@ namespace PharmacyDeliverySystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductManager _productManager;
+        private readonly PharmacyDeliveryContext _context;
 
-        public HomeController(ILogger<HomeController> logger, IProductManager productManager)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IProductManager productManager,
+            PharmacyDeliveryContext context)
         {
             _logger = logger;
             _productManager = productManager;
+            _context = context;
         }
 
         // =============================
@@ -24,21 +30,17 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         public IActionResult Index()
         {
-            // نجيب كل المنتجات مرة واحدة
             var allProducts = _productManager.GetAll().ToList();
 
-            // المنتجات اللي عليها خصم فقط (للأوفرز)
             var offersProducts = allProducts
                                  .Where(p => p.OldPrice.HasValue &&
                                              p.OldPrice.Value > p.Price)
                                  .ToList();
 
-            ViewBag.OffersProducts = offersProducts;   // للأوفرز فقط
+            ViewBag.OffersProducts = offersProducts;
 
-            // أعلى المنتجات مبيعًا (هنا بنختار 4 برودكت مميزة)
-            // تقدر لاحقًا تبدّل الترتيب ده بترتيب حسب المبيعات الفعلية
             var topSellingProducts = allProducts
-                                     .OrderByDescending(p => p.ProId) // مؤقتًا بالـ Id
+                                     .OrderByDescending(p => p.ProId)
                                      .Take(4)
                                      .ToList();
 
@@ -79,51 +81,45 @@ namespace PharmacyDeliverySystem.Controllers
             return View("SearchResults", results);
         }
 
+        // =============================
+        //  ChatRedirect من النافبار
+        // =============================
         public IActionResult ChatRedirect()
         {
             // لو مش عامل Login أصلاً
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
-                // نودّيه على صفحة اللوجين بتاعة CustomerAuth
                 return RedirectToAction("Login", "CustomerAuth");
             }
 
-            var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            if (roleClaim != null)
+            // ---- لو كاستمر: نختار صيدلية من الـ DB ونعمل شات معاها ----
+            if (role == "Customer")
             {
-                // لو العميل
-                if (roleClaim.Value == "Customer")
+                // هنا بنختار أول صيدلية في الجدول (ممكن بعدين تعملي منيو اختيار)
+                var defaultPharmacyId = _context.Pharmacies
+                                                .Select(p => p.PharmId)
+                                                .OrderBy(id => id)
+                                                .FirstOrDefault();
+
+                if (defaultPharmacyId == 0)
                 {
-                    return RedirectToAction("Index", "Chat", new { pharmacyId = 1 });
+                    // مفيش صيدليات في الداتا بيز
+                    return RedirectToAction("Index");
                 }
 
-                // لو الصيدلي
-                if (roleClaim.Value == "Pharmacy")
-                {
-                    return RedirectToAction("Chats", "PharmacyChat");
-                }
+                return RedirectToAction("Index", "Chat", new { pharmacyId = defaultPharmacyId });
             }
 
-            // في حالة فشل تحديد الدور
-            return RedirectToAction("AccessDenied", "Account");
-        }
-
-        public IActionResult GoToChat()
-        {
-            if (User.Identity!.IsAuthenticated)
+            // ---- لو صيدلي: يروح على صفحة الشات بتاعة الصيدلي ----
+            if (role == "Pharmacy")
             {
-                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (role == "Customer")
-                    return RedirectToAction("Index", "Chat"); // صفحة الدردشة للعميل
-
-                if (role == "Pharmacy")
-                    return RedirectToAction("Chats", "PharmacyChat"); // صفحة الدردشة للصيدلي
+                return RedirectToAction("Chats", "PharmacyChat");
             }
 
-            // إذا لم يكن مسجل دخول
-            return RedirectToAction("Login", "CustomerAuth");
+            // لو دور غريب، رجّعيه للهوم
+            return RedirectToAction("Index");
         }
 
         public IActionResult Contact()
@@ -133,7 +129,6 @@ namespace PharmacyDeliverySystem.Controllers
 
         public IActionResult Cart()
         {
-            // هنا عايزين كل المنتجات علشان تظهر في العمود الشمال
             var products = _productManager.GetAll().ToList();
             return View(products);
         }

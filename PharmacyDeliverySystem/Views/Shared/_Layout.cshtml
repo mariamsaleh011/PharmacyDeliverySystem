@@ -26,6 +26,10 @@
 
         // صفحة الكارت الجديدة Home/Cart
         bool isCartPage = controller == "Home" && action == "Cart";
+
+        // الأدوار
+        bool isCustomer = User.IsInRole("Customer");
+        bool isPharmacy = User.IsInRole("Pharmacy");
     }
 
     @if (!isAuthPage)
@@ -68,7 +72,6 @@
                                aria-label="Search"
                                autocomplete="off" />
 
-                        <!-- Hidden button to ensure Enter works in all browsers -->
                         <button type="submit" style="display:none" aria-hidden="true">Search</button>
                     </form>
                 </div>
@@ -84,16 +87,16 @@
                             Home
                         </a>
 
-                        <a asp-area=""
-                           asp-controller="Chat"
-                           asp-action="Index"
-                           id="navChat">
-                            Chat with Pharmacy
-                        </a>
-
-                        @* My Orders تظهر بس لو اليوزر عامل Login *@
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @* Chat with Pharmacy + My Orders → للـ Customer بس *@
+                        @if (isCustomer)
                         {
+                            <a asp-area=""
+                               asp-controller="Home"
+                               asp-action="ChatRedirect"
+                               id="navChat">
+                                Chat with Pharmacy
+                            </a>
+
                             <a asp-area=""
                                asp-controller="Order"
                                asp-action="MyOrders"
@@ -213,7 +216,6 @@
         <!-- Back to top button -->
         <button id="toTop" type="button" title="Back to top">↑</button>
 
-        @* Overlay + drawer في كل الصفحات ما عدا صفحة الكارت *@
         @if (!isCartPage)
         {
             <!-- Overlay + Cart drawer -->
@@ -232,7 +234,6 @@
                         <strong id="cartTotal">0 EGP</strong>
                     </div>
 
-                    <!-- Checkout button -->
                     <button id="checkoutBtn"
                             type="button"
                             onclick="checkout()"
@@ -258,7 +259,6 @@
 
     @if (!isAuthPage)
     {
-        <!-- Header search script (معتمد على وجود السيرش في التوب بار) -->
         <script>
             (function () {
                 var input = document.getElementById('searchInput');

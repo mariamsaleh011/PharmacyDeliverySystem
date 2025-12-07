@@ -16,6 +16,8 @@
 
     <!-- ستايل صفحات الأوث -->
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+
+    @RenderSection("Head", required: false)   <!-- ✅ سيكشن اختياري للهيد -->
 </head>
 
 <body>
@@ -31,9 +33,11 @@
         <small>© 2025 PharmacyMarts – Training project only</small>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Scripts الأساسية -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)   <!-- ✅ سيكشن اختياري للسكريبتس -->
 </body>
 </html>

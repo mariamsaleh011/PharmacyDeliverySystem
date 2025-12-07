@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
-//using PharmacyDeliverySystem.ViewModels.PharmacyChat;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -16,41 +14,38 @@ namespace PharmacyDeliverySystem.Controllers
     public class PharmacyChatController : Controller
     {
         private readonly PharmacyDeliveryContext _context;
-        private readonly IPharmacyManager _pharmacyManager;
 
-        public PharmacyChatController(
-            PharmacyDeliveryContext context,
-            IPharmacyManager pharmacyManager)
+        public PharmacyChatController(PharmacyDeliveryContext context)
         {
             _context = context;
-            _pharmacyManager = pharmacyManager;
         }
 
         /// <summary>
-        /// يرجّع رقم الصيدلية من الـ Claims (من خلال الإيميل)
+        /// يرجّع رقم الصيدلية اعتمادًا على الإيميل الموجود في الـ Claims
         /// </summary>
-        /// <returns>PharmId أو null لو مش موجود</returns>
         private int? GetPharmacyId()
         {
-            // جرّب الأول Name، ولو فاضية جرّب Email
-            var email =
-                User.FindFirst(ClaimTypes.Name)?.Value ??
-                User.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (string.IsNullOrEmpty(email))
+            // 1) نجيب الإيميل من الكليمز
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(email))
                 return null;
 
-            var pharmacy = _pharmacyManager.GetPharmacyByEmail(email);
+            // 2) نجيب الصيدلية اللي إيميلها ده
+            var pharmacy = _context.Pharmacies
+                                   .FirstOrDefault(p => p.Email == email);
+
             return pharmacy?.PharmId;
         }
 
-        // List all chats for this pharmacy
+        // =======================
+        //  قائمة الشاتات للصيدلي
+        // =======================
         public IActionResult Chats()
         {
             var pharmacyId = GetPharmacyId();
             if (pharmacyId == null)
             {
-                // مش لاقي صيدلية مرتبطة باليوزر → رجعه لصفحة لوجين الصيدلي مثلاً
+                // لو لأي سبب مش لاقيين صيدلية مرتبطة باليوزر → رجعه للّوجين
                 return RedirectToAction("Login", "PharmacyAuth");
             }
 
@@ -82,7 +77,9 @@ namespace PharmacyDeliverySystem.Controllers
             return View(chats);
         }
 
-        // Open chat with a customer
+        // =======================
+        //  فتح شات معين
+        // =======================
         public IActionResult PhChat(int id)
         {
             var pharmacyId = GetPharmacyId();
@@ -101,6 +98,9 @@ namespace PharmacyDeliverySystem.Controllers
             return View(chat);
         }
 
+        // =======================
+        //  إرسال رسالة من الصيدلي
+        // =======================
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message)
         {
@@ -113,7 +113,7 @@ namespace PharmacyDeliverySystem.Controllers
             if (string.IsNullOrWhiteSpace(message))
                 return RedirectToAction("PhChat", new { id = chatId });
 
-            // نتأكد إن الشات فعلاً تابع للصيدلية دي
+            // تأكيد إن الشات تابع للصيدلي ده فعلاً
             var chat = _context.Chats
                 .FirstOrDefault(c => c.ChatId == chatId && c.PharmacyId == pharmacyId.Value);
 

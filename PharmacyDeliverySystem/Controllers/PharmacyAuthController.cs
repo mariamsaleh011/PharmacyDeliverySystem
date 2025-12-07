@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
@@ -20,68 +19,27 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
-        /* ==================== LOGIN ==================== */
-
-        [HttpGet]
-        public IActionResult Login() => View(new PharmacyLoginViewModel());
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(PharmacyLoginViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var pharmacy = _context.Pharmacies
-                .FirstOrDefault(p => p.Email == model.Email && p.PasswordHash == model.Password);
-            // TODO: استبدل مقارنة الباسورد بـ Hashing حقيقي بعدين
-
-            if (pharmacy == null)
-            {
-                ViewBag.Error = "Invalid email or password";
-                return View(model);
-            }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, pharmacy.Name),
-                new Claim(ClaimTypes.Email, pharmacy.Email),
-                new Claim(ClaimTypes.Role, "Pharmacy"),
-                new Claim("PharmacyId", pharmacy.PharmId.ToString())
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = System.DateTime.UtcNow.AddHours(8)
-                });
-
-            // بعد اللوجين يروح على صفحة الشات الخاصة بالصيدلي
-            return RedirectToAction("Chats", "PharmacyChat");
-        }
+        /* ==================== LOGOUT ==================== */
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
-            return RedirectToAction("Login");
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // بعد ما يسجّل خروج، يرجع لصفحة اللوجين الموحدة
+            return RedirectToAction("Login", "CustomerAuth");
         }
 
-        /* ==================== REGISTER ==================== */
+        /* ==================== REGISTER (GET) ==================== */
 
-        // GET: PharmacyAuth/Register
         [HttpGet]
         public IActionResult Register()
         {
             return View(new PharmacyRegisterViewModel());
         }
 
-        // POST: PharmacyAuth/Register
+        /* ==================== REGISTER (POST) ==================== */
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(PharmacyRegisterViewModel model)
@@ -89,7 +47,6 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // تأكد إن الإيميل مش متسجل قبل كده
             bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
             if (emailExists)
             {
@@ -97,20 +54,19 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
-            // إنشاء كيان الصيدلية الجديد
             var pharmacy = new Pharmacy
             {
                 Name = model.Name,
                 Email = model.Email,
-                // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
+                // مؤقتاً من غير Hash
                 PasswordHash = model.Password
             };
 
             _context.Pharmacies.Add(pharmacy);
             _context.SaveChanges();
 
-            // بعد الريجستر نرجّع الصيدلي لصفحة اللوجين بتاعته
-            return RedirectToAction("Login", "PharmacyAuth");
+            // بعد ما يعمل Sign up كصيدلية → يروح للوجين الموحد
+            return RedirectToAction("Login", "CustomerAuth");
         }
     }
 }

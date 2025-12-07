@@ -26,7 +26,6 @@
                 </div>
             </div>
 
-
             <div class="prod-actions">
                 <div class="search-wrapper">
                     <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -55,7 +54,6 @@
                 </a>
             </div>
         </header>
-
 
         <div class="table-container">
             <table class="prod-table" id="productsTable">
@@ -208,8 +206,8 @@
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
         <form id="productForm" enctype="multipart/form-data" method="post"
-              data-create-url="@Url.Action("Create","Product")"
-              data-edit-url="@Url.Action("Edit","Product")">
+              data-create-url="@Url.Action("Create","Admin")"
+              data-edit-url="@Url.Action("Edit","Admin")">
             @Html.AntiForgeryToken()
             <input type="hidden" name="ProId" id="prodId" />
 
@@ -344,7 +342,7 @@
     </div>
 </div>
 
-<form id="deleteForm" asp-controller="Product" asp-action="Delete" method="post">
+<form id="deleteForm" asp-controller="Admin" asp-action="Delete" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" id="deleteId" name="id" />
 </form>

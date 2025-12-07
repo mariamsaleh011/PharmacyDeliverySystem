@@ -28,20 +28,20 @@ builder.Services.AddScoped<IRefundManager, RefundManager>();
 builder.Services.AddScoped<IChatManager, ChatManager>();
 builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
 builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
+builder.Services.AddScoped<IPharmacyManager, PharmacyManager>();   // ✅
 
 // Authentication & Authorization
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل دخول
+        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل الدخول الموحدة
         options.LogoutPath = "/CustomerAuth/Logout";
-        options.AccessDeniedPath = "/Home/Index";    // redirect if unauthorized
+        options.AccessDeniedPath = "/Home/Index";
         options.Cookie.Name = "PharmacyAuthCookie";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
-
-        options.ReturnUrlParameter = "returnUrl"; // إضافة دعم ReturnUrl لإعادة التوجيه بعد login
+        options.ReturnUrlParameter = "returnUrl";
     });
 
 builder.Services.AddAuthorization();
