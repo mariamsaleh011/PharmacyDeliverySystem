@@ -5,6 +5,7 @@
     Layout = "_Layout";
 
     var productsList = ViewBag.ProductsList as IEnumerable<Product>;
+<<<<<<< HEAD
     var total = productsList?.Count() ?? 0;
 }
 
@@ -45,6 +46,16 @@
     </div>
 
     <!-- ===== Products grid ===== -->
+=======
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<section class="products">
+    <h2>المنتجات</h2>
+>>>>>>> upstream/Kamal-Branch
     <div class="product-grid">
         @if (productsList != null && productsList.Any())
         {
@@ -56,6 +67,7 @@
                      data-product-id="@product.ProId">
 
                     @{
+<<<<<<< HEAD
                         var hasImage = !string.IsNullOrWhiteSpace(product.ImageUrl);
 
                         var imgSrc = hasImage
@@ -63,19 +75,31 @@
                         : Url.Content("~/images/icons/product-default.svg");
 
                         var imgClass = "product-img" + (!hasImage ? " default-icon" : "");
+=======
+                        var imgSrc = string.IsNullOrWhiteSpace(product.ImageUrl)
+                        ? "/images/icons/medicine-logo.svg"
+                        : product.ImageUrl;
+
+                        var imgClass = "product-img" + (string.IsNullOrWhiteSpace(product.ImageUrl) ? " default-icon" : "");
+>>>>>>> upstream/Kamal-Branch
                     }
 
                     <img src="@imgSrc" alt="@product.Name" class="@imgClass" />
 
                     <h3>@product.Name</h3>
 
+<<<<<<< HEAD
                     <p class="product-desc">
                         @((product.Description ?? product.Dosage) ?? "Available product")
                     </p>
+=======
+                    <p>@((product.Description ?? product.Dosage) ?? "منتج متوفر")</p>
+>>>>>>> upstream/Kamal-Branch
 
                     <p class="price">
                         @if (product.OldPrice.HasValue && product.OldPrice.Value > product.Price)
                         {
+<<<<<<< HEAD
                             <span class="old-price">
                                 @product.OldPrice.Value.ToString("0.00 EGP")
                             </span>
@@ -85,13 +109,26 @@
 
                     <button class="btn add-to-cart" data-product-id="@product.ProId">
                         Add to cart
+=======
+                            <span class="old-price">@product.OldPrice.Value.ToString("0.00 ج.م")</span>
+                        }
+                        @product.Price.ToString("0.00 ج.م")
+                    </p>
+
+                    <button class="btn add-to-cart" data-product-id="@product.ProId">
+                        أضف للسلة
+>>>>>>> upstream/Kamal-Branch
                     </button>
                 </div>
             }
         }
         else
         {
+<<<<<<< HEAD
             <p>No products available right now.</p>
+=======
+            <p>لا توجد منتجات حالياً.</p>
+>>>>>>> upstream/Kamal-Branch
         }
     </div>
 </section>

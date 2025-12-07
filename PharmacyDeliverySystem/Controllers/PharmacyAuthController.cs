@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 ﻿using System.Linq;
+=======
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+>>>>>>> upstream/Kamal-Branch
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,6 +25,7 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
+<<<<<<< HEAD
         /* ==================== LOGOUT ==================== */
 
         public async Task<IActionResult> Logout()
@@ -32,14 +39,75 @@ namespace PharmacyDeliverySystem.Controllers
 
         /* ==================== REGISTER (GET) ==================== */
 
+=======
+        /* ==================== LOGIN ==================== */
+
+        [HttpGet]
+        public IActionResult Login() => View(new PharmacyLoginViewModel());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(PharmacyLoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var pharmacy = _context.Pharmacies
+                .FirstOrDefault(p => p.Email == model.Email && p.PasswordHash == model.Password);
+            // TODO: استبدل مقارنة الباسورد بـ Hashing حقيقي بعدين
+
+            if (pharmacy == null)
+            {
+                ViewBag.Error = "Invalid email or password";
+                return View(model);
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, pharmacy.Name),
+                new Claim(ClaimTypes.Email, pharmacy.Email),
+                new Claim(ClaimTypes.Role, "Pharmacy"),
+                new Claim("PharmacyId", pharmacy.PharmId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = System.DateTime.UtcNow.AddHours(8)
+                });
+
+            // بعد اللوجين يروح على صفحة الشات الخاصة بالصيدلي
+            return RedirectToAction("Chats", "PharmacyChat");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Login");
+        }
+
+        /* ==================== REGISTER ==================== */
+
+        // GET: PharmacyAuth/Register
+>>>>>>> upstream/Kamal-Branch
         [HttpGet]
         public IActionResult Register()
         {
             return View(new PharmacyRegisterViewModel());
         }
 
+<<<<<<< HEAD
         /* ==================== REGISTER (POST) ==================== */
 
+=======
+        // POST: PharmacyAuth/Register
+>>>>>>> upstream/Kamal-Branch
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(PharmacyRegisterViewModel model)
@@ -47,6 +115,7 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            // تأكد إن الإيميل مش متسجل قبل كده
             bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
             if (emailExists)
             {
@@ -54,19 +123,31 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
+            // إنشاء كيان الصيدلية الجديد
             var pharmacy = new Pharmacy
             {
                 Name = model.Name,
                 Email = model.Email,
+<<<<<<< HEAD
                 // مؤقتاً من غير Hash
+=======
+                LicenceNo = model.LicenceNo,
+                TaxId = model.TaxId,
+                // مؤقتاً بنخزن الباسورد زي ما هو – المفروض تستخدم Hashing بعدين
+>>>>>>> upstream/Kamal-Branch
                 PasswordHash = model.Password
             };
 
             _context.Pharmacies.Add(pharmacy);
             _context.SaveChanges();
 
+<<<<<<< HEAD
             // بعد ما يعمل Sign up كصيدلية → يروح للوجين الموحد
             return RedirectToAction("Login", "CustomerAuth");
+=======
+            // بعد الريجستر نرجّع الصيدلي لصفحة اللوجين بتاعته
+            return RedirectToAction("Login", "PharmacyAuth");
+>>>>>>> upstream/Kamal-Branch
         }
     }
 }

@@ -2,9 +2,12 @@
 const CART_KEY = 'pharmacy_cart_v1';
 const THEME_KEY = 'pharmacy_theme_v1';
 const LANG_KEY = 'pharmacy_lang_v1';
+<<<<<<< HEAD
 
 // منع تكرار الـ checkout
 let isCheckoutInProgress = false;
+=======
+>>>>>>> upstream/Kamal-Branch
 
 // ===== DOM Elements =====
 const cartBtn = document.getElementById('cartBtn');
@@ -296,8 +299,11 @@ async function checkout() {
 
     if (!items.length) {
         alert(lang === 'ar' ? 'سلتك فارغة' : 'Your cart is empty');
+<<<<<<< HEAD
         isCheckoutInProgress = false;
         if (checkoutBtn) checkoutBtn.disabled = false;
+=======
+>>>>>>> upstream/Kamal-Branch
         return;
     }
 
@@ -362,9 +368,12 @@ async function checkout() {
         alert(lang === 'ar'
             ? 'حدث خطأ في الاتصال. حاول مرة أخرى.'
             : 'A network error occurred. Please try again.');
+<<<<<<< HEAD
     } finally {
         isCheckoutInProgress = false;
         if (checkoutBtn) checkoutBtn.disabled = false;
+=======
+>>>>>>> upstream/Kamal-Branch
     }
 }
 

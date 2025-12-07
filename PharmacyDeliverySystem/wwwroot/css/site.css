@@ -37,6 +37,7 @@ body {
 /* -------- Layout عام -------- */
 
 main {
+<<<<<<< HEAD
     padding: 16px 0;
 }
 
@@ -50,6 +51,11 @@ main {
     padding-right: 0 !important;
 }
 
+=======
+    padding: 16px 3%;
+}
+
+>>>>>>> upstream/Kamal-Branch
 /* -------- Topbar / Navbar موحد (Glass + Animations) -------- */
 
 .topbar {
@@ -116,7 +122,11 @@ main {
         background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+<<<<<<< HEAD
         background-clip: text;
+=======
+         background-clip: text; 
+>>>>>>> upstream/Kamal-Branch
     }
 
 /* --- Search (في النص) --- */
@@ -436,6 +446,7 @@ section {
     padding-right: 3%;
 }
 
+<<<<<<< HEAD
 /* خلي Health tips و Contact يغطوا العرض كله */
 .health-tips,
 .contact-section.contact-en {
@@ -450,6 +461,8 @@ section {
         padding: 0 3%;
     }
 
+=======
+>>>>>>> upstream/Kamal-Branch
 /* -------- Footer -------- */
 
 .main-footer {
@@ -531,9 +544,15 @@ section {
 
 #toTop {
     position: fixed;
+<<<<<<< HEAD
     left: 50%;
     bottom: 20px;
     transform: translateX(-50%) translateY(20px);
+=======
+    left: 50%; /* نحطه في نصف الصفحة */
+    bottom: 20px; /* المسافة من الأسفل */
+    transform: translateX(-50%) translateY(20px); /* نضبط المركزية + حركة الظهور */
+>>>>>>> upstream/Kamal-Branch
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -552,7 +571,11 @@ section {
     #toTop.show {
         opacity: 1;
         pointer-events: auto;
+<<<<<<< HEAD
         transform: translateX(-50%) translateY(0);
+=======
+        transform: translateX(-50%) translateY(0); /* يطلع لفوق مع الأنيميشن */
+>>>>>>> upstream/Kamal-Branch
     }
 
 /* ===== Overlay + Drawer (Cart) ===== */
@@ -578,8 +601,13 @@ section {
 .drawer {
     position: fixed;
     top: 0;
+<<<<<<< HEAD
     right: -420px; /* عشان يختفي بالكامل */
     width: 420px; /* نفس عرض الكارت الكبيرة */
+=======
+    right: -420px;
+    width: 380px;
+>>>>>>> upstream/Kamal-Branch
     max-width: 100%;
     height: 100%;
     display: flex;
@@ -886,7 +914,10 @@ section {
     .drawer {
         width: 100%;
         border-radius: 0;
+<<<<<<< HEAD
         right: 0;
+=======
+>>>>>>> upstream/Kamal-Branch
     }
 }
 

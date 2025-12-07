@@ -86,7 +86,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 16px;
+<<<<<<< HEAD
     align-items: stretch;
+=======
+>>>>>>> upstream/Kamal-Branch
 }
 
     .product-grid .product {
@@ -98,8 +101,11 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+<<<<<<< HEAD
         /* ارتفاع ثابت لكل الكروت عشان يكونوا قد بعض */
         height: 360px;
+=======
+>>>>>>> upstream/Kamal-Branch
     }
 
 .product-img {
@@ -115,6 +121,7 @@
     margin: 0;
 }
 
+<<<<<<< HEAD
 /* وصف البرودكت – يتمدّد ويُقصّ على 3 سطور */
 .product-desc {
     font-size: 0.85rem;
@@ -126,6 +133,12 @@
     -webkit-line-clamp: 3; /* عدد السطور */
     -webkit-box-orient: vertical;
     overflow: hidden;
+=======
+.product p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0;
+>>>>>>> upstream/Kamal-Branch
 }
 
 .price {

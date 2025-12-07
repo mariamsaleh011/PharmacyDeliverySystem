@@ -35,13 +35,22 @@ builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+<<<<<<< HEAD
         options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل الدخول الموحدة
+=======
+        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل دخول
+>>>>>>> upstream/Kamal-Branch
         options.LogoutPath = "/CustomerAuth/Logout";
-        options.AccessDeniedPath = "/Home/Index";
+        options.AccessDeniedPath = "/Home/Index";    // redirect if unauthorized
         options.Cookie.Name = "PharmacyAuthCookie";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+<<<<<<< HEAD
         options.ReturnUrlParameter = "returnUrl";
+=======
+
+        options.ReturnUrlParameter = "returnUrl"; // إضافة دعم ReturnUrl لإعادة التوجيه بعد login
+>>>>>>> upstream/Kamal-Branch
     });
 
 builder.Services.AddAuthorization();

@@ -1,11 +1,20 @@
+<<<<<<< HEAD
+=======
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+>>>>>>> upstream/Kamal-Branch
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
+<<<<<<< HEAD
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
+=======
+>>>>>>> upstream/Kamal-Branch
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -80,15 +89,20 @@ namespace PharmacyDeliverySystem.Controllers
 
             return View("SearchResults", results);
         }
+<<<<<<< HEAD
 
         // =============================
         //  ChatRedirect من النافبار
         // =============================
+=======
+       
+>>>>>>> upstream/Kamal-Branch
         public IActionResult ChatRedirect()
         {
             // لو مش عامل Login أصلاً
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
+<<<<<<< HEAD
                 return RedirectToAction("Login", "CustomerAuth");
             }
 
@@ -132,5 +146,50 @@ namespace PharmacyDeliverySystem.Controllers
             var products = _productManager.GetAll().ToList();
             return View(products);
         }
+=======
+                return RedirectToAction("Login", "CustomerAccount");
+            }
+
+            var roleClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+
+            if (roleClaim != null)
+            {
+                // لو العميل
+                if (roleClaim.Value == "Customer")
+                {
+                    return RedirectToAction("Index", "Chat", new { pharmacyId = 1 });
+                }
+
+                // لو الصيدلي
+                if (roleClaim.Value == "Pharmacy")
+                {
+                    return RedirectToAction("Chats", "PharmacyChat");
+                }
+            }
+
+            // في حالة فشل تحديد الدور
+            return RedirectToAction("AccessDenied", "Account");
+        }
+
+        
+
+        public IActionResult GoToChat()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (role == "Customer")
+                    return RedirectToAction("Index", "Chat"); // صفحة الدردشة للعميل
+
+                if (role == "Pharmacy")
+                    return RedirectToAction("Chats", "PharmacyChat"); // صفحة الدردشة للصيدلي
+            }
+
+            // إذا لم يكن مسجل دخول
+            return RedirectToAction("Login", "CustomerAuth");
+        }
+
+>>>>>>> upstream/Kamal-Branch
     }
 }

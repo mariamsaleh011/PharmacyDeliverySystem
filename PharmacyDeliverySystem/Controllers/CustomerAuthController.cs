@@ -47,6 +47,7 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
+<<<<<<< HEAD
             var email = model.Email?.Trim();
             var password = model.Password?.Trim();
 
@@ -98,12 +99,29 @@ namespace PharmacyDeliverySystem.Controllers
 
                 // صيدلي → Home فيها Pharmacy Dashboard
                 return RedirectToAction("Index", "Home");
+=======
+            // 1) جرّب كـ Customer
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == model.Email);
+            if (customer != null && customer.PasswordHash == model.Password)
+            {
+                await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
+                return RedirectAfterLogin(returnUrl, "Customer");
+            }
+
+            // 2) لو مش Customer.. جرّب كـ Pharmacy
+            var pharmacy = _context.Pharmacies.FirstOrDefault(p => p.Email == model.Email);
+            if (pharmacy != null && pharmacy.PasswordHash == model.Password)
+            {
+                await SignInUser(pharmacy.Name, pharmacy.Email, "Pharmacy", pharmacy.PharmId);
+                return RedirectAfterLogin(returnUrl, "Pharmacy");
+>>>>>>> upstream/Kamal-Branch
             }
 
             // 2) لو مش صيدلية، نجرب كـ Customer
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Email == email);
 
+<<<<<<< HEAD
             if (customer == null)
             {
                 ViewBag.Error = "No account found with this email.";
@@ -131,6 +149,26 @@ namespace PharmacyDeliverySystem.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme);
 
             var customerPrincipal = new ClaimsPrincipal(customerIdentity);
+=======
+        // helper: يعمل SignIn ويحط الـ Role و Id
+        private async Task SignInUser(string? name, string? email, string role, int userId)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name,  name  ?? string.Empty),
+                new Claim(ClaimTypes.Email, email ?? string.Empty),
+                new Claim(ClaimTypes.Role,  role)
+            };
+
+            // إضافة الـ claim الخاص بالـ Id بناءً على الدور
+            if (role == "Customer")
+                claims.Add(new Claim("CustomerId", userId.ToString()));
+            else if (role == "Pharmacy")
+                claims.Add(new Claim("PharmacyId", userId.ToString()));
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+>>>>>>> upstream/Kamal-Branch
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
@@ -141,11 +179,26 @@ namespace PharmacyDeliverySystem.Controllers
                     ExpiresUtc = DateTime.UtcNow.AddHours(8)
                 });
 
+<<<<<<< HEAD
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
             // كاستمر → Home العادية
             return RedirectToAction("Index", "Home");
+=======
+        // helper: يحدد يروح فين بعد الـ Login على حسب الـ Role
+        private IActionResult RedirectAfterLogin(string? returnUrl, string role)
+        {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
+            return role switch
+            {
+                "Customer" => RedirectToAction("Index", "Home"),
+                "Pharmacy" => RedirectToAction("Admin", "Product"),
+                _ => RedirectToAction("Index", "Home")
+            };
+>>>>>>> upstream/Kamal-Branch
         }
 
         // =======================
@@ -189,6 +242,7 @@ namespace PharmacyDeliverySystem.Controllers
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
+<<<<<<< HEAD
             // Login تلقائي بعد التسجيل
             var claims = new List<Claim>
             {
@@ -211,6 +265,10 @@ namespace PharmacyDeliverySystem.Controllers
                     IsPersistent = true,
                     ExpiresUtc = DateTime.UtcNow.AddHours(8)
                 });
+=======
+            // Login تلقائي بعد التسجيل كـ Customer
+            await SignInUser(customer.Name, customer.Email, "Customer", customer.CustomerId);
+>>>>>>> upstream/Kamal-Branch
 
             return RedirectToAction("Index", "Home");
         }

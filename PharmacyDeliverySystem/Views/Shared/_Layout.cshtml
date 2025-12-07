@@ -23,6 +23,7 @@
         bool isAuthPage =
         controller == "CustomerAuth" ||
         controller == "PharmacyAuth";
+<<<<<<< HEAD
 
         // صفحة الكارت الجديدة Home/Cart
         bool isCartPage = controller == "Home" && action == "Cart";
@@ -76,6 +77,55 @@
                     </form>
                 </div>
 
+=======
+    }
+
+    @if (!isAuthPage)
+    {
+        <!-- Topbar / Navbar for all non-auth pages -->
+        <header class="topbar">
+            <div class="topbar-inner">
+                <!-- Logo -->
+                <a href="@Url.Action("Index", "Home")" class="logo">
+                    <div class="logo-icon">
+                        <img src="@(Url.Content("~/images/icons/medicine-logo.svg"))"
+                             asp-append-version="true"
+                             alt="PharmacyMarts logo"
+                             class="logo-img" />
+                    </div>
+                    <div class="logo-text">
+                        Pharmacy<span>Marts</span>
+                    </div>
+                </a>
+
+                <!-- Searchbar -->
+                <div class="searchbar">
+                    <form asp-area=""
+                          asp-controller="Home"
+                          asp-action="Search"
+                          method="get"
+                          class="search-form"
+                          id="globalSearchForm">
+
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+
+                        <input id="searchInput"
+                               name="query"
+                               type="text"
+                               class="search-input"
+                               placeholder="Search in items and products..."
+                               aria-label="Search"
+                               autocomplete="off" />
+
+                        <!-- Hidden button to ensure Enter works in all browsers -->
+                        <button type="submit" style="display:none" aria-hidden="true">Search</button>
+                    </form>
+                </div>
+
+>>>>>>> upstream/Kamal-Branch
                 <!-- Nav + Actions -->
                 <div class="topbar-right">
                     <!-- Main navigation links -->
@@ -87,6 +137,7 @@
                             Home
                         </a>
 
+<<<<<<< HEAD
                         @* Chat with Pharmacy + My Orders → للـ Customer بس *@
                         @if (isCustomer)
                         {
@@ -105,6 +156,16 @@
                             </a>
                         }
                     </nav>
+=======
+                        <a asp-area=""
+                           asp-controller="Chat"
+                           asp-action="Index"
+                           id="navChat">
+                            Chat with Pharmacy
+                        </a>
+                    </nav>
+
+>>>>>>> upstream/Kamal-Branch
 
                     <!-- Actions: Login/Logout + Language + Theme + Cart -->
                     <div class="top-actions">
@@ -138,9 +199,13 @@
                                 class="action-card btn-cart"
                                 type="button"
                                 title="Cart"
+<<<<<<< HEAD
                                 aria-label="Open cart"
                                 data-mode="page"
                                 data-cart-url="@Url.Action("Cart", "Home")">
+=======
+                                aria-label="Open cart">
+>>>>>>> upstream/Kamal-Branch
                             <span class="action-icon">🛒</span>
                             <span class="action-text" id="cartText">Cart</span>
                             <span id="cartCount" class="badge" aria-live="polite">0</span>
@@ -189,7 +254,11 @@
     }
 
     <!-- Page content -->
+<<<<<<< HEAD
     <div class="container @(((controller == "Home" && action == "Index") || isCartPage) ? "container-full" : "")">
+=======
+    <div class="container">
+>>>>>>> upstream/Kamal-Branch
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -210,9 +279,26 @@
                    id="privacyLinkText">
                     Privacy
                 </a>
+<<<<<<< HEAD
+=======
             </div>
         </footer>
 
+        <!-- Back to top button -->
+        <button id="toTop" type="button" title="Back to top">↑</button>
+
+        <!-- Overlay + Cart drawer -->
+        <div id="overlay" class="overlay" onclick="toggleCart(false)"></div>
+
+        <aside id="drawer" class="drawer" aria-label="Shopping cart" aria-live="polite">
+            <div class="drawer-header">
+                <strong id="cartTitle">Shopping Cart</strong>
+                <button class="icon-btn" type="button" onclick="toggleCart(false)" aria-label="Close cart">✕</button>
+>>>>>>> upstream/Kamal-Branch
+            </div>
+        </footer>
+
+<<<<<<< HEAD
         <!-- Back to top button -->
         <button id="toTop" type="button" title="Back to top">↑</button>
 
@@ -250,6 +336,32 @@
                 </div>
             </aside>
         }
+=======
+            <div id="cartList" class="drawer-body"></div>
+            <div class="drawer-footer">
+                <div class="drawer-total-row">
+                    <span id="totalLabel">Total Amount</span>
+                    <strong id="cartTotal">0 EGP</strong>
+                </div>
+
+                <!-- Checkout button -->
+                <button id="checkoutBtn"
+                        type="button"
+                        onclick="checkout()"
+                        data-is-authenticated="@(User?.Identity?.IsAuthenticated == true ? "true" : "false")"
+                        data-login-url="@Url.Action("Login", "CustomerAuth")">
+                    Checkout
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger w-100"
+                        onclick="clearCart()">
+                    <span id="clearCartText">Clear cart</span>
+                </button>
+            </div>
+
+        </aside>
+>>>>>>> upstream/Kamal-Branch
     }
 
     <!-- Scripts -->
@@ -259,6 +371,10 @@
 
     @if (!isAuthPage)
     {
+<<<<<<< HEAD
+=======
+        <!-- Header search script (معتمد على وجود السيرش في التوب بار) -->
+>>>>>>> upstream/Kamal-Branch
         <script>
             (function () {
                 var input = document.getElementById('searchInput');

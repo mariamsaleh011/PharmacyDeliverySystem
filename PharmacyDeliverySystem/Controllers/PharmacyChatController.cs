@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 ﻿using Microsoft.AspNetCore.Authorization;
+=======
+﻿
+using Microsoft.AspNetCore.Authorization;
+>>>>>>> upstream/Kamal-Branch
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.DataAccess;
@@ -6,7 +11,10 @@ using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
 using System;
 using System.Linq;
+<<<<<<< HEAD
 using System.Security.Claims;
+=======
+>>>>>>> upstream/Kamal-Branch
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -20,6 +28,7 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// يرجّع رقم الصيدلية اعتمادًا على الإيميل الموجود في الـ Claims
         /// </summary>
@@ -48,10 +57,19 @@ namespace PharmacyDeliverySystem.Controllers
                 // لو لأي سبب مش لاقيين صيدلية مرتبطة باليوزر → رجعه للّوجين
                 return RedirectToAction("Login", "PharmacyAuth");
             }
+=======
+        private int GetPharmacyId() => 1; // مؤقت للتجربة
+
+        // List all chats for this pharmacy
+        public IActionResult Chats()
+        {
+            int pharmacyId = GetPharmacyId();
+>>>>>>> upstream/Kamal-Branch
 
             var chats = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
+<<<<<<< HEAD
                 .Where(c => c.PharmacyId == pharmacyId.Value)
                 .Select(c => new PharmacyChatListItemViewModel
                 {
@@ -70,6 +88,19 @@ namespace PharmacyDeliverySystem.Controllers
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => (DateTime?)m.SentAt)
                         .FirstOrDefault()
+=======
+                .Where(c => c.PharmacyId == pharmacyId)
+                .Select(c => new PharmacyChatListItemViewModel
+                {
+                    ChatId = c.ChatId,
+                    CustomerName = c.Customer.Name,
+                    LastMessage = c.ChatMessages
+                                   .OrderByDescending(m => m.SentAt)
+                                   .FirstOrDefault().MessageText,
+                    LastMessageTime = c.ChatMessages
+                                   .OrderByDescending(m => m.SentAt)
+                                   .FirstOrDefault().SentAt
+>>>>>>> upstream/Kamal-Branch
                 })
                 .OrderByDescending(c => c.LastMessageTime)
                 .ToList();
@@ -77,6 +108,7 @@ namespace PharmacyDeliverySystem.Controllers
             return View(chats);
         }
 
+<<<<<<< HEAD
         // =======================
         //  فتح شات معين
         // =======================
@@ -87,17 +119,28 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 return RedirectToAction("Login", "PharmacyAuth");
             }
+=======
+        // Open chat with a customer
+        public IActionResult PhChat(int id)
+        {
+            int pharmacyId = GetPharmacyId();
+>>>>>>> upstream/Kamal-Branch
 
             var chat = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
+<<<<<<< HEAD
                 .FirstOrDefault(c => c.ChatId == id && c.PharmacyId == pharmacyId.Value);
+=======
+                .FirstOrDefault(c => c.ChatId == id && c.PharmacyId == pharmacyId);
+>>>>>>> upstream/Kamal-Branch
 
             if (chat == null) return NotFound();
 
             return View(chat);
         }
 
+<<<<<<< HEAD
         // =======================
         //  إرسال رسالة من الصيدلي
         // =======================
@@ -117,6 +160,15 @@ namespace PharmacyDeliverySystem.Controllers
             var chat = _context.Chats
                 .FirstOrDefault(c => c.ChatId == chatId && c.PharmacyId == pharmacyId.Value);
 
+=======
+        [HttpPost]
+        public IActionResult SendMessage(int chatId, string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return RedirectToAction("PhChat", new { id = chatId });
+
+            var chat = _context.Chats.Find(chatId);
+>>>>>>> upstream/Kamal-Branch
             if (chat == null) return NotFound();
 
             _context.ChatMessages.Add(new ChatMessage
@@ -126,10 +178,18 @@ namespace PharmacyDeliverySystem.Controllers
                 MessageText = message,
                 SentAt = DateTime.Now
             });
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/Kamal-Branch
             _context.SaveChanges();
 
             return RedirectToAction("PhChat", new { id = chatId });
         }
     }
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> upstream/Kamal-Branch
