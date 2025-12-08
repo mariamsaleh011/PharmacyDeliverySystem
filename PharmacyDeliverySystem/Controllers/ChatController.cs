@@ -26,7 +26,9 @@ namespace PharmacyDeliverySystem.Controllers
             return int.Parse(claim.Value);
         }
 
-        // Open chat (specific pharmacy لو جايه, أو آخر شات للمستخدم لو لأ)
+        // ============================
+        // فتح الشات للعميل
+        // ============================
         public IActionResult Index(int? pharmacyId)
         {
             int customerId = GetCustomerId();
@@ -34,7 +36,7 @@ namespace PharmacyDeliverySystem.Controllers
 
             if (pharmacyId.HasValue)
             {
-                // شات مع الصيدلية اللي جايه في الباراميتر
+                // حالة خاصة لو حبيتي تربطي الشات بصيدلية معيّنة
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
@@ -42,7 +44,6 @@ namespace PharmacyDeliverySystem.Controllers
                         c.CustomerId == customerId &&
                         c.PharmacyId == pharmacyId.Value);
 
-                // لو مفيش شات قبل كده بين الكاستمر والصيدلية دي -> نعمل واحد جديد
                 if (chat == null)
                 {
                     chat = new Chat
@@ -64,24 +65,42 @@ namespace PharmacyDeliverySystem.Controllers
             }
             else
             {
-                // مفيش pharmacyId: هات آخر شات للـ Customer وافتحه
+                // مود الـ Inbox المشتركة:
+                // هات آخر شات Open للـ Customer
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
-                    .Where(c => c.CustomerId == customerId)
-                    .OrderByDescending(c => c.ChatId)   // الأحدث
+                    .Where(c => c.CustomerId == customerId && c.Status == "Open")
+                    .OrderByDescending(c => c.ChatId)
                     .FirstOrDefault();
 
+                // لو مفيش شات → نعمل واحد جديد بـ CustomerId بس، و PharmacyId = null
                 if (chat == null)
                 {
-                    // مفيش أي شات لسه -> رجّعه للهوم (أو لاحقًا صفحة اختيار صيدلية)
-                    return RedirectToAction("Index", "Home");
+                    chat = new Chat
+                    {
+                        CustomerId = customerId,
+                        Status = "Open",
+                        Channel = "Default",
+                        PharmacyId = null
+                    };
+
+                    _context.Chats.Add(chat);
+                    _context.SaveChanges();
+
+                    chat = _context.Chats
+                        .Include(c => c.Pharmacy)
+                        .Include(c => c.ChatMessages)
+                        .FirstOrDefault(c => c.ChatId == chat.ChatId);
                 }
             }
 
             return View(chat);
         }
 
+        // ============================
+        // إرسال رسالة من العميل
+        // ============================
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message, IFormFile? file)
         {
@@ -94,7 +113,8 @@ namespace PharmacyDeliverySystem.Controllers
                 return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
             }
 
-            // TODO: حفظ ملف الروشتة في uploads وتخزين الـ Path في ChatMessage
+            // لو عايزة بعدين تحفظي الروشتة في ملف
+            // Placeholder للكود
 
             _context.ChatMessages.Add(new ChatMessage
             {
@@ -106,6 +126,7 @@ namespace PharmacyDeliverySystem.Controllers
 
             _context.SaveChanges();
 
+            // لو PharmacyId = null → هيرجع لـ Index عادي
             return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
         }
     }

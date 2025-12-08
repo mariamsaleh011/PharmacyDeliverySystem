@@ -6,7 +6,6 @@ using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels;
 using System;
 using System.Linq;
-using System.Security.Claims;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -20,104 +19,102 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// يرجّع رقم الصيدلية اعتمادًا على الإيميل الموجود في الـ Claims
-        /// </summary>
         private int? GetPharmacyId()
         {
-            // 1) نجيب الإيميل من الكليمز
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrWhiteSpace(email))
-                return null;
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(email)) return null;
 
-            // 2) نجيب الصيدلية اللي إيميلها ده
-            var pharmacy = _context.Pharmacies
-                                   .FirstOrDefault(p => p.Email == email);
-
-            return pharmacy?.PharmId;
+            var ph = _context.Pharmacies.FirstOrDefault(p => p.Email == email);
+            return ph?.PharmId;
         }
 
-        // =======================
-        //  قائمة الشاتات للصيدلي
-        // =======================
         public IActionResult Chats()
         {
             var pharmacyId = GetPharmacyId();
             if (pharmacyId == null)
-            {
-                // لو لأي سبب مش لاقيين صيدلية مرتبطة باليوزر → رجعه للّوجين
                 return RedirectToAction("Login", "PharmacyAuth");
-            }
 
-            var chats = _context.Chats
+            var newChats = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
-                .Where(c => c.PharmacyId == pharmacyId.Value)
+                .Where(c => c.PharmacyId == null && c.Status == "Open")
                 .Select(c => new PharmacyChatListItemViewModel
                 {
                     ChatId = c.ChatId,
-
-                    CustomerName = c.Customer != null
-                        ? c.Customer.Name
-                        : "Unknown customer",
-
+                    CustomerName = c.Customer != null ? c.Customer.Name : "Unknown customer",
                     LastMessage = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => m.MessageText)
-                        .FirstOrDefault() ?? string.Empty,
-
+                        .FirstOrDefault() ?? "",
                     LastMessageTime = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => (DateTime?)m.SentAt)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    IsNew = true
                 })
-                .OrderByDescending(c => c.LastMessageTime)
                 .ToList();
 
-            return View(chats);
+            var myChats = _context.Chats
+                .Include(c => c.Customer)
+                .Include(c => c.ChatMessages)
+                .Where(c => c.PharmacyId == pharmacyId && c.Status == "Open")
+                .Select(c => new PharmacyChatListItemViewModel
+                {
+                    ChatId = c.ChatId,
+                    CustomerName = c.Customer != null ? c.Customer.Name : "Unknown customer",
+                    LastMessage = c.ChatMessages
+                        .OrderByDescending(m => m.SentAt)
+                        .Select(m => m.MessageText)
+                        .FirstOrDefault() ?? "",
+                    LastMessageTime = c.ChatMessages
+                        .OrderByDescending(m => m.SentAt)
+                        .Select(m => (DateTime?)m.SentAt)
+                        .FirstOrDefault(),
+                    IsNew = false
+                })
+                .ToList();
+
+            var vm = new PharmacyChatsPageViewModel
+            {
+                NewChats = newChats,
+                MyChats = myChats
+            };
+
+            return View(vm);
         }
 
-        // =======================
-        //  فتح شات معين
-        // =======================
         public IActionResult PhChat(int id)
         {
             var pharmacyId = GetPharmacyId();
             if (pharmacyId == null)
-            {
                 return RedirectToAction("Login", "PharmacyAuth");
-            }
 
             var chat = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
-                .FirstOrDefault(c => c.ChatId == id && c.PharmacyId == pharmacyId.Value);
+                .FirstOrDefault(c => c.ChatId == id);
 
-            if (chat == null) return NotFound();
+            if (chat == null)
+                return NotFound();
+
+            if (chat.PharmacyId == null)
+            {
+                chat.PharmacyId = pharmacyId.Value;
+                _context.SaveChanges();
+            }
 
             return View(chat);
         }
 
-        // =======================
-        //  إرسال رسالة من الصيدلي
-        // =======================
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message)
         {
             var pharmacyId = GetPharmacyId();
             if (pharmacyId == null)
-            {
                 return RedirectToAction("Login", "PharmacyAuth");
-            }
 
             if (string.IsNullOrWhiteSpace(message))
                 return RedirectToAction("PhChat", new { id = chatId });
-
-            // تأكيد إن الشات تابع للصيدلي ده فعلاً
-            var chat = _context.Chats
-                .FirstOrDefault(c => c.ChatId == chatId && c.PharmacyId == pharmacyId.Value);
-
-            if (chat == null) return NotFound();
 
             _context.ChatMessages.Add(new ChatMessage
             {

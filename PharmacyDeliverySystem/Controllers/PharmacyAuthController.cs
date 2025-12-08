@@ -42,28 +42,47 @@ namespace PharmacyDeliverySystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(PharmacyRegisterViewModel model)
+        public async Task<IActionResult> Register(PharmacyRegisterViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            bool emailExists = _context.Pharmacies.Any(p => p.Email == model.Email);
-            if (emailExists)
+            var email = model.Email?.Trim();
+
+            // تشيك على الإيميل
+            if (!string.IsNullOrWhiteSpace(email))
             {
-                ModelState.AddModelError("Email", "This email is already registered.");
-                return View(model);
+                bool emailExists =
+                    await _context.Pharmacies.AnyAsync(p => p.Email == email);
+
+                if (emailExists)
+                {
+                    ModelState.AddModelError(nameof(model.Email),
+                        "This email is already registered.");
+                    return View(model);
+                }
             }
 
             var pharmacy = new Pharmacy
             {
                 Name = model.Name,
-                Email = model.Email,
+                Email = email,
                 // مؤقتاً من غير Hash
                 PasswordHash = model.Password
             };
 
-            _context.Pharmacies.Add(pharmacy);
-            _context.SaveChanges();
+            try
+            {
+                _context.Pharmacies.Add(pharmacy);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // احتياطي لو حصل Unique Key من SQL
+                ModelState.AddModelError(nameof(model.Email),
+                    "This email is already registered.");
+                return View(model);
+            }
 
             // بعد ما يعمل Sign up كصيدلية → يروح للوجين الموحد
             return RedirectToAction("Login", "CustomerAuth");
