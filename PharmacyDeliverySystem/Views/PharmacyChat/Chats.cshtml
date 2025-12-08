@@ -1,4 +1,4 @@
-﻿@model IEnumerable<PharmacyDeliverySystem.ViewModels.PharmacyChatListItemViewModel>
+﻿@model PharmacyDeliverySystem.ViewModels.PharmacyChatsPageViewModel
 
 @section Head {
     <link rel="stylesheet" href="~/css/pharmacy-chat.css" asp-append-version="true" />
@@ -7,22 +7,43 @@
 <div class="chat-list-wrapper">
     <h2 class="chat-title">📩 Pharmacy Conversations</h2>
 
-    @if (!Model.Any())
+    <h3>🆕 New Chats</h3>
+    @if (!Model.NewChats.Any())
     {
-        <p class="no-chats">No conversations yet</p>
+        <p class="no-chats">No new chats</p>
     }
     else
     {
         <div class="chat-list">
-            @foreach (var chat in Model)
+            @foreach (var chat in Model.NewChats)
+            {
+                <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item new-chat">
+                    <div class="chat-avatar">👤</div>
+                    <div class="chat-info">
+                        <strong class="chat-customer">@chat.CustomerName</strong>
+                        <span class="chat-time">@chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")</span>
+                        <p class="chat-preview">@chat.LastMessage</p>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+
+    <h3>🧑‍⚕️ My Chats</h3>
+    @if (!Model.MyChats.Any())
+    {
+        <p class="no-chats">No assigned chats</p>
+    }
+    else
+    {
+        <div class="chat-list">
+            @foreach (var chat in Model.MyChats)
             {
                 <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item">
                     <div class="chat-avatar">👤</div>
                     <div class="chat-info">
-                        <strong class="chat-customer">@chat.CustomerName</strong>
-                        <span class="chat-time">
-                            @chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")
-                        </span>
+                        <strong>@chat.CustomerName</strong>
+                        <span class="chat-time">@chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")</span>
                         <p class="chat-preview">@chat.LastMessage</p>
                     </div>
                 </a>

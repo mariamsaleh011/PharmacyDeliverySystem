@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@*
+    Shared Layout for PharmacyDeliverySystem
+*@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,6 +13,7 @@
     <!-- Global site style (top bar, cart, back-to-top, theme, ...) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/header-search.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PharmacyDeliverySystem.styles.css" asp-append-version="true" />
 
     @RenderSection("Head", required: false)
@@ -26,6 +30,9 @@
 
         // صفحة الكارت الجديدة Home/Cart
         bool isCartPage = controller == "Home" && action == "Cart";
+
+        // صفحة الهوم Home/Index
+        bool isHomePage = controller == "Home" && action == "Index";
 
         // الأدوار
         bool isCustomer = User.IsInRole("Customer");
@@ -51,7 +58,7 @@
                 </a>
 
                 <!-- Searchbar -->
-                <div class="searchbar">
+                <div class="searchbar" id="headerSearchBar">
                     <form asp-area=""
                           asp-controller="Home"
                           asp-action="Search"
@@ -68,12 +75,32 @@
                                name="query"
                                type="text"
                                class="search-input"
-                               placeholder="Search in items and products..."
+                               placeholder="Search medicines, healthcare products..."
                                aria-label="Search"
                                autocomplete="off" />
 
+                        <!-- زرار مخفي للـ submit (fallback) -->
                         <button type="submit" style="display:none" aria-hidden="true">Search</button>
+
+                        <!-- Clear X -->
+                        <button type="button"
+                                id="searchClearBtn"
+                                class="search-clear-btn"
+                                aria-label="Clear search">
+                            ×
+                        </button>
+
+                        <!-- Loading spinner -->
+                        <div id="searchSpinner" class="search-spinner"></div>
                     </form>
+
+                    <!-- Tips تحت السيرش -->
+                    <div class="search-tips" id="searchTips">
+                        💡 Tip: Use <kbd>↑</kbd><kbd>↓</kbd> to navigate, <kbd>Enter</kbd> to select, <kbd>Esc</kbd> to close
+                    </div>
+
+                    <!-- Dropdown للـ suggestions + النتائج -->
+                    <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
 
                 <!-- Nav + Actions -->
@@ -177,15 +204,19 @@
             </div>
         </header>
 
-        <!-- Global Back button for all non-auth pages -->
-        <div class="global-back-btn">
-            <button type="button"
-                    class="back-btn"
-                    aria-label="Back"
-                    onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='@Url.Action("Index", "Home")'; }">
-                <span id="backBtnText">Back</span>
-            </button>
-        </div>
+        @* زرار الـ Back يظهر في كل الصفحات ماعدا صفحة الهوم *@
+        @if (!isHomePage)
+        {
+            <!-- Global Back button for all non-auth pages except Home -->
+            <div class="global-back-btn">
+                <button type="button"
+                        class="back-btn"
+                        aria-label="Back"
+                        onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='@Url.Action("Index", "Home")'; }">
+                    <span id="backBtnText">Back</span>
+                </button>
+            </div>
+        }
     }
 
     <!-- Page content -->
@@ -214,7 +245,24 @@
         </footer>
 
         <!-- Back to top button -->
-        <button id="toTop" type="button" title="Back to top">↑</button>
+        <button id="toTop"
+                type="button"
+                title="Back to top"
+                class="enhanced-to-top"
+                aria-label="Back to top">
+            <svg class="to-top-icon" viewBox="0 0 24 24" fill="none">
+                <polyline points="17 13 12 8 7 13"
+                          stroke-width="3.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"></polyline>
+                <polyline points="17 19 12 14 7 19"
+                          stroke-width="3.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"></polyline>
+            </svg>
+            <span class="to-top-progress"></span>
+        </button>
+
 
         @if (!isCartPage)
         {

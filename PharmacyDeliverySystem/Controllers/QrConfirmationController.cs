@@ -9,12 +9,15 @@ namespace PharmacyDeliverySystem.Controllers
     public class QrConfirmationController : Controller
     {
         private readonly IOrderManager _orderManager;
+        private readonly IRatingManager _ratingManager;
 
-        public QrConfirmationController(IOrderManager orderManager)
+        public QrConfirmationController(IOrderManager orderManager, IRatingManager ratingManager)
         {
             _orderManager = orderManager;
+            _ratingManager = ratingManager;
         }
 
+        // ===== Invoice Details View =====
         public IActionResult InvoiceDetails(int orderId)
         {
             // 1) نجيب الأوردر من جدول Orders
@@ -24,6 +27,7 @@ namespace PharmacyDeliverySystem.Controllers
 
             // 2) نحسب إجمالي الفاتورة من TotalPrice اللي خزّناها في الـ Checkout
             decimal totalAmount = order.TotalPrice ?? 0m;
+            ViewBag.TotalAmount = totalAmount;
 
             // 3) نكوّن نص الـ QR (من غير جدول QrConfirmations خالص)
             string qrText =
@@ -42,10 +46,54 @@ namespace PharmacyDeliverySystem.Controllers
             string qrBase64 = $"data:image/png;base64,{System.Convert.ToBase64String(stream.ToArray())}";
 
             ViewBag.QRCodeImage = qrBase64;
-            ViewBag.TotalAmount = totalAmount;
 
-            // نفس الـ View اللي عندك: Views/QRconfirmation/InvoiceDetails.cshtml
+            // نفس الـ View اللي عندك: Views/QrConfirmation/InvoiceDetails.cshtml
             return View(order);
+        }
+
+        // ===== Confirm Delivery (QR scan) =====
+        [HttpGet]
+        public IActionResult ConfirmDelivery(string qrData)
+        {
+            if (string.IsNullOrEmpty(qrData))
+                return Json(new { success = false });
+
+            int orderId;
+            try
+            {
+                // qrData متوقَّع بالشكل:
+                // "OrderID:123; Customer:...; Total:..."
+                orderId = int.Parse(qrData.Split(';')[0].Split(':')[1]);
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+
+            var order = _orderManager.GetOrderById(orderId);
+            if (order == null)
+                return Json(new { success = false });
+
+            order.Status = "Delivered";
+            _orderManager.Update(order);
+
+            return Json(new
+            {
+                success = true,
+                orderId = orderId,
+                message = "Order marked as Delivered"
+            });
+        }
+
+        // ===== Submit Rating =====
+        [HttpPost]
+        public IActionResult SubmitRating([FromBody] Rating rating)
+        {
+            if (rating == null || rating.Stars < 1 || rating.Stars > 5)
+                return Json(new { success = false });
+
+            _ratingManager.Add(rating);
+            return Json(new { success = true });
         }
     }
 }

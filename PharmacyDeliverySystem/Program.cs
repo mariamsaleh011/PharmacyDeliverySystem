@@ -28,14 +28,19 @@ builder.Services.AddScoped<IRefundManager, RefundManager>();
 builder.Services.AddScoped<IChatManager, ChatManager>();
 builder.Services.AddScoped<IDeliveryRunManager, DeliveryRunManager>();
 builder.Services.AddScoped<IQrConfirmationManager, QrConfirmationManager>();
-builder.Services.AddScoped<IPharmacyManager, PharmacyManager>();   // ✅
+builder.Services.AddScoped<IPharmacyManager, PharmacyManager>();   // كودك أنت
+
+// ⭐ السطر الناقص من كود زميلك
+builder.Services.AddSingleton<IRatingManager, RatingManager>();
+
+builder.Services.AddAuthorization();
 
 // Authentication & Authorization
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/CustomerAuth/Login";   // صفحة تسجيل الدخول الموحدة
+        options.LoginPath = "/CustomerAuth/Login";
         options.LogoutPath = "/CustomerAuth/Logout";
         options.AccessDeniedPath = "/Home/Index";
         options.Cookie.Name = "PharmacyAuthCookie";
@@ -43,8 +48,6 @@ builder.Services
         options.SlidingExpiration = true;
         options.ReturnUrlParameter = "returnUrl";
     });
-
-builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

@@ -1,0 +1,306 @@
+﻿/* ========== Enhanced Header Search (Dropdown + Recent + Keyboard) ========== */
+
+.searchbar {
+    position: relative;
+    max-width: 520px;
+}
+
+/* بوكس السيرش الأبيض الناعم */
+.search-input {
+    width: 100%;
+    height: 52px;
+    padding: 12px 92px 12px 48px; /* مساحة للأيقونة + X + اللودنج */
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22);
+    position: relative; /* عشان الأيقونة تكون فوقه بالـ z-index */
+    z-index: 0;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, transform 0.12s ease;
+}
+
+    .search-input::placeholder {
+        color: #9ca3af;
+    }
+
+/* أيقونة السيرش جوه البوكس – نخليها فوق الإنبوت وواضحة */
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #12bde9; /* للـ currentColor */
+    stroke: #12bde9; /* لو الـ stroke اتطبق مباشرة */
+    stroke-width: 2;
+    pointer-events: none;
+    z-index: 1; /* أهم حاجة عشان ما تبقاش ورا الإنبت */
+}
+
+/* فوكس ناعم زي التصميم */
+.search-input:focus,
+.searchbar.searchbar-focused .search-input {
+    background: #ffffff;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.5), 0 18px 40px rgba(15, 23, 42, 0.32);
+    transform: translateY(-1px);
+}
+
+/* Clear (X) */
+.search-clear-btn {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    transition: color 0.15s ease, transform 0.1s ease;
+}
+
+    .search-clear-btn:hover {
+        color: #4b5563;
+        transform: translateY(-50%) scale(1.05);
+    }
+
+/* Spinner */
+.search-spinner {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid #0ea5e9;
+    border-top-color: transparent;
+    display: none;
+    animation: search-spin 0.7s linear infinite;
+}
+
+@keyframes search-spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* نطفي الـ tip اللي تحت البوكس خالص */
+.search-tips {
+    display: none !important;
+}
+
+/* Dropdown */
+.search-dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px); /* مسافة صغيرة جداً من البوكس */
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 26px 70px rgba(15, 23, 42, 0.55);
+    overflow: hidden;
+    display: none;
+    z-index: 70;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+/* Suggestions (recent + trending) */
+.search-suggestions {
+    padding: 16px 18px 14px;
+}
+
+.search-suggestions-block {
+    margin-bottom: 14px;
+}
+
+.search-suggestions-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.search-suggestions-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.search-chip {
+    border: none;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #f3f4f6;
+    color: #374151;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+}
+
+.search-chip-trending {
+    background: linear-gradient(135deg, #ecfeff, #e0f2ff);
+    color: #0e7490;
+    font-weight: 500;
+}
+
+.search-chip:hover {
+    background: #e0f2fe;
+    color: #0e7490;
+    box-shadow: 0 4px 12px rgba(148, 163, 184, 0.45);
+    transform: translateY(-1px);
+}
+
+/* Results header */
+.search-dropdown-header {
+    padding: 8px 18px;
+    font-size: 12px;
+    color: #4b5563;
+    background: #f9fafb;
+    border-top: 1px solid #edf0f3;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Result item */
+.search-result-item {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 18px;
+    border: none;
+    background: #ffffff;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    text-align: left;
+    transition: background 0.12s ease, transform 0.08s ease;
+}
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover,
+    .search-result-selected {
+        background: #f0f9ff;
+        transform: translateY(-1px);
+    }
+
+/* Result image */
+.search-result-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .search-result-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Result main content */
+.search-result-main {
+    flex: 1;
+}
+
+.search-result-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.search-result-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.search-result-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.search-result-desc {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+/* Price */
+.search-result-price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.search-result-price {
+    font-weight: 700;
+    color: #0891b2;
+}
+
+.search-result-price-old {
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+/* Empty state */
+.search-results-empty {
+    padding: 30px 18px 24px;
+    text-align: center;
+}
+
+.search-results-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #9ca3af;
+}
+
+.search-results-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.search-results-empty-text {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Highlight selected product على الصفحة */
+.product.search-highlight {
+    outline: 2px solid #00b4db;
+    box-shadow: 0 0 0 2px rgba(0, 180, 219, 0.35);
+    transition: box-shadow 0.25s ease, outline 0.25s ease;
+}

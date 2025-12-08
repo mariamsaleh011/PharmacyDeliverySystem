@@ -96,6 +96,7 @@ namespace PharmacyDeliverySystem.Business.Managers
             _context.Orders.Remove(order);
             _context.SaveChanges();
         }
+
         public IEnumerable<Order> GetOrdersByIds(List<int> orderIds)
         {
             if (orderIds == null || !orderIds.Any())
@@ -104,6 +105,13 @@ namespace PharmacyDeliverySystem.Business.Managers
             return IncludeAll()
                    .Where(o => orderIds.Contains(o.OrderId))
                    .ToList();
+        }
+
+        // ✅ الميثود اللي كانت ناقصة عندك
+        public void Update(Order order)
+        {
+            _context.Orders.Update(order);
+            _context.SaveChanges();
         }
     }
 }

@@ -15,8 +15,38 @@ const overlay = document.getElementById('overlay');
 const drawer = document.getElementById('drawer');
 const themeToggle = document.getElementById('themeToggle');
 const headerSearchInput = document.getElementById('searchInput'); // header search
+const headerSearchBar = document.getElementById('headerSearchBar'); // container بتاع السيرش
 const toTopBtn = document.getElementById('toTop');
 const checkoutBtn = document.getElementById('checkoutBtn');
+
+// ===== Back to top progress helpers =====
+// لو عندك span جوه الزرار اسمه .to-top-progress (زي الديزاين الاحترافي)
+// الكود هيستخدمه، لو مش موجود بيتجاهله ومش بيبوّظ حاجة
+let toTopProgress = null;
+if (toTopBtn) {
+    toTopProgress = toTopBtn.querySelector('.to-top-progress');
+}
+
+function updateToTopProgress() {
+    if (!toTopBtn || !toTopProgress) return;
+
+    const scrollTop =
+        window.scrollY ||
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        0;
+
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (docHeight <= 0) {
+        toTopProgress.style.background = 'none';
+        return;
+    }
+
+    const progress = Math.min((scrollTop / docHeight) * 100, 100);
+    const deg = progress * 3.6;
+    toTopProgress.style.background =
+        `conic-gradient(#00e6ff ${deg}deg, transparent ${deg}deg)`;
+}
 
 // عناصر للنصوص (للترجمة)
 const navHomeEl = document.getElementById('navHome');
@@ -47,7 +77,8 @@ const translations = {
         totalLabel: 'Total Amount',
         checkoutBtn: 'Checkout',
         clearCartText: 'Clear cart',
-        searchPlaceholder: 'Search in items and products...',
+        // 🔹 تم التعديل هنا بس
+        searchPlaceholder: 'Search medicines, healthcare products...',
         emptyCartTitle: 'Your cart is empty',
         emptyCartSubtitle: 'Start adding items to get started!',
         toTopTitle: 'Back to top'
@@ -368,14 +399,25 @@ async function checkout() {
     }
 }
 
-// ===== Scroll to top =====
+// ===== Scroll to top (show / hide + progress) =====
 window.addEventListener('scroll', () => {
     if (!toTopBtn) return;
-    if (window.scrollY > 0) {
+
+    const y =
+        window.scrollY ||
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        0;
+
+    // يظهر بعد 300px زي الديزاين الاحترافي
+    if (y > 300) {
         toTopBtn.classList.add('show');
     } else {
         toTopBtn.classList.remove('show');
     }
+
+    // تحديث الـ progress ring لو موجود
+    updateToTopProgress();
 });
 
 function scrollToTop() {
@@ -387,24 +429,393 @@ if (toTopBtn) {
     toTopBtn.addEventListener('click', scrollToTop);
 }
 
-// ===== Global header search (works on all products on the page) =====
+// ===== Enhanced global header search (dropdown + autocomplete + recent) =====
+
+// كل كروت المنتجات اللي على الصفحة
 const allProductCards = Array.from(document.querySelectorAll('.product'));
 
 function normalize(str) {
     return (str || '').toString().toLowerCase();
 }
 
-function applyGlobalHeaderFilter() {
-    if (!headerSearchInput) return;
-    const term = normalize(headerSearchInput.value);
+function escapeHtml(str) {
+    return (str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// recent searches في localStorage
+function getRecentSearches() {
+    const defaults = ['Panadol', 'Vitamins', 'Face Mask'];
+    try {
+        const stored = JSON.parse(localStorage.getItem('recentSearches')) || [];
+        return stored.length ? stored : defaults;
+    } catch {
+        return defaults;
+    }
+}
+
+function saveSearch(query) {
+    if (!query) return;
+    let searches = [];
+    try {
+        searches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+    } catch {
+        searches = [];
+    }
+
+    searches = searches.filter(x => x !== query);
+    searches.unshift(query);
+    searches = searches.slice(0, 5);
+
+    localStorage.setItem('recentSearches', JSON.stringify(searches));
+}
+
+// فلترة كل المنتجات على الصفحة (زي القديم)
+function applyGlobalHeaderFilter(term) {
+    const t = normalize(term);
     allProductCards.forEach(card => {
-        const name = normalize(card.getAttribute('data-name'));
-        card.style.display = (!term || name.includes(term)) ? '' : 'none';
+        const name = normalize(card.getAttribute('data-name') || card.textContent);
+        card.style.display = (!t || name.includes(t)) ? '' : 'none';
     });
 }
 
-if (headerSearchInput) {
-    headerSearchInput.addEventListener('input', applyGlobalHeaderFilter);
+// init السيرش
+function initHeaderSearch() {
+    if (!headerSearchInput || !headerSearchBar) return;
+
+    const dropdown = document.getElementById('searchDropdown');
+    const tips = document.getElementById('searchTips');
+    const spinner = document.getElementById('searchSpinner');
+    const clearBtn = document.getElementById('searchClearBtn');
+
+    if (!dropdown || !tips || !spinner || !clearBtn) return;
+
+    const trendingSearches = ['Pain Relief', 'Cold Medicine', 'Baby Care'];
+
+    // نبني داتا بسيطة من الكروت الموجودة
+    const headerProducts = allProductCards.map(card => {
+        const name = card.getAttribute('data-name') ||
+            (card.querySelector('h3') && card.querySelector('h3').textContent) ||
+            'Product';
+
+        const descEl = card.querySelector('p');
+        const desc = descEl ? descEl.textContent : '';
+
+        let price = 0;
+        const dp = card.getAttribute('data-price');
+        if (dp) {
+            price = parseFloat(dp);
+        } else {
+            const priceText = card.querySelector('.price')?.textContent || '';
+            const m = priceText.replace(',', '.').match(/[\d.]+/);
+            if (m) price = parseFloat(m[0]);
+        }
+
+        let oldPrice = null;
+        const oldEl = card.querySelector('.old-price');
+        if (oldEl) {
+            const m2 = oldEl.textContent.replace(',', '.').match(/[\d.]+/);
+            if (m2) oldPrice = parseFloat(m2[0]);
+        }
+
+        const imgEl = card.querySelector('img');
+        const imageHtml = imgEl
+            ? `<img src="${imgEl.getAttribute('src')}" alt="${escapeHtml(imgEl.getAttribute('alt') || name)}" />`
+            : '💊';
+
+        const id = card.getAttribute('data-product-id') || name;
+        const inStock = !card.classList.contains('out-of-stock');
+
+        return { id, name, description: desc, price, oldPrice, imageHtml, inStock, card };
+    });
+
+    let query = '';
+    let isFocused = false;
+    let isLoading = false;
+    let showResults = false;
+    let selectedIndex = -1;
+    let filtered = [];
+    let timer = null;
+
+    function setLoading(val) {
+        isLoading = val;
+        spinner.style.display = isLoading ? 'block' : 'none';
+    }
+
+    function setShowResults(val) {
+        showResults = val;
+        dropdown.style.display = showResults ? 'block' : 'none';
+    }
+
+    function updateClearBtn() {
+        clearBtn.style.display = query ? 'block' : 'none';
+    }
+
+    function updateFocusStyles() {
+        if (isFocused) {
+            headerSearchBar.classList.add('searchbar-focused');
+            tips.style.display = 'block';
+        } else {
+            headerSearchBar.classList.remove('searchbar-focused');
+            tips.style.display = 'none';
+        }
+    }
+
+    function filterProducts() {
+        const q = normalize(query.trim());
+        if (!q) {
+            filtered = [];
+            return;
+        }
+        filtered = headerProducts.filter(p =>
+            normalize(p.name).includes(q) ||
+            normalize(p.description).includes(q)
+        ).slice(0, 10);
+    }
+
+    function renderDropdown() {
+        if (!showResults) {
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        // لا يوجد query → نعرض recent + trending
+        if (!query.trim()) {
+            const recent = getRecentSearches();
+            dropdown.innerHTML = `
+                <div class="search-suggestions">
+                    <div class="search-suggestions-block">
+                        <div class="search-suggestions-title">
+                            <span>⏱</span>
+                            <span>Recent Searches</span>
+                        </div>
+                        <div class="search-suggestions-chips">
+                            ${recent.map(term => `
+                                <button type="button"
+                                        class="search-chip"
+                                        data-term="${escapeHtml(term)}">
+                                    ${escapeHtml(term)}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="search-suggestions-block">
+                        <div class="search-suggestions-title">
+                            <span>📈</span>
+                            <span>Trending Now</span>
+                        </div>
+                        <div class="search-suggestions-chips">
+                            ${trendingSearches.map(term => `
+                                <button type="button"
+                                        class="search-chip search-chip-trending"
+                                        data-term="${escapeHtml(term)}">
+                                    ${escapeHtml(term)}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (isLoading) {
+            dropdown.innerHTML = `
+                <div class="search-dropdown-header">
+                    Searching for "<strong>${escapeHtml(query)}</strong>"...
+                </div>
+            `;
+            return;
+        }
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = `
+                <div class="search-results-empty">
+                    <div class="search-results-empty-icon">🔍</div>
+                    <div class="search-results-empty-title">No products found</div>
+                    <div class="search-results-empty-text">Try searching for something else</div>
+                </div>
+            `;
+            return;
+        }
+
+        const itemsHtml = filtered.map((p, index) => `
+            <button type="button"
+                    class="search-result-item ${index === selectedIndex ? 'search-result-selected' : ''}"
+                    data-id="${escapeHtml(p.id)}"
+                    data-index="${index}">
+                <div class="search-result-image">
+                    ${p.imageHtml}
+                </div>
+                <div class="search-result-main">
+                    <div class="search-result-title-row">
+                        <span class="search-result-name">${escapeHtml(p.name)}</span>
+                        ${!p.inStock ? '<span class="search-result-badge">Out of stock</span>' : ''}
+                    </div>
+                    <div class="search-result-desc">
+                        ${escapeHtml(p.description)}
+                    </div>
+                    <div class="search-result-price-row">
+                        <span class="search-result-price">${formatPrice(p.price)}</span>
+                        ${p.oldPrice != null ? `<span class="search-result-price-old">${formatPrice(p.oldPrice)}</span>` : ''}
+                    </div>
+                </div>
+            </button>
+        `).join('');
+
+        dropdown.innerHTML = `
+            <div class="search-dropdown-header">
+                Found ${filtered.length} products
+            </div>
+            ${itemsHtml}
+        `;
+    }
+
+    function handleInput(val) {
+        query = val || '';
+        updateClearBtn();
+        applyGlobalHeaderFilter(query);
+
+        if (timer) clearTimeout(timer);
+
+        if (!query.trim()) {
+            setLoading(false);
+            filtered = [];
+            selectedIndex = -1;
+            setShowResults(isFocused);
+            renderDropdown();
+            return;
+        }
+
+        setLoading(true);
+        setShowResults(true);
+        renderDropdown();
+
+        timer = setTimeout(function () {
+            filterProducts();
+            setLoading(false);
+            selectedIndex = filtered.length ? 0 : -1;
+            renderDropdown();
+        }, 300);
+    }
+
+    function handleSelect(product) {
+        if (!product) return;
+
+        saveSearch(product.name);
+        query = product.name;
+        headerSearchInput.value = product.name;
+        updateClearBtn();
+
+        // فلترة المنتجات على الصفحة
+        applyGlobalHeaderFilter(product.name);
+
+        // Highlight & scroll للمنتج
+        if (product.card) {
+            product.card.classList.add('search-highlight');
+            const rect = product.card.getBoundingClientRect();
+            const offset = window.scrollY + rect.top - 120;
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+            setTimeout(() => {
+                product.card.classList.remove('search-highlight');
+            }, 1500);
+        }
+
+        setShowResults(false);
+    }
+
+    headerSearchInput.addEventListener('input', function (e) {
+        handleInput(e.target.value);
+    });
+
+    headerSearchInput.addEventListener('focus', function () {
+        isFocused = true;
+        updateFocusStyles();
+        setShowResults(true);
+        renderDropdown();
+    });
+
+    headerSearchInput.addEventListener('keydown', function (e) {
+        if (!showResults) return;
+
+        if (e.key === 'ArrowDown') {
+            if (filtered.length === 0) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (selectedIndex < filtered.length - 1) {
+                selectedIndex++;
+                renderDropdown();
+            }
+        } else if (e.key === 'ArrowUp') {
+            if (filtered.length === 0) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (selectedIndex > 0) {
+                selectedIndex--;
+                renderDropdown();
+            } else {
+                selectedIndex = -1;
+                renderDropdown();
+            }
+        } else if (e.key === 'Enter') {
+            if (selectedIndex >= 0 && filtered[selectedIndex]) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                handleSelect(filtered[selectedIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            setShowResults(false);
+            isFocused = false;
+            updateFocusStyles();
+        }
+    });
+
+    clearBtn.addEventListener('click', function () {
+        query = '';
+        headerSearchInput.value = '';
+        updateClearBtn();
+        applyGlobalHeaderFilter('');
+        filtered = [];
+        selectedIndex = -1;
+        setShowResults(false);
+    });
+
+    dropdown.addEventListener('click', function (e) {
+        const chip = e.target.closest('.search-chip');
+        if (chip && chip.dataset.term) {
+            const term = chip.dataset.term;
+            headerSearchInput.value = term;
+            headerSearchInput.focus();
+            handleInput(term);
+            return;
+        }
+
+        const item = e.target.closest('.search-result-item');
+        if (item && item.dataset.index != null) {
+            const idx = parseInt(item.dataset.index);
+            const product = filtered[idx];
+            handleSelect(product);
+        }
+    });
+
+    document.addEventListener('mousedown', function (e) {
+        if (headerSearchBar && !headerSearchBar.contains(e.target)) {
+            isFocused = false;
+            updateFocusStyles();
+            setShowResults(false);
+        }
+    });
+
+    // أول تحميل → نعرض كل المنتجات
+    applyGlobalHeaderFilter('');
 }
 
 // ===== Per-category search (Drugs / Baby / Men Care) =====
@@ -508,7 +919,7 @@ function getProductIdByName(name) {
 
 // ===== Init =====
 renderCart();
-applyGlobalHeaderFilter();
+initHeaderSearch();
 
 
 // ===== Categories horizontal scroll (Home categories strip) =====

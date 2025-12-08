@@ -94,31 +94,19 @@ namespace PharmacyDeliverySystem.Controllers
 
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            // ---- لو كاستمر: نختار صيدلية من الـ DB ونعمل شات معاها ----
+            // لو كاستمر → يروح على صفحة الشات العامة من غير PharmacyId
             if (role == "Customer")
             {
-                // هنا بنختار أول صيدلية في الجدول (ممكن بعدين تعملي منيو اختيار)
-                var defaultPharmacyId = _context.Pharmacies
-                                                .Select(p => p.PharmId)
-                                                .OrderBy(id => id)
-                                                .FirstOrDefault();
-
-                if (defaultPharmacyId == 0)
-                {
-                    // مفيش صيدليات في الداتا بيز
-                    return RedirectToAction("Index");
-                }
-
-                return RedirectToAction("Index", "Chat", new { pharmacyId = defaultPharmacyId });
+                return RedirectToAction("Index", "Chat");
             }
 
-            // ---- لو صيدلي: يروح على صفحة الشات بتاعة الصيدلي ----
+            // لو صيدلي → يروح على صفحة الشاتات بتاعة الصيدلي
             if (role == "Pharmacy")
             {
                 return RedirectToAction("Chats", "PharmacyChat");
             }
 
-            // لو دور غريب، رجّعيه للهوم
+            // أي دور غريب → رجّعه للهوم
             return RedirectToAction("Index");
         }
 

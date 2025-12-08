@@ -110,7 +110,7 @@ namespace PharmacyDeliverySystem.Controllers
                 return View(model);
             }
 
-            var customerPassword = customer.PasswordHash?.Trim(); // حسب اسم العمود عندك
+            var customerPassword = customer.PasswordHash?.Trim();
 
             if (!string.Equals(customerPassword, password, StringComparison.Ordinal))
             {
@@ -167,27 +167,64 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            bool emailExists = await _context.Customers
-                .AnyAsync(c => c.Email == model.Email);
+            var email = model.Email?.Trim();
+            var phone = model.PhoneNumber?.Trim();
 
-            if (emailExists)
+            // 1) تشيك على الإيميل
+            if (!string.IsNullOrWhiteSpace(email))
             {
-                ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
-                return View(model);
+                bool emailExists =
+                    await _context.Customers.AnyAsync(c => c.Email == email);
+
+                if (emailExists)
+                    ModelState.AddModelError(nameof(model.Email),
+                        "This email is already registered.");
             }
+
+            // 2) تشيك على رقم الموبايل
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                bool phoneExists =
+                    await _context.Customers.AnyAsync(c => c.PhoneNumber == phone);
+
+                if (phoneExists)
+                    ModelState.AddModelError(nameof(model.PhoneNumber),
+                        "This phone number is already registered.");
+            }
+
+            // لو في أي Error فوق نرجع الفورم تاني
+            if (!ModelState.IsValid)
+                return View(model);
 
             var customer = new Customer
             {
                 Name = model.Name,
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = phone,
                 Address = model.Address,
-                Email = model.Email,
+                Email = email,
                 // مؤقتاً بدون Hash – بعدين تعملي Hash
                 PasswordHash = model.Password
             };
 
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // احتياطي: لو حصل Unique Key من الداتا بيز
+                if (!string.IsNullOrWhiteSpace(email) &&
+                    !await _context.Customers.AnyAsync(c => c.Email == email))
+                {
+                    // لو مش من الإيميل يبقى Error غريب
+                    throw;
+                }
+
+                ModelState.AddModelError(string.Empty,
+                    "Email or phone is already used.");
+                return View(model);
+            }
 
             // Login تلقائي بعد التسجيل
             var claims = new List<Claim>
