@@ -9,9 +9,6 @@ namespace PharmacyDeliverySystem.Business.Interfaces
 
         Order? GetOrderById(int id);
 
-        // ✅ دي اللي كانت ناقصة عندك
-        void Update(Order order);
-
         IEnumerable<Order> GetOrdersByCustomer(int customerId);
 
         IEnumerable<Order> GetOrdersByPharmacy(int pharmacyId);
