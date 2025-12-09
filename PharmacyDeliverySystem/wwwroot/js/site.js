@@ -1061,8 +1061,6 @@ const toTopBtn = document.getElementById('toTop');
 const checkoutBtn = document.getElementById('checkoutBtn');
 
 // ===== Back to top progress helpers =====
-// لو عندك span جوه الزرار اسمه .to-top-progress (زي الديزاين الاحترافي)
-// الكود هيستخدمه، لو مش موجود بيتجاهله ومش بيبوّظ حاجة
 let toTopProgress = null;
 if (toTopBtn) {
     toTopProgress = toTopBtn.querySelector('.to-top-progress');
@@ -1071,11 +1069,11 @@ if (toTopBtn) {
 function updateToTopProgress() {
     if (!toTopBtn || !toTopProgress) return;
 
-    const scrollTop =
-        window.scrollY ||
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
+    const y =
+        window.scrollY ??
+        document.documentElement.scrollTop ??
         0;
+
 
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     if (docHeight <= 0) {
@@ -1118,7 +1116,6 @@ const translations = {
         totalLabel: 'Total Amount',
         checkoutBtn: 'Checkout',
         clearCartText: 'Clear cart',
-        // 🔹 تم التعديل هنا بس
         searchPlaceholder: 'Search medicines, healthcare products...',
         emptyCartTitle: 'Your cart is empty',
         emptyCartSubtitle: 'Start adding items to get started!',
@@ -1155,7 +1152,6 @@ function applyLanguage(lang) {
 
     const t = translations[safeLang];
 
-    // تحديث lang و dir على الـ html
     if (document.documentElement) {
         document.documentElement.lang = safeLang;
         document.documentElement.dir = safeLang === 'ar' ? 'rtl' : 'ltr';
@@ -1189,7 +1185,6 @@ function applyLanguage(lang) {
         toTopBtn.title = t.toTopTitle;
     }
 
-    // إعادة رسم السلة (عشان نص الرسالة الفارغة يتغير)
     renderCart();
 }
 
@@ -1361,7 +1356,6 @@ if (cartBtn) {
 // ===== Checkout =====
 async function checkout() {
     if (isCheckoutInProgress) {
-        // لو فيه طلب Checkout شغال تجاهل الضغطات التانية
         return;
     }
     isCheckoutInProgress = true;
@@ -1369,7 +1363,6 @@ async function checkout() {
 
     const items = readCart();
     const lang = getCurrentLang();
-    const t = translations[lang] || translations.en;
 
     if (!items.length) {
         alert(lang === 'ar' ? 'سلتك فارغة' : 'Your cart is empty');
@@ -1449,20 +1442,17 @@ async function checkout() {
 window.addEventListener('scroll', () => {
     if (!toTopBtn) return;
 
-    const y =
-        window.scrollY ||
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
+    const scrollTop =
+        window.scrollY ??
+        document.documentElement.scrollTop ??
         0;
 
-    // يظهر بعد 300px زي الديزاين الاحترافي
     if (y > 300) {
         toTopBtn.classList.add('show');
     } else {
         toTopBtn.classList.remove('show');
     }
 
-    // تحديث الـ progress ring لو موجود
     updateToTopProgress();
 });
 
@@ -1520,7 +1510,7 @@ function saveSearch(query) {
     localStorage.setItem('recentSearches', JSON.stringify(searches));
 }
 
-// فلترة كل المنتجات على الصفحة (زي القديم)
+// فلترة المنتجات الموجودة على الصفحة فقط
 function applyGlobalHeaderFilter(term) {
     const t = normalize(term);
     allProductCards.forEach(card => {
@@ -1529,7 +1519,6 @@ function applyGlobalHeaderFilter(term) {
     });
 }
 
-// init السيرش
 function initHeaderSearch() {
     if (!headerSearchInput || !headerSearchBar) return;
 
@@ -1542,7 +1531,7 @@ function initHeaderSearch() {
 
     const trendingSearches = ['Pain Relief', 'Cold Medicine', 'Baby Care'];
 
-    // نبني داتا بسيطة من الكروت الموجودة
+    // نبني داتا بسيطة من الكروت الموجودة على الصفحة (لو موجودة)
     const headerProducts = allProductCards.map(card => {
         const name = card.getAttribute('data-name') ||
             (card.querySelector('h3') && card.querySelector('h3').textContent) ||
@@ -1576,8 +1565,13 @@ function initHeaderSearch() {
         const id = card.getAttribute('data-product-id') || name;
         const inStock = !card.classList.contains('out-of-stock');
 
-        return { id, name, description: desc, price, oldPrice, imageHtml, inStock, card };
+        const detailsAnchor = card.querySelector('a[href*="/Products/Details"]');
+        const detailsUrl = detailsAnchor ? detailsAnchor.getAttribute('href') : null;
+
+        return { id, name, description: desc, price, oldPrice, imageHtml, inStock, card, detailsUrl };
     });
+
+    const hasProductsOnPage = headerProducts.length > 0;
 
     let query = '';
     let isFocused = false;
@@ -1611,16 +1605,57 @@ function initHeaderSearch() {
         }
     }
 
-    function filterProducts() {
+    // ===== فلترة محلية + استدعاء SearchJson لو مفيش نتيجة =====
+    async function filterProductsAsync() {
         const q = normalize(query.trim());
         if (!q) {
             filtered = [];
             return;
         }
-        filtered = headerProducts.filter(p =>
-            normalize(p.name).includes(q) ||
-            normalize(p.description).includes(q)
-        ).slice(0, 10);
+
+        // 1) نجرب الأول من المنتجات الموجودة على الصفحة
+        let local = [];
+        if (hasProductsOnPage) {
+            local = headerProducts.filter(p =>
+                normalize(p.name).includes(q) ||
+                normalize(p.description).includes(q)
+            );
+        }
+
+        if (local.length > 0) {
+            filtered = local.slice(0, 10);
+            return;
+        }
+
+        // 2) لو مفيش نتيجة محلية → نجيب من الـ API /Home/SearchJson
+        try {
+            const resp = await fetch(`/Home/SearchJson?query=${encodeURIComponent(query)}`);
+            if (!resp.ok) {
+                filtered = [];
+                return;
+            }
+            const data = await resp.json();
+            filtered = data.map(p => {
+                const card = allProductCards.find(c =>
+                    c.getAttribute('data-product-id') === String(p.id));
+                return {
+                    id: p.id,
+                    name: p.name,
+                    description: p.description || '',
+                    price: p.price,
+                    oldPrice: p.oldPrice,
+                    imageHtml: p.imageUrl
+                        ? `<img src="${p.imageUrl}" alt="${escapeHtml(p.name)}" />`
+                        : '💊',
+                    inStock: true,
+                    card: card || null,
+                    detailsUrl: p.detailsUrl
+                };
+            }).slice(0, 10);
+        } catch (e) {
+            console.error('SearchJson error', e);
+            filtered = [];
+        }
     }
 
     function renderDropdown() {
@@ -1694,7 +1729,7 @@ function initHeaderSearch() {
         const itemsHtml = filtered.map((p, index) => `
             <button type="button"
                     class="search-result-item ${index === selectedIndex ? 'search-result-selected' : ''}"
-                    data-id="${escapeHtml(p.id)}"
+                    data-id="${escapeHtml(String(p.id))}"
                     data-index="${index}">
                 <div class="search-result-image">
                     ${p.imageHtml}
@@ -1723,7 +1758,7 @@ function initHeaderSearch() {
         `;
     }
 
-    function handleInput(val) {
+    async function handleInput(val) {
         query = val || '';
         updateClearBtn();
         applyGlobalHeaderFilter(query);
@@ -1743,8 +1778,8 @@ function initHeaderSearch() {
         setShowResults(true);
         renderDropdown();
 
-        timer = setTimeout(function () {
-            filterProducts();
+        timer = setTimeout(async function () {
+            await filterProductsAsync();
             setLoading(false);
             selectedIndex = filtered.length ? 0 : -1;
             renderDropdown();
@@ -1759,11 +1794,10 @@ function initHeaderSearch() {
         headerSearchInput.value = product.name;
         updateClearBtn();
 
-        // فلترة المنتجات على الصفحة
-        applyGlobalHeaderFilter(product.name);
-
-        // Highlight & scroll للمنتج
+        // لو في كارت ظاهر على الصفحة → فلتر + هايلايت + scroll
         if (product.card) {
+            applyGlobalHeaderFilter(product.name);
+
             product.card.classList.add('search-highlight');
             const rect = product.card.getBoundingClientRect();
             const offset = window.scrollY + rect.top - 120;
@@ -1771,9 +1805,19 @@ function initHeaderSearch() {
             setTimeout(() => {
                 product.card.classList.remove('search-highlight');
             }, 1500);
+
+            setShowResults(false);
+            return;
         }
 
-        setShowResults(false);
+        // لو جاي من السيرفر ومفيش card في الصفحة → روح لصفحة الـ Details
+        if (product.detailsUrl) {
+            window.location.href = product.detailsUrl;
+        } else if (product.id) {
+            window.location.href = '/Products/Details/' + product.id;
+        } else {
+            setShowResults(false);
+        }
     }
 
     headerSearchInput.addEventListener('input', function (e) {
@@ -1860,7 +1904,7 @@ function initHeaderSearch() {
         }
     });
 
-    // أول تحميل → نعرض كل المنتجات
+    // أول تحميل → نعرض كل المنتجات الموجودة على الصفحة (لو فيه)
     applyGlobalHeaderFilter('');
 }
 
@@ -1972,19 +2016,17 @@ function getProductIdByName(name) {
 renderCart();
 initHeaderSearch();
 
-
 // ===== Categories horizontal scroll (Home categories strip) =====
 const catStrip = document.getElementById('catStrip');
 const catPrevBtn = document.querySelector('.cat-scroll-prev');
 const catNextBtn = document.querySelector('.cat-scroll-next');
 
 if (catStrip) {
-    // خطوة الاسكرول = عرض كارت تقريباً
     let step = 260;
     const firstCard = catStrip.querySelector('.cat-card');
     if (firstCard) {
         const rect = firstCard.getBoundingClientRect();
-        step = rect.width + 16; // عرض الكارت + الجاب
+        step = rect.width + 16;
     }
 
     if (catNextBtn) {
@@ -2006,8 +2048,20 @@ if (catStrip) {
     }
 }
 
-
 // ===== Language dropdown (EN / AR) =====
+(function () {
+    const toggle = document.getElementById('langToggle');
+    const menu = document.getElementById('langMenu');
+
+    if (!toggle || !menu) return;
+
+    toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = menu.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+ // ===== Language dropdown (EN / AR) =====
 (function () {
     const toggle = document.getElementById('langToggle');
     const menu = document.getElementById('langMenu');
@@ -2021,19 +2075,23 @@ if (catStrip) {
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
-    // اختيار اللغة
+    // اختيار اللغة من العناصر جوه القائمة
     menu.addEventListener('click', function (e) {
-        const item = e.target.closest('.lang-item');
-        if (item && item.dataset.lang) {
-            applyLanguage(item.dataset.lang);
-            menu.classList.remove('show');
-            toggle.setAttribute('aria-expanded', 'false');
-        }
+        const btn = e.target.closest('.lang-option'); // نفس الكلاس اللي عندك في الـ View
+        if (!btn || !btn.dataset.lang) return;
+
+        const lang = btn.dataset.lang;
+        applyLanguage(lang);
+
+        menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
     });
 
     // إغلاق القائمة عند الضغط خارجها
     document.addEventListener('click', function (e) {
-        if (menu.classList.contains('show') && !toggle.contains(e.target) && !menu.contains(e.target)) {
+        if (menu.classList.contains('show') &&
+            !toggle.contains(e.target) &&
+            !menu.contains(e.target)) {
             menu.classList.remove('show');
             toggle.setAttribute('aria-expanded', 'false');
         }

@@ -28,12 +28,14 @@ namespace PharmacyDeliverySystem.Controllers
             return ph?.PharmId;
         }
 
+        // ======================= قائمة الشاتات للصيدلي =======================
         public IActionResult Chats()
         {
             var pharmacyId = GetPharmacyId();
             if (pharmacyId == null)
                 return RedirectToAction("Login", "PharmacyAuth");
 
+            // 🆕 شاتات لسه محدش استلمها (PharmacyId = null)
             var newChats = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
@@ -42,18 +44,28 @@ namespace PharmacyDeliverySystem.Controllers
                 {
                     ChatId = c.ChatId,
                     CustomerName = c.Customer != null ? c.Customer.Name : "Unknown customer",
+
                     LastMessage = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => m.MessageText)
                         .FirstOrDefault() ?? "",
+
                     LastMessageTime = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => (DateTime?)m.SentAt)
                         .FirstOrDefault(),
-                    IsNew = true
+
+                    // عدد الرسائل من الكاستمر اللي لسه متقريتش
+                    UnreadCount = c.ChatMessages
+                        .Count(m => m.SenderType == "Customer" && !m.IsRead),
+
+                    // الشات جديد لو فيه أي رسالة من الكاستمر IsRead = false
+                    IsNew = c.ChatMessages
+                        .Any(m => m.SenderType == "Customer" && !m.IsRead)
                 })
                 .ToList();
 
+            // 🧑‍⚕️ الشاتات اللي الصيدلية دي استلمتها
             var myChats = _context.Chats
                 .Include(c => c.Customer)
                 .Include(c => c.ChatMessages)
@@ -62,15 +74,22 @@ namespace PharmacyDeliverySystem.Controllers
                 {
                     ChatId = c.ChatId,
                     CustomerName = c.Customer != null ? c.Customer.Name : "Unknown customer",
+
                     LastMessage = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => m.MessageText)
                         .FirstOrDefault() ?? "",
+
                     LastMessageTime = c.ChatMessages
                         .OrderByDescending(m => m.SentAt)
                         .Select(m => (DateTime?)m.SentAt)
                         .FirstOrDefault(),
-                    IsNew = false
+
+                    UnreadCount = c.ChatMessages
+                        .Count(m => m.SenderType == "Customer" && !m.IsRead),
+
+                    IsNew = c.ChatMessages
+                        .Any(m => m.SenderType == "Customer" && !m.IsRead)
                 })
                 .ToList();
 
@@ -83,6 +102,7 @@ namespace PharmacyDeliverySystem.Controllers
             return View(vm);
         }
 
+        // ======================= صفحة شات واحدة للصيدلي =======================
         public IActionResult PhChat(int id)
         {
             var pharmacyId = GetPharmacyId();
@@ -97,15 +117,31 @@ namespace PharmacyDeliverySystem.Controllers
             if (chat == null)
                 return NotFound();
 
+            // أول ما الصيدلي يفتح الشات يمسكه لو كان لسه مش متحدد
             if (chat.PharmacyId == null)
             {
                 chat.PharmacyId = pharmacyId.Value;
-                _context.SaveChanges();
             }
+
+            // علّم كل رسائل الكاستمر اللي لسه متقريتش إنها اتقرت
+            var unreadFromCustomer = chat.ChatMessages
+                .Where(m => m.SenderType == "Customer" && !m.IsRead)
+                .ToList();
+
+            if (unreadFromCustomer.Any())
+            {
+                foreach (var m in unreadFromCustomer)
+                {
+                    m.IsRead = true;
+                }
+            }
+
+            _context.SaveChanges();
 
             return View(chat);
         }
 
+        // ======================= إرسال رسالة من الصيدلي =======================
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message)
         {
@@ -116,14 +152,23 @@ namespace PharmacyDeliverySystem.Controllers
             if (string.IsNullOrWhiteSpace(message))
                 return RedirectToAction("PhChat", new { id = chatId });
 
-            _context.ChatMessages.Add(new ChatMessage
+            var chat = _context.Chats
+                .Include(c => c.ChatMessages)
+                .FirstOrDefault(c => c.ChatId == chatId);
+
+            if (chat == null)
+                return NotFound();
+
+            var msg = new ChatMessage
             {
                 ChatId = chatId,
                 SenderType = "Pharmacy",
                 MessageText = message,
-                SentAt = DateTime.Now
-            });
+                SentAt = DateTime.Now,
+                IsRead = true   // رسالة الصيدلي نفسه تعتبر مقروءة
+            };
 
+            _context.ChatMessages.Add(msg);
             _context.SaveChanges();
 
             return RedirectToAction("PhChat", new { id = chatId });

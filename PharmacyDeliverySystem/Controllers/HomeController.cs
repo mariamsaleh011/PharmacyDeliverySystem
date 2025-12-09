@@ -34,16 +34,15 @@ namespace PharmacyDeliverySystem.Controllers
             var allProducts = _productManager.GetAll().ToList();
 
             var offersProducts = allProducts
-                                 .Where(p => p.OldPrice.HasValue &&
-                                             p.OldPrice.Value > p.Price)
-                                 .ToList();
+                .Where(p => p.OldPrice.HasValue && p.OldPrice.Value > p.Price)
+                .ToList();
 
             ViewBag.OffersProducts = offersProducts;
 
             var topSellingProducts = allProducts
-                                     .OrderByDescending(p => p.ProId)
-                                     .Take(4)
-                                     .ToList();
+                .OrderByDescending(p => p.ProId)
+                .Take(4)
+                .ToList();
 
             ViewBag.TopSellingProducts = topSellingProducts;
 
@@ -62,6 +61,43 @@ namespace PharmacyDeliverySystem.Controllers
                 // طلبات الـ Return اللي لسه مستنية قرار
                 ViewBag.PendingReturnsCount = _context.Returns
                     .Count(r => r.Status == "Pending" || r.Status == "Requested");
+
+                // ===============================
+                // 🔔 عدد الشاتات اللي فيها رسائل جديدة للـ Pharmacy الحالية بس
+                // ===============================
+
+                int? pharmacyId = null;
+                var email = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (!string.IsNullOrWhiteSpace(email))
+                {
+                    pharmacyId = _context.Pharmacies
+                        .Where(p => p.Email == email)
+                        .Select(p => (int?)p.PharmId)
+                        .FirstOrDefault();
+                }
+
+                int newChatsCount = 0;
+
+                if (pharmacyId.HasValue)
+                {
+                    newChatsCount = _context.Chats
+                        .Include(c => c.ChatMessages)
+                        .Where(c =>
+                            c.Status == "Open" &&
+                            (c.PharmacyId == null || c.PharmacyId == pharmacyId.Value))
+                        .Count(c => c.ChatMessages
+                            .Any(m => m.SenderType == "Customer" && !m.IsRead));
+                }
+                else
+                {
+                    newChatsCount = _context.Chats
+                        .Include(c => c.ChatMessages)
+                        .Where(c => c.Status == "Open" && c.PharmacyId == null)
+                        .Count(c => c.ChatMessages
+                            .Any(m => m.SenderType == "Customer" && !m.IsRead));
+                }
+
+                ViewBag.NewChatsCount = newChatsCount;
             }
 
             return View();
@@ -81,6 +117,9 @@ namespace PharmacyDeliverySystem.Controllers
             });
         }
 
+        // =============================
+        // صفحة نتائج السيرش الكلاسيكية
+        // =============================
         public IActionResult Search(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -89,14 +128,52 @@ namespace PharmacyDeliverySystem.Controllers
             var lowerQuery = query.ToLower();
 
             var results = _productManager.GetAll()
-                         .Where(p =>
-                                (p.Name ?? string.Empty).ToLower().Contains(lowerQuery) ||
-                                (!string.IsNullOrEmpty(p.Description) &&
-                                    p.Description!.ToLower().Contains(lowerQuery)) ||
-                                (p.DrugType ?? string.Empty).ToLower().Contains(lowerQuery))
-                         .ToList();
+                .Where(p =>
+                    (p.Name ?? string.Empty).ToLower().Contains(lowerQuery) ||
+                    (!string.IsNullOrEmpty(p.Description) &&
+                        p.Description!.ToLower().Contains(lowerQuery)) ||
+                    (p.DrugType ?? string.Empty).ToLower().Contains(lowerQuery))
+                .ToList();
 
             return View("SearchResults", results);
+        }
+
+        // =============================
+        // 🔎 API للسيرش الخاص بالهيدر (JSON)
+        // يتنادى من الـ JavaScript في أي صفحة
+        // =============================
+        [HttpGet]
+        public IActionResult SearchJson(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Json(Enumerable.Empty<object>());
+            }
+
+            var lowerQuery = query.ToLower();
+
+            var results = _productManager.GetAll()
+                .Where(p =>
+                    (p.Name ?? string.Empty).ToLower().Contains(lowerQuery) ||
+                    (!string.IsNullOrEmpty(p.Description) &&
+                        p.Description!.ToLower().Contains(lowerQuery)) ||
+                    (p.DrugType ?? string.Empty).ToLower().Contains(lowerQuery))
+                .Select(p => new
+                {
+                    id = p.ProId,
+                    name = p.Name ?? string.Empty,
+                    description = (p.Description ?? p.Dosage) ?? string.Empty,
+                    price = p.Price,
+                    oldPrice = p.OldPrice,
+                    imageUrl = string.IsNullOrWhiteSpace(p.ImageUrl)
+                        ? Url.Content("~/images/icons/product-default.svg")
+                        : p.ImageUrl,
+                    detailsUrl = Url.Action("Details", "Products", new { id = p.ProId })
+                })
+                .Take(10)
+                .ToList();
+
+            return Json(results);
         }
 
         // =============================
@@ -104,7 +181,6 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         public IActionResult ChatRedirect()
         {
-            // لو مش عامل Login أصلاً
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "CustomerAuth");
@@ -112,19 +188,16 @@ namespace PharmacyDeliverySystem.Controllers
 
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-            // لو كاستمر → يروح على صفحة الشات العامة من غير PharmacyId
             if (role == "Customer")
             {
                 return RedirectToAction("Index", "Chat");
             }
 
-            // لو صيدلي → يروح على صفحة الشاتات بتاعة الصيدلي
             if (role == "Pharmacy")
             {
                 return RedirectToAction("Chats", "PharmacyChat");
             }
 
-            // أي دور غريب → رجّعه للهوم
             return RedirectToAction("Index");
         }
 

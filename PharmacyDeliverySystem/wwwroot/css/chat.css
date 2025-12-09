@@ -73,17 +73,20 @@
     opacity: 0.9;
 }
 
-/* ========== Body ========== */
 .chat-body {
     flex: 1;
     min-height: 0;
     padding: 16px 18px;
+    /* هنا بقى عندك Scroll داخلي فعلاً */
+    max-height: calc(200vh - 330px); /* جرّبها وعدّل الرقم لو حابب */
     overflow-y: auto;
+    scroll-behavior: smooth;
     background: #020617;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
+
 
 /* صف الرسالة */
 .msg-row {

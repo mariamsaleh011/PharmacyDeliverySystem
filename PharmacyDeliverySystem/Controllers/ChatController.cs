@@ -26,9 +26,7 @@ namespace PharmacyDeliverySystem.Controllers
             return int.Parse(claim.Value);
         }
 
-        // ============================
-        // فتح الشات للعميل
-        // ============================
+        // ============================ فتح الشات للعميل ============================
         public IActionResult Index(int? pharmacyId)
         {
             int customerId = GetCustomerId();
@@ -36,7 +34,7 @@ namespace PharmacyDeliverySystem.Controllers
 
             if (pharmacyId.HasValue)
             {
-                // حالة خاصة لو حبيتي تربطي الشات بصيدلية معيّنة
+                // شات مع صيدلية معيّنة
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
@@ -65,8 +63,7 @@ namespace PharmacyDeliverySystem.Controllers
             }
             else
             {
-                // مود الـ Inbox المشتركة:
-                // هات آخر شات Open للـ Customer
+                // Inbox عامة للعميل (صيدلية لسه مش متحددة)
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
@@ -74,7 +71,6 @@ namespace PharmacyDeliverySystem.Controllers
                     .OrderByDescending(c => c.ChatId)
                     .FirstOrDefault();
 
-                // لو مفيش شات → نعمل واحد جديد بـ CustomerId بس، و PharmacyId = null
                 if (chat == null)
                 {
                     chat = new Chat
@@ -98,9 +94,7 @@ namespace PharmacyDeliverySystem.Controllers
             return View(chat);
         }
 
-        // ============================
-        // إرسال رسالة من العميل
-        // ============================
+        // ======================= إرسال رسالة من العميل =======================
         [HttpPost]
         public IActionResult SendMessage(int chatId, string message, IFormFile? file)
         {
@@ -113,20 +107,20 @@ namespace PharmacyDeliverySystem.Controllers
                 return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
             }
 
-            // لو عايزة بعدين تحفظي الروشتة في ملف
-            // Placeholder للكود
+            // (مكان حفظ الملف لو حبيت بعدين)
 
-            _context.ChatMessages.Add(new ChatMessage
+            var msg = new ChatMessage
             {
                 ChatId = chatId,
                 SenderType = "Customer",
                 MessageText = message,
-                SentAt = DateTime.Now
-            });
+                SentAt = DateTime.Now,
+                IsRead = false   // رسالة العميل لسه متقريتش عند الصيدلي
+            };
 
+            _context.ChatMessages.Add(msg);
             _context.SaveChanges();
 
-            // لو PharmacyId = null → هيرجع لـ Index عادي
             return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
         }
     }

@@ -1,12 +1,32 @@
 ﻿// wwwroot/js/chat.js
 
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
     const chatBox = document.getElementById("chat-box");
 
-    // أول ما الصفحة تفتح انزل لآخر الرسائل
-    if (chatBox) {
-        chatBox.scrollTop = chatBox.scrollHeight;
+    function scrollToBottom(scrollPageAlso = false) {
+        if (!chatBox) return;
+
+        // نأخرها شوية عشان الـ layout يكون اتحسب وارتفاع الـ chat-box يكون نهائي
+        setTimeout(() => {
+            // نزول جوّه صندوق الرسائل نفسه
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // كمان نزّل صفحة الويب كلها لآخرها عشان الفوتر وزرار Send يبانوا
+            if (scrollPageAlso) {
+                const fullHeight =
+                    document.documentElement.scrollHeight || document.body.scrollHeight;
+
+                window.scrollTo({
+                    top: fullHeight,
+                    behavior: "smooth"
+                });
+            }
+        }, 0);
     }
+
+    // أول ما الصفحة تفتح / تتعمل Reload:
+    // ننزل لآخر الرسائل + نخلي الفوتر في الصورة
+    scrollToBottom(true);
 
     // إرسال الرسالة عند الضغط على Enter (بدون Shift)
     const input = document.querySelector(".chat-input-row input[name='message']");
@@ -34,4 +54,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-});
+})();

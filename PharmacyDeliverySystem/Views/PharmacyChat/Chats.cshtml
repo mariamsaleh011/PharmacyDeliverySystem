@@ -2,12 +2,52 @@
 
 @section Head {
     <link rel="stylesheet" href="~/css/pharmacy-chat.css" asp-append-version="true" />
+
+    <style>
+        .chat-item {
+            position: relative;
+        }
+
+        .chat-badge {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+}
+
+@{
+    // إجمالي عدد الشاتات اللي فيها جديد (NewChats + MyChats اللي عليها جديد)
+    var totalNew = Model.NewChats.Count + Model.MyChats.Count(c => c.IsNew);
+    var myNewCount = Model.MyChats.Count(c => c.IsNew);
 }
 
 <div class="chat-list-wrapper">
-    <h2 class="chat-title">📩 Pharmacy Conversations</h2>
+    <h2 class="chat-title">
+        📩 Pharmacy Conversations
+        @if (totalNew > 0)
+        {
+            <span class="badge rounded-pill bg-danger ms-2">@totalNew</span>
+        }
+    </h2>
 
-    <h3>🆕 New Chats</h3>
+    <!-- ================= New Chats ================= -->
+    <h3>
+        🆕 New Chats
+        @if (Model.NewChats.Any())
+        {
+            <span class="badge rounded-pill bg-danger ms-2">
+                @Model.NewChats.Count
+            </span>
+        }
+    </h3>
+
     @if (!Model.NewChats.Any())
     {
         <p class="no-chats">No new chats</p>
@@ -17,19 +57,41 @@
         <div class="chat-list">
             @foreach (var chat in Model.NewChats)
             {
-                <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item new-chat">
+                <a asp-action="PhChat"
+                   asp-route-id="@chat.ChatId"
+                   class="chat-item new-chat">
                     <div class="chat-avatar">👤</div>
                     <div class="chat-info">
                         <strong class="chat-customer">@chat.CustomerName</strong>
-                        <span class="chat-time">@chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")</span>
+                        <span class="chat-time">
+                            @chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")
+                        </span>
                         <p class="chat-preview">@chat.LastMessage</p>
                     </div>
+
+                    @* badge لعدد الرسائل الجديدة في الشات ده *@
+                    @if (chat.IsNew)
+                    {
+                        <span class="chat-badge">
+                            @(chat.UnreadCount > 0 ? chat.UnreadCount.ToString() : "new")
+                        </span>
+                    }
                 </a>
             }
         </div>
     }
 
-    <h3>🧑‍⚕️ My Chats</h3>
+    <!-- ================= My Chats ================= -->
+    <h3>
+        🧑‍⚕️ My Chats
+        @if (myNewCount > 0)
+        {
+            <span class="badge rounded-pill bg-danger ms-2">
+                @myNewCount
+            </span>
+        }
+    </h3>
+
     @if (!Model.MyChats.Any())
     {
         <p class="no-chats">No assigned chats</p>
@@ -39,13 +101,25 @@
         <div class="chat-list">
             @foreach (var chat in Model.MyChats)
             {
-                <a asp-action="PhChat" asp-route-id="@chat.ChatId" class="chat-item">
+                <a asp-action="PhChat"
+                   asp-route-id="@chat.ChatId"
+                   class="chat-item @(chat.IsNew ? "has-new" : "")">
                     <div class="chat-avatar">👤</div>
                     <div class="chat-info">
                         <strong>@chat.CustomerName</strong>
-                        <span class="chat-time">@chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")</span>
+                        <span class="chat-time">
+                            @chat.LastMessageTime?.ToString("yyyy-MM-dd HH:mm")
+                        </span>
                         <p class="chat-preview">@chat.LastMessage</p>
                     </div>
+
+                    @* لو في رسائل جديدة في الشات ده وهو ضمن My Chats *@
+                    @if (chat.IsNew)
+                    {
+                        <span class="chat-badge">
+                            @(chat.UnreadCount > 0 ? chat.UnreadCount.ToString() : "new")
+                        </span>
+                    }
                 </a>
             }
         </div>

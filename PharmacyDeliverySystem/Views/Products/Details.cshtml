@@ -1,0 +1,114 @@
+﻿@model PharmacyDeliverySystem.Models.Product
+
+@{
+    ViewData["Title"] = "Product details";
+    Layout = "_Layout";
+
+    var hasImage = !string.IsNullOrWhiteSpace(Model.ImageUrl);
+    var imgSrc = hasImage
+        ? Model.ImageUrl
+        : Url.Content("~/images/icons/product-default.svg");
+    var imgClass = "product-details-image" + (!hasImage ? " default-icon" : "");
+}
+
+@section Head {
+    <link rel="stylesheet" href="~/css/product-details.css" asp-append-version="true" />
+}
+
+<section class="product-details-page">
+
+    <!-- ===== Header ===== -->
+    <header class="product-details-header">
+        <div class="product-details-header-left">
+            <div class="product-details-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+            </div>
+
+            <div>
+                <h1 class="product-details-title">Product details</h1>
+                <p class="product-details-breadcrumb">
+                    <a href="@Url.Action("Index", "Home")">Home</a> /
+                    <a href="@Url.Action("Index", "Products")">Products</a> /
+                    <span>@Model.Name</span>
+                </p>
+            </div>
+        </div>
+
+        <a class="product-details-back"
+           href="@Url.Action("Index", "Products")">
+            ← Back to products
+        </a>
+    </header>
+
+    <!-- ===== Main card ===== -->
+    <article class="product-details-card product"
+             data-product-id="@Model.ProId"
+             data-name="@Model.Name"
+             data-price="@Model.Price">
+
+        <!-- Left: Image -->
+        <div class="product-details-image-wrapper @(hasImage ? "" : "default-image")">
+            <img src="@imgSrc"
+                 alt="@Model.Name"
+                 class="@imgClass" />
+        </div>
+
+        <!-- Right: Info -->
+        <div class="product-details-info">
+            <h2 class="product-details-name">@Model.Name</h2>
+
+            <p class="product-details-subtitle">
+                @((Model.Description ?? Model.Dosage) ?? "Available product")
+            </p>
+
+            <div class="product-details-badges">
+                @if (!string.IsNullOrWhiteSpace(Model.DrugType))
+                {
+                    <span class="product-details-badge">@Model.DrugType</span>
+                }
+                @* ممكن تزود Badges تانية هنا لو حابب *@
+            </div>
+
+            <p class="product-details-description">
+                @* لو عندك Description أطول حطّه هنا، دلوقتي نفس النص *@
+                @((Model.Description ?? Model.Dosage) ?? "This product is currently available for purchase.")
+            </p>
+
+            <div class="product-details-meta">
+                @* Example meta items – عدّلها حسب الموديل لو حابب *@
+                <span>💊 Code: @Model.ProId</span>
+                @* لو عندك كمية:
+                   <span>📦 In stock: @Model.Quantity</span>
+                *@
+            </div>
+
+            <div class="product-details-footer">
+                <div class="product-details-price-block">
+                    <span class="product-details-price-label">Price</span>
+                    <div class="product-details-price-row">
+                        @if (Model.OldPrice.HasValue && Model.OldPrice.Value > Model.Price)
+                        {
+                            <span class="old-price">
+                                @Model.OldPrice.Value.ToString("0.00 EGP")
+                            </span>
+                        }
+                        <span class="price">
+                            @Model.Price.ToString("0.00 EGP")
+                        </span>
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="product-details-add-to-cart btn add-to-cart"
+                        data-product-id="@Model.ProId">
+                    Add to cart
+                </button>
+            </div>
+        </div>
+    </article>
+</section>

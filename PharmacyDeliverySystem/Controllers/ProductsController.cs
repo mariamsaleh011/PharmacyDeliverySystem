@@ -14,6 +14,7 @@ namespace PharmacyDeliverySystem.Controllers
             _context = context;
         }
 
+        // ===== قائمة كل المنتجات =====
         public IActionResult Index()
         {
             var products = _context.Products.ToList();
@@ -21,5 +22,16 @@ namespace PharmacyDeliverySystem.Controllers
             return View();
         }
 
+        // ===== صفحة تفاصيل منتج واحد =====
+        public IActionResult Details(int id)
+        {
+            var product = _context.Products
+                .FirstOrDefault(p => p.ProId == id);
+
+            if (product == null)
+                return NotFound();
+
+            return View(product);
+        }
     }
 }

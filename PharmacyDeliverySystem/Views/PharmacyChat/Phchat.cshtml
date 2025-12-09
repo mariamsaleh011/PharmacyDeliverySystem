@@ -1,4 +1,5 @@
 ﻿@model PharmacyDeliverySystem.Models.Chat
+
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Pharmacy Chat";
@@ -35,7 +36,9 @@
 
                     <div class="message">
                         <div class="message-text">@msg.MessageText</div>
-                        <div class="message-time">@msg.SentAt.ToString("yyyy-MM-dd HH:mm")</div>
+                        <div class="message-time">
+                            @msg.SentAt.ToString("yyyy-MM-dd HH:mm")
+                        </div>
                     </div>
                 </div>
             }
@@ -46,7 +49,11 @@
             <form asp-action="SendMessage" method="post" class="chat-form">
                 <input type="hidden" name="chatId" value="@Model.ChatId" />
                 <div class="chat-input-row">
-                    <input type="text" name="message" placeholder="Type a message..." required autocomplete="off" />
+                    <input type="text"
+                           name="message"
+                           placeholder="Type a message..."
+                           required
+                           autocomplete="off" />
                     <button type="submit">Send</button>
                 </div>
             </form>

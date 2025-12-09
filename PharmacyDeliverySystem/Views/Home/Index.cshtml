@@ -62,7 +62,7 @@
                 @if ((int)(ViewBag.NewOrdersCount ?? 0) > 0)
                 {
                     <span class="position-absolute top-0 start-100 translate-middle
-                                         badge rounded-pill bg-danger">
+                                                                 badge rounded-pill bg-danger">
                         @ViewBag.NewOrdersCount
                     </span>
                 }
@@ -82,11 +82,19 @@
                 Product Management
             </a>
 
-            <!-- 💬 الشات -->
+            <!-- 💬 الشات + badge بعدد الشاتات الجديدة -->
             <a asp-controller="PharmacyChat"
                asp-action="Chats"
-               class="btn btn-info m-2">
+               class="btn btn-info m-2 position-relative">
                 View Chats
+
+                @if ((int)(ViewBag.NewChatsCount ?? 0) > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle
+                                                         badge rounded-pill bg-danger">
+                        @ViewBag.NewChatsCount
+                    </span>
+                }
             </a>
 
             <!-- ↩️ ريتيرنز معلّقة -->
@@ -97,7 +105,7 @@
                 @if ((int)(ViewBag.PendingReturnsCount ?? 0) > 0)
                 {
                     <span class="position-absolute top-0 start-100 translate-middle
-                                         badge rounded-pill bg-danger">
+                                                                 badge rounded-pill bg-danger">
                         @ViewBag.PendingReturnsCount
                     </span>
                 }
@@ -217,7 +225,11 @@
                 ? product.ImageUrl
                 : Url.Content("~/images/icons/product-default.svg");
 
-                <article class="featured-card">
+                <!-- ✅ كارت Product حقيقي عشان السيرش يقرأ منه -->
+                <article class="featured-card product"
+                         data-product-id="@product.ProId"
+                         data-name="@product.Name"
+                         data-price="@product.Price">
                     @if (index == 1)
                     {
                         <span class="badge badge-hot">Most sold</span>
@@ -241,7 +253,7 @@
                     </p>
 
                     <div class="featured-footer">
-                        <span class="featured-price">
+                        <span class="featured-price price">
                             @product.Price.ToString("0.00 EGP")
                         </span>
 

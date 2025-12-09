@@ -57,6 +57,22 @@
                                class="btn btn-sm btn-outline-secondary">
                                 Invoice
                             </a>
+
+                            @* زر تغيير الحالة لـ Delivered من غير DeliveryRun *@
+                            @if (o.Status != "Delivered")
+                            {
+                                <form asp-action="MarkAsDelivered"
+                                      asp-controller="Order"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@o.OrderId" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success">
+                                        Mark as delivered
+                                    </button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

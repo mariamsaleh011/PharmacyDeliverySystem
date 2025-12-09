@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers
@@ -13,11 +16,16 @@ namespace PharmacyDeliverySystem.Controllers
     {
         private readonly IProductManager _productManager;
         private readonly IWebHostEnvironment _env;
+        private readonly PharmacyDeliveryContext _context;   // DB Context
 
-        public AdminController(IProductManager productManager, IWebHostEnvironment env)
+        public AdminController(
+            IProductManager productManager,
+            IWebHostEnvironment env,
+            PharmacyDeliveryContext context)
         {
             _productManager = productManager;
             _env = env;
+            _context = context;
         }
 
         // لوحة إدارة المنتجات – للصيدلي فقط
@@ -43,7 +51,7 @@ namespace PharmacyDeliverySystem.Controllers
                     p.Dosage,
                     p.DrugType,
                     p.PharmId,
-                    IsActive = p.Quantity > 0
+                    IsActive = (p.Quantity ?? 0) > 0   // لو Quantity nullable
                 })
                 .ToList<object>();
 
@@ -77,7 +85,7 @@ namespace PharmacyDeliverySystem.Controllers
             TempData["DebugMessage"] = "Reached Create. Name = " + (product?.Name ?? "NULL");
 
             // ✅ خلي الـ ProId صفر دايمًا في الإضافة (EF هيولّد ID جديد)
-            product.ProId = 0;
+            product!.ProId = 0;
 
             // ✅ شيل أي Error من الـ ModelState خاص بـ ProId (لأن الفورم بيبعته فاضي "")
             ModelState.Remove(nameof(Product.ProId));
@@ -87,9 +95,9 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 var errors = string.Join(" | ",
                     ModelState
-                        .Where(kvp => kvp.Value.Errors.Count > 0)
+                        .Where(kvp => kvp.Value!.Errors.Count > 0)
                         .Select(kvp => kvp.Key + ": " +
-                            string.Join(",", kvp.Value.Errors.Select(e => e.ErrorMessage))));
+                            string.Join(",", kvp.Value!.Errors.Select(e => e.ErrorMessage))));
 
                 TempData["DebugMessage"] = "ModelState invalid -> " + errors;
                 return RedirectToAction(nameof(Admin));
@@ -185,12 +193,45 @@ namespace PharmacyDeliverySystem.Controllers
             return View(product);
         }
 
-        // تنفيذ الحذف – للصيدلي فقط
+        // تنفيذ الحذف – Soft delete + حذف من Products
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Pharmacy")]
         public IActionResult Delete(int id, string? returnUrl = null)
         {
+            // 1) جيب المنتج من جدول Products
+            var product = _productManager.GetById(id);
+
+            if (product is null)
+                return NotFound();
+
+            // null-forgiving عشان يسكت الـ compiler عن CS8602
+            var p = product!;
+
+            // 2) حوّله لـ SoftDeleted object
+            var soft = new SoftDeleted
+            {
+                ProId = p.ProId,
+                Name = p.Name,
+                Barcode = p.Barcode,
+                Brand = p.Brand,
+                VAT_Rate = p.VatRate,
+                Dosage = p.Dosage,
+                PharmId = p.PharmId,
+                Price = p.Price,
+                OldPrice = p.OldPrice,
+                ImageUrl = p.ImageUrl,
+                Description = p.Description,
+                DrugType = p.DrugType,
+                Quantity = p.Quantity,   // يفضل تكون int? في SoftDeleted زي Product
+                DeletedAt = DateTime.Now
+            };
+
+            // 3) احفظه في جدول SoftDeleted
+            _context.SoftDeletedProducts.Add(soft);
+            _context.SaveChanges();
+
+            // 4) امسحه من جدول Products زي الأول
             _productManager.Delete(id);
 
             if (!string.IsNullOrEmpty(returnUrl))

@@ -2,12 +2,28 @@
     const chatBox = document.getElementById("chat-box");
     if (!chatBox) return;
 
-    // Scroll to bottom on load
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    // Auto-scroll every 2 seconds
-    setInterval(() => {
+    function scrollToBottom(scrollPageAlso = false) {
+        // نزول جوّه صندوق الشات
         chatBox.scrollTop = chatBox.scrollHeight;
+
+        // اختيارى: ننزل صفحة الويب كلها لآخرها عشان زرار Send يبان
+        if (scrollPageAlso) {
+            const fullHeight =
+                document.documentElement.scrollHeight || document.body.scrollHeight;
+
+            window.scrollTo({
+                top: fullHeight,
+                behavior: "smooth"
+            });
+        }
+    }
+
+    // أول ما الصفحة تفتح: انزل لآخر الرسائل + هات زرار Send في الصورة
+    scrollToBottom(true);
+
+    // Auto-scroll كل 2 ثانية (للرسائل الجديدة) جوّه الشات بس
+    setInterval(() => {
+        scrollToBottom(false);
     }, 2000);
 
     // Send message on Enter
