@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PharmacyDeliverySystem.Models
 {
@@ -26,9 +27,10 @@ namespace PharmacyDeliverySystem.Models
         public int? PharmId { get; set; }
 
         // من الجدول: Price (decimal(18,2), not null)
-        public decimal Price { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }   // بدل decimal? 
 
-        // من الجدول: OldPrice (decimal(18,2), null)
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? OldPrice { get; set; }
 
         // من الجدول: ImageUrl (nvarchar(500), null)
@@ -41,7 +43,7 @@ namespace PharmacyDeliverySystem.Models
         public string? DrugType { get; set; }
 
         // من الجدول: Quantity (int, not null)
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
 
         // الـ navigation اللي كانت عندك
         public virtual Pharmacy? Pharm { get; set; }
