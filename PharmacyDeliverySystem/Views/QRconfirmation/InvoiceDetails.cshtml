@@ -14,13 +14,20 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
                 <div style="
-                        width:32px;height:32px;
-                        border-radius:8px;
-                        background:#16a34a;
-                        display:flex;align-items:center;justify-content:center;
-                        color:#fff;font-weight:700;">
+    width:32px;
+    height:32px;
+    border-radius:8px;
+    background: linear-gradient(135deg, #00b4db, #0083b0);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-weight:700;
+    font-size:16px;
+">
                     P
                 </div>
+
                 <div>
                     <h4 class="mb-0">PharmacyMarts</h4>
                     <small class="text-muted">Digital Pharmacy Delivery Invoice</small>
@@ -261,7 +268,7 @@
                         return;
                     }
 
-                    const orderId = @Model.OrderId;
+                 const orderId = parseInt('@Model.OrderId');
 
                     fetch('/QrConfirmation/SubmitRating', {
                         method: 'POST',
@@ -289,7 +296,7 @@
                 if (!img) return;
                 const link = document.createElement("a");
                 link.href = img.src;
-                link.download = "invoice-qrcode-order-@Model.OrderId.png";
+                link.download = "invoice-qrcode-order-@(Model.OrderId).png";
                 link.click();
             };
 
