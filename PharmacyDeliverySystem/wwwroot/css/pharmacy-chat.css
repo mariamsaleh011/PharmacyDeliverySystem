@@ -123,11 +123,11 @@
     padding: 15px;
     background: #f1f5f9;
     overflow-y: auto;
+    scroll-behavior: smooth; /* سكرول ناعم */
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-
 .msg-row {
     display: flex;
     align-items: flex-start;

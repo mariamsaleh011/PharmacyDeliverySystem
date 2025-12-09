@@ -145,6 +145,28 @@ namespace PharmacyDeliverySystem.Controllers
             return View("PharmacyOrders", orders);
         }
 
+        // ✅ Mark order as Delivered بدون ما يتعمله DeliveryRun
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Pharmacy")]
+        public IActionResult MarkAsDelivered(int id)
+        {
+            var order = _context.Orders.FirstOrDefault(o => o.OrderId == id);
+            if (order == null)
+                return NotFound();
+
+            if (order.Status != "Delivered")
+            {
+                order.Status = "Delivered";
+                // لو عندك عمود للتسليم تقدر تستخدمه هنا
+                // order.DeliveredAt = DateTime.Now;
+                _context.SaveChanges();
+            }
+
+            // يرجع لنفس صفحة PharmacyOrders
+            return RedirectToAction(nameof(PharmacyOrders));
+        }
+
         // ========== Checkout من الـ Cart ==========
 
         [HttpPost]

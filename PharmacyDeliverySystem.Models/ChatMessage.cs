@@ -18,5 +18,7 @@ namespace PharmacyDeliverySystem.Models
         public DateTime SentAt { get; set; }
 
         public virtual Chat? Chat { get; set; }  // Navigation للـ Chat
+        public bool IsRead { get; set; } = false;
+
     }
 }

@@ -31,6 +31,8 @@ namespace PharmacyDeliverySystem.DataAccess
         // ✅ استخدمنا Return مش Returnn
         public virtual DbSet<Return> Returns { get; set; }
 
+        public virtual DbSet<SoftDeleted> SoftDeletedProducts { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chat>(entity =>
@@ -182,10 +184,12 @@ namespace PharmacyDeliverySystem.DataAccess
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Prescript__Pharm__52593CB8");
             });
-
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.ProId).HasName("PK__PRODUCTS__62029590CEE37925");
+
+                // ⬅️ السطر الجديد المهم
+                entity.ToTable(tb => tb.HasTrigger("TR_Products"));
 
                 entity.Property(e => e.Barcode).HasMaxLength(40);
                 entity.Property(e => e.Brand).HasMaxLength(20);
@@ -257,6 +261,20 @@ namespace PharmacyDeliverySystem.DataAccess
                       .HasForeignKey(r => r.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<SoftDeleted>(entity =>
+            {
+                entity.HasKey(e => e.ProId);
+                entity.ToTable("SoftDeleted");   // ⬅️ هنا بنجبره يستخدم جدول dbo.SoftDeleted
+
+                entity.Property(e => e.VAT_Rate)
+                      .HasMaxLength(30)
+                      .HasColumnName("VAT_Rate");
+
+                entity.Property(e => e.DeletedAt)
+                      .HasColumnName("deleted_at");
+            });
+
 
             OnModelCreatingPartial(modelBuilder);
         }
