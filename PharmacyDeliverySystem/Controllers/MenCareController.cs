@@ -8,7 +8,7 @@ using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Authorize(Roles = "Customer")]
+    [Authorize]
     public class MenCareController : Controller
     {
         private readonly ILogger<MenCareController> _logger;

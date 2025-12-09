@@ -8,7 +8,7 @@ using PharmacyDeliverySystem.Models;
 
 namespace PharmacyDeliverySystem.Controllers
 {
-    [Authorize(Roles = "Customer")]
+    [Authorize]
     public class DrugsController : Controller
     {
         private readonly ILogger<DrugsController> _logger;
@@ -23,7 +23,7 @@ namespace PharmacyDeliverySystem.Controllers
         public IActionResult Index()
         {
             var drugsProducts = _productManager.GetAll()
-                                .Where(p => p.DrugType == "Drugs")
+                                .Where(p => p.DrugType == "drugs")
                                 .ToList();
 
             ViewBag.DrugsProducts = drugsProducts;

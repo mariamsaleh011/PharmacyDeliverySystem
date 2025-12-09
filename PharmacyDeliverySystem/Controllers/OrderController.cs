@@ -5,8 +5,8 @@ using PharmacyDeliverySystem.Models;
 using PharmacyDeliverySystem.ViewModels.Order;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;   
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -130,7 +130,23 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Details", new { id = orderId });
         }
 
+        // ========== Pharmacy Orders (Dashboard) ==========
+        // /Order/PharmacyOrders
+        [Authorize(Roles = "Pharmacy")]
+        public IActionResult PharmacyOrders()
+        {
+            var orders = _context.Orders
+                                 .Include(o => o.Customer)
+                                 .OrderByDescending(o => o.CreatedAt)
+                                 .AsNoTracking()
+                                 .ToList();
+
+            // View موجود في: Views/Order/PharmacyOrders.cshtml
+            return View("PharmacyOrders", orders);
+        }
+
         // ========== Checkout من الـ Cart ==========
+
         [HttpPost]
         public IActionResult Checkout([FromBody] CheckoutViewModel model)
         {
@@ -164,10 +180,9 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 pharmId = _context.Products
                     .Where(p => p.ProId == firstItem.ProductId)
-                    .Select(p => (int?)p.PharmId)   // نفترض إن عندك عمود PharmId في جدول Products
+                    .Select(p => (int?)p.PharmId)
                     .FirstOrDefault();
             }
-
 
             var invoiceNo = (int)(DateTime.UtcNow.Ticks % int.MaxValue);
 
@@ -175,12 +190,12 @@ namespace PharmacyDeliverySystem.Controllers
             var order = new Order
             {
                 CustomerId = customer.CustomerId,
-                PharmId = pharmId,          // 👈 هنا بقى مش هتبقى NULL
+                PharmId = pharmId,
 
                 Status = "Pending",
                 TotalPrice = total,
                 Price = total,
-                Quantity = totalQuantity.ToString(),   // أو حوّلي العمود في الموديل لـ int
+                Quantity = totalQuantity.ToString(),
 
                 InvoiceNo = invoiceNo,
                 PdfUrl = string.Empty
@@ -212,33 +227,30 @@ namespace PharmacyDeliverySystem.Controllers
 
             return Json(new { success = true, redirectUrl });
         }
+
         // ========== Customer Area: My Orders & Details ==========
 
         public IActionResult MyOrders()
         {
-            // 1) نجيب الإيميل من الـ Claims (أنت أصلاً عامل كده في Checkout)
             var email = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(email))
             {
-                // لو مفيش لوجين
-                return RedirectToAction("Login", "Account");   // عدّل اسم الكونترولر لو مختلف
+                return RedirectToAction("Login", "Account");   // عدّل الاسم لو مختلف
             }
 
-            // 2) نجيب الـCustomer من الداتابيز
             var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
             if (customer == null)
             {
                 return Unauthorized();
             }
 
-            // 3) نجيب أوامر العميل ده فقط
             var orders = _context.Orders
                                  .Where(o => o.CustomerId == customer.CustomerId)
                                  .OrderByDescending(o => o.OrderId)
                                  .AsNoTracking()
                                  .ToList();
 
-            return View("MyOrders", orders); // View منفصل عن Index بتاعة الأدمن
+            return View("MyOrders", orders);
         }
 
         public IActionResult MyOrderDetails(int id)
@@ -255,11 +267,10 @@ namespace PharmacyDeliverySystem.Controllers
                 return Unauthorized();
             }
 
-            // 1) نجيب الأوردر بتاع العميل ده بس، ومعاه الـItems والـProduct
             var order = _context.Orders
                                 .Include(o => o.OrderItems)
                                     .ThenInclude(oi => oi.Product)
-                                .Include(o => o.Returns) // لو عندك navigation للـReturns
+                                .Include(o => o.Returns)
                                 .FirstOrDefault(o => o.OrderId == id
                                                   && o.CustomerId == customer.CustomerId);
 
@@ -268,6 +279,5 @@ namespace PharmacyDeliverySystem.Controllers
 
             return View("MyOrderDetails", order);
         }
-
     }
 }
