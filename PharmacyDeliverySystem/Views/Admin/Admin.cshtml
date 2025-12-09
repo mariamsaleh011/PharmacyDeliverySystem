@@ -55,6 +55,15 @@
             </div>
         </header>
 
+        @* 🔴 رسالة Debug لو في رسالة جاية من الكنترولر *@
+        @if (ViewBag.Debug != null)
+        {
+            <div style="margin:10px 0; padding:10px; border:1px solid #dc2626;
+                            background:#fee2e2; color:#b91c1c; border-radius:4px;">
+                @ViewBag.Debug
+            </div>
+        }
+
         <div class="table-container">
             <table class="prod-table" id="productsTable">
                 <thead>
@@ -76,6 +85,7 @@
                             string rawName = "";
                             string rawDesc = "";
                             string rawImg = "";
+                            string rawDrugType = "";
                             decimal price = 0;
                             decimal oldPrice = 0;
                             int quantity = 0;
@@ -85,6 +95,7 @@
                             try { rawName = Convert.ToString(p.Name); } catch { }
                             try { rawDesc = Convert.ToString(p.Description); } catch { }
                             try { rawImg = Convert.ToString(p.ImageUrl); } catch { }
+                            try { rawDrugType = Convert.ToString(p.DrugType); } catch { }
                             try { price = Convert.ToDecimal(p.Price); } catch { }
                             try
                             {
@@ -96,7 +107,9 @@
                             try { quantity = Convert.ToInt32(p.Quantity); } catch { }
                             try { isActive = Convert.ToBoolean(p.IsActive); } catch { }
 
-                            <tr data-id="@rawId" data-active="@(isActive ? "true" : "false")">
+                            <tr data-id="@rawId"
+                                data-active="@(isActive ? "true" : "false")"
+                                data-drugtype="@rawDrugType">
                                 <td>
                                     <div class="img-wrapper">
                                         @if (!string.IsNullOrEmpty(rawImg))
@@ -205,8 +218,11 @@
 <div id="productModal" class="modal" aria-hidden="true">
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
-        <form id="productForm" enctype="multipart/form-data" method="post"
-              data-create-url="@Url.Action("Create","Admin")"
+        <form id="productForm"
+              asp-controller="Admin"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data"
               data-edit-url="@Url.Action("Edit","Admin")">
             @Html.AntiForgeryToken()
             <input type="hidden" name="ProId" id="prodId" />
@@ -291,8 +307,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="prodVat">VAT rate</label>
-                                <input type="number" name="VatRate" id="prodVat" class="form-control"
-                                       step="0.01" />
+                                <input type="text" name="VatRate" id="prodVat" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label for="prodDosage">Dosage</label>
@@ -303,8 +318,63 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="prodDrugType">Drug type</label>
-                                <input type="text" name="DrugType" id="prodDrugType" class="form-control" />
+
+                                <!-- ✅ Custom select UI (design) -->
+                                <div class="drugtype-select custom-select" id="drugTypeSelect">
+                                    <div class="select-trigger" id="drugTypeTrigger">
+                                        <span class="select-placeholder">-- Select drug type --</span>
+                                        <span class="arrow">▲</span>
+                                    </div>
+                                    <div class="select-options" id="drugTypeOptions">
+                                        <div class="select-option" data-value="baby care">
+                                            <span class="option-icon">👶</span>
+                                            <div class="option-text">
+                                                <div class="option-main">baby care</div>
+                                                <div class="option-sub">baby care</div>
+                                            </div>
+                                        </div>
+                                        <div class="select-option" data-value="drugs">
+                                            <span class="option-icon">💊</span>
+                                            <div class="option-text">
+                                                <div class="option-main">drugs</div>
+                                                <div class="option-sub">drugs</div>
+                                            </div>
+                                        </div>
+                                        <div class="select-option" data-value="fitness">
+                                            <span class="option-icon">💪</span>
+                                            <div class="option-text">
+                                                <div class="option-main">fitness</div>
+                                                <div class="option-sub">fitness</div>
+                                            </div>
+                                        </div>
+                                        <div class="select-option" data-value="makeup">
+                                            <span class="option-icon">💄</span>
+                                            <div class="option-text">
+                                                <div class="option-main">makeup</div>
+                                                <div class="option-sub">makeup</div>
+                                            </div>
+                                        </div>
+                                        <div class="select-option" data-value="men care">
+                                            <span class="option-icon">🧔</span>
+                                            <div class="option-text">
+                                                <div class="option-main">men care</div>
+                                                <div class="option-sub">men care</div>
+                                            </div>
+                                        </div>
+                                        <div class="select-option" data-value="women care">
+                                            <span class="option-icon">👩</span>
+                                            <div class="option-text">
+                                                <div class="option-main">women care</div>
+                                                <div class="option-sub">women care</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ✅ Hidden input for MVC binding (same name as قبل) -->
+                                <input type="hidden" name="DrugType" id="prodDrugType" />
                             </div>
+
                             <div class="form-group">
                                 <label for="prodPharmId">Pharmacy Id</label>
                                 <input type="number" name="PharmId" id="prodPharmId" class="form-control" />

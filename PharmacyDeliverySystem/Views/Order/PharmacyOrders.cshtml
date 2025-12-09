@@ -1,0 +1,66 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Order>
+
+@{
+    ViewData["Title"] = "Pharmacy Orders";
+    Layout = "_Layout";
+}
+
+<section class="orders-page" style="padding:24px 3%;">
+    <h2 class="mb-3 text-light">All Orders</h2>
+
+    <p>
+        <a asp-controller="DeliveryRun"
+           asp-action="Create"
+           class="btn btn-primary">
+            Create Delivery Run for Pending Orders
+        </a>
+    </p>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            There are no orders yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td>@o.OrderId</td>
+                        <td>@o.CreatedAt</td>
+                        <td>@o.Customer?.Name</td>
+                        <td>@o.TotalPrice</td>
+                        <td>@o.Status</td>
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@o.OrderId"
+                               class="btn btn-sm btn-outline-info">
+                                Order details
+                            </a>
+
+                            <a asp-controller="QrConfirmation"
+                               asp-action="InvoiceDetails"
+                               asp-route-orderId="@o.OrderId"
+                               class="btn btn-sm btn-outline-secondary">
+                                Invoice
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

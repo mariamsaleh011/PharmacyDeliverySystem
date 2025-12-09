@@ -1,0 +1,69 @@
+﻿@model IEnumerable<PharmacyDeliverySystem.Models.Return>
+
+@{
+    ViewData["Title"] = "Pending Returns";
+    Layout = "_Layout";
+}
+
+<section style="padding:24px 3%;">
+    <h2 class="mb-3 text-light">Pending Return Requests</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            There are no pending return requests at the moment.
+        </div>
+    }
+    else
+    {
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.ReturnId</td>
+                        <td>@r.OrderId</td>
+                        <td>@r.Order?.Customer?.Name</td>
+                        <td>@r.Reason</td>
+                        <td>@r.Status</td>
+                        <td>
+                            <form asp-action="Approve"
+                                  asp-route-id="@r.ReturnId"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    Approve
+                                </button>
+                            </form>
+
+                            <form asp-action="Reject"
+                                  asp-route-id="@r.ReturnId"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Reject
+                                </button>
+                            </form>
+
+                            <a asp-action="Details"
+                               asp-route-id="@r.ReturnId"
+                               class="btn btn-sm btn-outline-info">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

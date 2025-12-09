@@ -29,7 +29,7 @@ namespace PharmacyDeliverySystem.Controllers
             decimal totalAmount = order.TotalPrice ?? 0m;
             ViewBag.TotalAmount = totalAmount;
 
-            // 3) نكوّن نص الـ QR (من غير جدول QrConfirmations خالص)
+            // 3) نكوّن نص الـ QR
             string qrText =
                 $"OrderID:{order.OrderId}; Customer:{order.Customer?.Name}; Total:{totalAmount:C}";
 
@@ -47,7 +47,7 @@ namespace PharmacyDeliverySystem.Controllers
 
             ViewBag.QRCodeImage = qrBase64;
 
-            // نفس الـ View اللي عندك: Views/QrConfirmation/InvoiceDetails.cshtml
+            // نفس الـ View: Views/QrConfirmation/InvoiceDetails.cshtml
             return View(order);
         }
 
@@ -63,7 +63,9 @@ namespace PharmacyDeliverySystem.Controllers
             {
                 // qrData متوقَّع بالشكل:
                 // "OrderID:123; Customer:...; Total:..."
-                orderId = int.Parse(qrData.Split(';')[0].Split(':')[1]);
+                var firstPart = qrData.Split(';')[0];       // "OrderID:123"
+                var idPart = firstPart.Split(':')[1];       // "123"
+                orderId = int.Parse(idPart);
             }
             catch
             {
@@ -74,6 +76,7 @@ namespace PharmacyDeliverySystem.Controllers
             if (order == null)
                 return Json(new { success = false });
 
+            // نحدّث حالة الأوردر إلى Delivered
             order.Status = "Delivered";
             _orderManager.Update(order);
 
