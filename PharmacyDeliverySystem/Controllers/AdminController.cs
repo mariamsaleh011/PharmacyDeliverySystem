@@ -24,6 +24,9 @@ namespace PharmacyDeliverySystem.Controllers
         [Authorize(Roles = "Pharmacy")]
         public IActionResult Admin()
         {
+            // نستقبل أي رسالة Debug من Create
+            ViewBag.Debug = TempData["DebugMessage"];
+
             var products = _productManager.GetAll()
                 .Select(p => new
                 {
@@ -34,6 +37,12 @@ namespace PharmacyDeliverySystem.Controllers
                     p.Price,
                     p.OldPrice,
                     p.Quantity,
+                    p.Barcode,
+                    p.Brand,
+                    p.VatRate,
+                    p.Dosage,
+                    p.DrugType,
+                    p.PharmId,
                     IsActive = p.Quantity > 0
                 })
                 .ToList<object>();
@@ -64,9 +73,29 @@ namespace PharmacyDeliverySystem.Controllers
         [Authorize(Roles = "Pharmacy")]
         public IActionResult Create(Product product, IFormFile? ImageFile)
         {
-            if (!ModelState.IsValid)
-                return RedirectToAction(nameof(Admin));
+            // بس علشان نتاكد إننا دخلنا الاكشن
+            TempData["DebugMessage"] = "Reached Create. Name = " + (product?.Name ?? "NULL");
 
+            // ✅ خلي الـ ProId صفر دايمًا في الإضافة (EF هيولّد ID جديد)
+            product.ProId = 0;
+
+            // ✅ شيل أي Error من الـ ModelState خاص بـ ProId (لأن الفورم بيبعته فاضي "")
+            ModelState.Remove(nameof(Product.ProId));
+
+            // لو لسه فيه أخطاء في فيلدات تانية نطبعها
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join(" | ",
+                    ModelState
+                        .Where(kvp => kvp.Value.Errors.Count > 0)
+                        .Select(kvp => kvp.Key + ": " +
+                            string.Join(",", kvp.Value.Errors.Select(e => e.ErrorMessage))));
+
+                TempData["DebugMessage"] = "ModelState invalid -> " + errors;
+                return RedirectToAction(nameof(Admin));
+            }
+
+            // حفظ الصورة لو موجودة
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
@@ -84,7 +113,18 @@ namespace PharmacyDeliverySystem.Controllers
                 product.ImageUrl = "/images/products/" + fileName;
             }
 
-            _productManager.Add(product);
+            try
+            {
+                _productManager.Add(product);
+                TempData["DebugMessage"] = "Product saved successfully. Name = " +
+                                           (product.Name ?? "NULL") +
+                                           ", Price = " + product.Price;
+            }
+            catch (Exception ex)
+            {
+                TempData["DebugMessage"] = "Exception while saving product: " + ex.Message;
+            }
+
             return RedirectToAction(nameof(Admin));
         }
 

@@ -49,30 +49,58 @@
         <h3>Pharmacy Dashboard</h3>
 
         <div class="dashboard-buttons">
-            <span class="btn btn-info m-2">
-                Total Orders: @(ViewBag.TotalOrders ?? 0)
-            </span>
 
-            <span class="btn btn-info m-2">
-                Total Products: @(ViewBag.TotalProducts ?? 0)
-            </span>
+            <!-- 🔔 Total Orders + نوتفيكيشن للأوردرات الجديدة -->
+            <a asp-controller="Order"
+               asp-action="PharmacyOrders"
+               class="btn btn-info m-2 position-relative">
+                Total Orders
+                <span class="badge bg-dark ms-1">
+                    @(ViewBag.TotalOrders ?? 0)
+                </span>
 
+                @if ((int)(ViewBag.NewOrdersCount ?? 0) > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle
+                                         badge rounded-pill bg-danger">
+                        @ViewBag.NewOrdersCount
+                    </span>
+                }
+            </a>
+
+            <!-- 👤 إضافة Owner/Admin -->
             <a asp-controller="PharmacyAuth"
                asp-action="Register"
                class="btn btn-primary m-2">
                 Add Owner/Admin
             </a>
 
+            <!-- 📦 إدارة المنتجات -->
             <a asp-controller="Admin"
                asp-action="Admin"
                class="btn btn-success m-2">
                 Product Management
             </a>
 
+            <!-- 💬 الشات -->
             <a asp-controller="PharmacyChat"
                asp-action="Chats"
                class="btn btn-info m-2">
                 View Chats
+            </a>
+
+            <!-- ↩️ ريتيرنز معلّقة -->
+            <a asp-controller="Return"
+               asp-action="Pending"
+               class="btn btn-warning m-2 position-relative">
+                Returns
+                @if ((int)(ViewBag.PendingReturnsCount ?? 0) > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle
+                                         badge rounded-pill bg-danger">
+                        @ViewBag.PendingReturnsCount
+                    </span>
+                }
             </a>
         </div>
     </section>

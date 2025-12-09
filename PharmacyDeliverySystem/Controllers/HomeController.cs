@@ -30,6 +30,7 @@ namespace PharmacyDeliverySystem.Controllers
         // =============================
         public IActionResult Index()
         {
+            // ===== منتجات الموقع (Offers + TopSelling) =====
             var allProducts = _productManager.GetAll().ToList();
 
             var offersProducts = allProducts
@@ -45,6 +46,23 @@ namespace PharmacyDeliverySystem.Controllers
                                      .ToList();
 
             ViewBag.TopSellingProducts = topSellingProducts;
+
+            // ===== أرقام الداشبورد للفارمسي فقط =====
+            if (User.Identity != null &&
+                User.Identity.IsAuthenticated &&
+                User.IsInRole("Pharmacy"))
+            {
+                // إجمالي الأوردرات
+                ViewBag.TotalOrders = _context.Orders.Count();
+
+                // الأوردرات الجديدة (مثلاً Pending)
+                ViewBag.NewOrdersCount = _context.Orders
+                    .Count(o => o.Status == "Pending");
+
+                // طلبات الـ Return اللي لسه مستنية قرار
+                ViewBag.PendingReturnsCount = _context.Returns
+                    .Count(r => r.Status == "Pending" || r.Status == "Requested");
+            }
 
             return View();
         }
