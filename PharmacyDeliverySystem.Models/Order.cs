@@ -33,5 +33,7 @@ namespace PharmacyDeliverySystem.Models
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
         public virtual ICollection<Return> Returns { get; set; } = new List<Return>();
+        public int? Rating { get; set; }
+
     }
 }
