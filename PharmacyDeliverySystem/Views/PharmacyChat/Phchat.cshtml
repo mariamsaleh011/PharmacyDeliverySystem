@@ -1,41 +1,74 @@
-﻿@model PharmacyDeliverySystem.Models.Chat
-
-@{
-    Layout = "_Layout";
-    ViewData["Title"] = "Pharmacy Chat";
-}
+﻿@using PharmacyDeliverySystem.Models
+@model PharmacyDeliverySystem.Models.Chat
 
 @section Head {
-    <link rel="stylesheet" href="~/css/pharmacy-chat.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/chat.js"></script>
+}
+
+@{
+    var lastPrescription = ViewBag.LastPrescription as Prescription;
 }
 
 <div class="chat-page">
     <div class="chat-card">
-        <!-- Header -->
+
+        <!-- HEADER -->
         <header class="chat-header">
-            <div class="chat-header-title">
-                <span class="chat-header-avatar">💊</span>
-                <h2>@Model.Customer!.Name</h2>
-            </div>
+            <h1 class="chat-title">
+                <span class="chat-title-main">Pharmacy</span>
+                <span class="chat-title-accent">Marts</span>
+            </h1>
         </header>
 
-        <!-- Body -->
-        <div class="chat-body">
+        <!-- لو فيه خطأ في الرفع -->
+        @if (TempData["UploadError"] != null)
+        {
+            <div class="upload-error" style="color:red; margin:8px 0;">
+                @TempData["UploadError"]
+            </div>
+        }
+
+        <!-- BODY -->
+        <div class="chat-body" id="chat-box">
             @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
             {
                 var sender = msg.SenderType?.Trim() ?? "";
+                var isCustomer = sender.Equals("Customer", StringComparison.OrdinalIgnoreCase);
 
-                var isPharmacy =
-                sender.Equals("Pharmacy", StringComparison.OrdinalIgnoreCase) ||
-                sender.Equals("Pharmacist", StringComparison.OrdinalIgnoreCase);
-
-                <div class="msg-row @(isPharmacy ? "pharmacist" : "customer")">
+                <div class="msg-row @(isCustomer ? "customer" : "pharmacist")">
                     <div class="msg-avatar">
-                        @(isPharmacy ? "💊" : "👤")
+                        @(isCustomer ? "👤" : "💊")
                     </div>
 
                     <div class="message">
-                        <div class="message-text">@msg.MessageText</div>
+                        <div class="message-text">
+                            @msg.MessageText
+
+                            @if (!string.IsNullOrEmpty(msg.MessageText)
+                                                    && msg.MessageText.Contains("Prescription uploaded successfully")
+                                                    && lastPrescription != null)
+                            {
+                                <div class="prescription-block" style="margin-top:5px;">
+
+                                    <div style="font-weight:600; margin-bottom:4px;">
+                                        🧾 Prescription Preview
+                                    </div>
+
+                                    <img src="@lastPrescription.Image"
+                                         alt="Prescription"
+                                         style="max-width:150px;border-radius:8px;margin-bottom:5px;" />
+
+                                    <a href="@lastPrescription.Image" target="_blank">
+                                        View full prescription 👁️
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
                         <div class="message-time">
                             @msg.SentAt.ToString("yyyy-MM-dd HH:mm")
                         </div>
@@ -44,23 +77,27 @@
             }
         </div>
 
-        <!-- Footer -->
+        <!-- FOOTER -->
         <footer class="chat-footer">
-            <form asp-action="SendMessage" method="post" class="chat-form">
+            <form asp-action="SendMessage" method="post" enctype="multipart/form-data" class="chat-form">
+
                 <input type="hidden" name="chatId" value="@Model.ChatId" />
+
+                <div class="chat-attachments">
+                    <label class="attach-btn" for="fileUpload">📎</label>
+                    <span id="fileName" class="file-name">No file selected</span>
+                    <!-- ✅ السماح بصور و PDF فقط -->
+                    <input type="file" id="fileUpload" name="file" accept="image/*,application/pdf" />
+                </div>
+
                 <div class="chat-input-row">
-                    <input type="text"
-                           name="message"
-                           placeholder="Type a message..."
-                           required
-                           autocomplete="off" />
+                    <input type="text" id="messageInput" name="message"
+                           placeholder="Type a message..." autocomplete="off" />
                     <button type="submit">Send</button>
                 </div>
+
             </form>
         </footer>
+
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/pharmacy-chat.js"></script>
-}

@@ -36,14 +36,12 @@ namespace PharmacyDeliverySystem.Controllers
             var offersProducts = allProducts
                 .Where(p => p.OldPrice.HasValue && p.OldPrice.Value > p.Price)
                 .ToList();
-
             ViewBag.OffersProducts = offersProducts;
 
             var topSellingProducts = allProducts
                 .OrderByDescending(p => p.ProId)
                 .Take(4)
                 .ToList();
-
             ViewBag.TopSellingProducts = topSellingProducts;
 
             // ===== أرقام الداشبورد للفارمسي فقط =====
@@ -65,9 +63,9 @@ namespace PharmacyDeliverySystem.Controllers
                 // ===============================
                 // 🔔 عدد الشاتات اللي فيها رسائل جديدة للـ Pharmacy الحالية بس
                 // ===============================
-
                 int? pharmacyId = null;
                 var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
                 if (!string.IsNullOrWhiteSpace(email))
                 {
                     pharmacyId = _context.Pharmacies
@@ -76,7 +74,7 @@ namespace PharmacyDeliverySystem.Controllers
                         .FirstOrDefault();
                 }
 
-                int newChatsCount = 0;
+                int newChatsCount;
 
                 if (pharmacyId.HasValue)
                 {
@@ -100,6 +98,7 @@ namespace PharmacyDeliverySystem.Controllers
                 ViewBag.NewChatsCount = newChatsCount;
             }
 
+            // مهم ترجع View في كل الحالات (حتى لو مش Pharmacy)
             return View();
         }
 

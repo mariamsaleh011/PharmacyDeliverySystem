@@ -1,4 +1,5 @@
-﻿@model PharmacyDeliverySystem.Models.Chat
+﻿@using PharmacyDeliverySystem.Models
+@model PharmacyDeliverySystem.Models.Chat
 
 @section Head {
     <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
@@ -8,25 +9,22 @@
     <script src="~/js/chat.js"></script>
 }
 
+@{
+    var lastPrescription = ViewBag.LastPrescription as Prescription;
+}
+
 <div class="chat-page">
     <div class="chat-card">
-        <!-- Header -->
+
+        <!-- HEADER -->
         <header class="chat-header">
-            <div class="chat-header-main">
-                <div class="chat-header-icon">
-                    <!-- أيقونة شبه لوجو الموقع -->
-                    <span class="chat-logo-plus">+</span>
-                </div>
-                <div>
-                    <h1 class="chat-title">
-                        <span class="chat-title-main">Pharmacy</span>
-                        <span class="chat-title-accent">Marts</span>
-                    </h1>
-                </div>
-            </div>
+            <h1 class="chat-title">
+                <span class="chat-title-main">Pharmacy</span>
+                <span class="chat-title-accent">Marts</span>
+            </h1>
         </header>
 
-        <!-- Body -->
+        <!-- BODY -->
         <div class="chat-body" id="chat-box">
             @foreach (var msg in Model.ChatMessages.OrderBy(m => m.SentAt))
             {
@@ -37,10 +35,32 @@
                     <div class="msg-avatar">
                         @(isCustomer ? "👤" : "💊")
                     </div>
+
                     <div class="message">
                         <div class="message-text">
                             @msg.MessageText
+
+                            @if (!string.IsNullOrEmpty(msg.MessageText)
+                                                    && msg.MessageText.Contains("Prescription uploaded successfully")
+                                                    && lastPrescription != null)
+                            {
+                                <div class="prescription-block" style="margin-top:5px;">
+
+                                    <div style="font-weight:600; margin-bottom:4px;">
+                                        🧾 Prescription Preview
+                                    </div>
+
+                                    <img src="@lastPrescription.Image"
+                                         alt="Prescription"
+                                         style="max-width:150px;border-radius:8px;margin-bottom:5px;" />
+
+                                    <a href="@lastPrescription.Image" target="_blank">
+                                        View full prescription 👁️
+                                    </a>
+                                </div>
+                            }
                         </div>
+
                         <div class="message-time">
                             @msg.SentAt.ToString("yyyy-MM-dd HH:mm")
                         </div>
@@ -49,31 +69,26 @@
             }
         </div>
 
-        <!-- Footer -->
+        <!-- FOOTER -->
         <footer class="chat-footer">
-            <form asp-action="SendMessage"
-                  method="post"
-                  enctype="multipart/form-data"
-                  class="chat-form">
+            <form asp-action="SendMessage" method="post" enctype="multipart/form-data" class="chat-form">
+
                 <input type="hidden" name="chatId" value="@Model.ChatId" />
 
-                <!-- سطر المرفقات (الروشتة) -->
                 <div class="chat-attachments">
                     <label class="attach-btn" for="fileUpload">📎</label>
                     <span id="fileName" class="file-name">No file selected</span>
                     <input type="file" id="fileUpload" name="file" />
                 </div>
 
-                <!-- سطر الكتابة والإرسال -->
                 <div class="chat-input-row">
-                    <input type="text"
-                           name="message"
-                           placeholder="Type a message..."
-                           autocomplete="off"
-                           required />
+                    <input type="text" id="messageInput" name="message"
+                           placeholder="Type a message..." autocomplete="off" />
                     <button type="submit">Send</button>
                 </div>
+
             </form>
         </footer>
+
     </div>
 </div>

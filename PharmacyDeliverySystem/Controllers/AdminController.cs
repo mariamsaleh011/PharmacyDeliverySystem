@@ -103,6 +103,9 @@ namespace PharmacyDeliverySystem.Controllers
                 return RedirectToAction(nameof(Admin));
             }
 
+            // 🔹 مسار صورة الديفولت
+            string defaultImage = "/images/icons/product-default.svg";
+
             // حفظ الصورة لو موجودة
             if (ImageFile != null && ImageFile.Length > 0)
             {
@@ -119,6 +122,11 @@ namespace PharmacyDeliverySystem.Controllers
                 }
 
                 product.ImageUrl = "/images/products/" + fileName;
+            }
+            else
+            {
+                // 🔹 لو مفيش صورة، استخدم الديفولت
+                product.ImageUrl = defaultImage;
             }
 
             try
@@ -161,6 +169,9 @@ namespace PharmacyDeliverySystem.Controllers
             existing.DrugType = product.DrugType;
             existing.PharmId = product.PharmId;
 
+            // 🔹 نفس مسار الديفولت
+            string defaultImage = "/images/icons/product-default.svg";
+
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
@@ -176,6 +187,11 @@ namespace PharmacyDeliverySystem.Controllers
                 }
 
                 existing.ImageUrl = "/images/products/" + fileName;
+            }
+            else if (string.IsNullOrEmpty(existing.ImageUrl))
+            {
+                // 🔹 لو المنتج مالوش صورة أصلاً، حطله الديفولت
+                existing.ImageUrl = defaultImage;
             }
 
             _productManager.Update(existing);

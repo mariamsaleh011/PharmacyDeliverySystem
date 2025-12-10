@@ -8,11 +8,10 @@ namespace PharmacyDeliverySystem.ViewModels.Returns
         public int OrderId { get; set; }
 
         [Required, StringLength(200)]
-        public string Reason { get; set; } = null!;
+        public string Reason { get; set; } = string.Empty;
 
-        [Required]
-        [RegularExpression("Requested|Approved|Rejected|Completed",
-            ErrorMessage = "Status must be: Requested, Approved, Rejected, or Completed.")]
-        public string Status { get; set; } = "Requested";
+        // مفيش Required ولا Regex هنا
+        // ونخلي القيمة الافتراضية متوافقة مع النظام بتاعك
+        public string Status { get; set; } = "Pending";
     }
 }

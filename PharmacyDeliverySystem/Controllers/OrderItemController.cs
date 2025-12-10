@@ -118,9 +118,9 @@ namespace PharmacyDeliverySystem.Controllers
         // POST: OrderItem/UpdateStatus
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateStatus(int orderId, int productId, string status)
+        public IActionResult UpdateStatus(int orderId, int productId, string Status)
         {
-            _manager.UpdateItemStatus(orderId, productId, status);
+            _manager.UpdateItemStatus(orderId, productId, Status);
             return RedirectToAction(nameof(Details), new { orderId, productId });
         }
     }

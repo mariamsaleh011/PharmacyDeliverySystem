@@ -225,6 +225,10 @@ function formatPrice(v) {
     return num.toFixed(2) + ' EGP';
 }
 
+// ===== Return Request Form Handler (موقوف حالياً) =====
+// ... (نفس الكود المعلّق اللي عندك)
+
+// ===== Render Cart =====
 function renderCart() {
     const items = readCart();
     if (!cartList || !cartTotal || !cartCount) return;
@@ -251,12 +255,9 @@ function renderCart() {
     const totalQty = items.reduce((s, i) => s + i.qty, 0);
     const total = items.reduce((s, i) => s + i.price * i.qty, 0);
 
-    // ✅ هنا بنحاول نجيب صورة مؤكدة:
     cartList.innerHTML = items.map(i => {
-        // لو عندي imageUrl → استخدمها
         let imgSrc = i.imageUrl || '';
 
-        // لو مفيش، حاول أجيبها من كارت المنتج على الصفحة (لو موجود)
         if (!imgSrc && i.productId) {
             const card = document.querySelector(`.product[data-product-id="${i.productId}"] img`);
             if (card) {
@@ -264,7 +265,6 @@ function renderCart() {
             }
         }
 
-        // لو لسه مفيش → استخدم لوجو السيستم
         if (!imgSrc) {
             imgSrc = '/images/icons/medicine-logo.svg';
         }
@@ -295,6 +295,7 @@ function renderCart() {
     cartTotal.textContent = formatPrice(total);
     cartCount.textContent = totalQty;
 }
+
 function toggleCart(open) {
     if (!drawer || !overlay) return;
     const shouldOpen = (open === undefined)
@@ -326,7 +327,7 @@ if (cartBtn) {
     });
 }
 
-// ===== Checkout =====
+// ===== Checkout (بعد التعديل لدعم Pharmacy + CustomerId) =====
 async function checkout() {
     if (isCheckoutInProgress) {
         return;
@@ -346,14 +347,18 @@ async function checkout() {
 
     let isAuth = true;
     let loginUrl = '/CustomerAuth/Login';
+    let isPharmacy = false;
 
     if (checkoutBtn) {
         isAuth = checkoutBtn.dataset.isAuthenticated === 'true';
         if (checkoutBtn.dataset.loginUrl) {
             loginUrl = checkoutBtn.dataset.loginUrl;
         }
+        // هل اللي فاتح هو الفارمسي؟
+        isPharmacy = checkoutBtn.dataset.isPharmacy === 'true';
     }
 
+    // لو مش عامل لوجين → روح لصفحة اللوجين
     if (!isAuth) {
         window.location.href = loginUrl;
         isCheckoutInProgress = false;
@@ -361,8 +366,34 @@ async function checkout() {
         return;
     }
 
+    // لو الفارمسي → لازم يدخل Customer Id
+    let customerId = null;
+    if (isPharmacy) {
+        const customerIdInput = document.getElementById('customerIdInput');
+
+        if (!customerIdInput || !customerIdInput.value) {
+            alert(lang === 'ar'
+                ? 'من فضلك ادخل رقم العميل (Customer Id)'
+                : 'Please enter the customer id.');
+            isCheckoutInProgress = false;
+            if (checkoutBtn) checkoutBtn.disabled = false;
+            return;
+        }
+
+        customerId = parseInt(customerIdInput.value);
+        if (isNaN(customerId) || customerId <= 0) {
+            alert(lang === 'ar'
+                ? 'رقم العميل غير صحيح'
+                : 'Invalid customer id.');
+            isCheckoutInProgress = false;
+            if (checkoutBtn) checkoutBtn.disabled = false;
+            return;
+        }
+    }
+
     try {
         const model = {
+            customerId: customerId,   // لو مش فارمسي تبقى null
             items: items.map(item => ({
                 productId: item.productId || getProductIdByName(item.name),
                 productName: item.name,
@@ -504,7 +535,6 @@ function initHeaderSearch() {
 
     const trendingSearches = ['Pain Relief', 'Cold Medicine', 'Baby Care'];
 
-    // نبني داتا بسيطة من الكروت الموجودة على الصفحة (لو موجودة)
     const headerProducts = allProductCards.map(card => {
         const name = card.getAttribute('data-name') ||
             (card.querySelector('h3') && card.querySelector('h3').textContent) ||
@@ -586,7 +616,6 @@ function initHeaderSearch() {
             return;
         }
 
-        // 1) نجرب الأول من المنتجات الموجودة على الصفحة
         let local = [];
         if (hasProductsOnPage) {
             local = headerProducts.filter(p =>
@@ -600,7 +629,6 @@ function initHeaderSearch() {
             return;
         }
 
-        // 2) لو مفيش نتيجة محلية → نجيب من الـ API /Home/SearchJson
         try {
             const resp = await fetch(`/Home/SearchJson?query=${encodeURIComponent(query)}`);
             if (!resp.ok) {
@@ -638,7 +666,6 @@ function initHeaderSearch() {
             return;
         }
 
-        // لا يوجد query → نعرض recent + trending
         if (!query.trim()) {
             const recent = getRecentSearches();
             dropdown.innerHTML = `
@@ -767,7 +794,6 @@ function initHeaderSearch() {
         headerSearchInput.value = product.name;
         updateClearBtn();
 
-        // لو في كارت ظاهر على الصفحة → فلتر + هايلايت + scroll
         if (product.card) {
             applyGlobalHeaderFilter(product.name);
 
@@ -783,7 +809,6 @@ function initHeaderSearch() {
             return;
         }
 
-        // لو جاي من السيرفر ومفيش card في الصفحة → روح لصفحة الـ Details
         if (product.detailsUrl) {
             window.location.href = product.detailsUrl;
         } else if (product.id) {
@@ -983,7 +1008,7 @@ function getProductIdByName(name) {
     return card ? parseInt(card.getAttribute('data-product-id')) : 0;
 }
 
-// ===== Init =====
+// ===== Init (مرّة واحدة في آخر الملف) =====
 renderCart();
 initHeaderSearch();
 

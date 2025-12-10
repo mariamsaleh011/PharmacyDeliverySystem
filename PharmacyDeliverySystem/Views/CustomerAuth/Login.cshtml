@@ -1,4 +1,4 @@
-﻿@model PharmacyDeliverySystem.ViewModels.CustomerLoginViewModel
+﻿@* @model PharmacyDeliverySystem.ViewModels.CustomerLoginViewModel
 @{
     Layout = "~/Views/Shared/_AuthLayout.cshtml";
     ViewData["Title"] = "Login";
@@ -61,4 +61,50 @@
             Sign up as Pharmacy
         </a>
     </div>
+</div>
+ *@
+
+@model PharmacyDeliverySystem.ViewModels.CustomerLoginViewModel
+@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Login";
+}
+<h2 class="auth-title">Welcome Back!</h2>
+<p class="auth-subtitle">Sign in to manage your orders and deliveries.</p>
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger py-2">@ViewBag.Error</div>
+}
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email / Phone Number</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+    <div class="mb-2">
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger small"></span>
+    </div>
+    <div class="mb-3 text-end">
+        <a href="#" class="text-muted small">Forgot Password?</a>
+    </div>
+    <button type="submit" class="auth-submit w-100 mb-3">
+        Sign In
+    </button>
+</form>
+<div class="auth-divider"><span></span> Or <span></span></div>
+<a asp-controller="Home"
+   asp-action="Index"
+   class="btn btn-outline-primary w-100 mb-3">
+    Continue as Guest
+</a>
+<div class="text-center mt-3">
+    <p class="auth-subtext mb-2">Don't have an account?</p>
+    <a asp-controller="CustomerAuth" asp-action="Register"
+       class="btn btn-outline-secondary w-100">
+        Sign up as Customer
+    </a>
 </div>
