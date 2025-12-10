@@ -42,8 +42,8 @@ namespace PharmacyDeliverySystem.Controllers
         {
             var vm = new ReturnCreateVm
             {
-                OrderId = orderId,    // جاي من MyOrderDetails
-                Status = "Pending"    // القيمة الافتراضية لطلب الإرجاع
+                OrderId = orderId,   // جاي من MyOrderDetails
+                Status = "Pending"   // القيمة الافتراضية لطلب الإرجاع
             };
 
             return View(vm);
@@ -55,16 +55,18 @@ namespace PharmacyDeliverySystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(ReturnCreateVm vm)
         {
+            // لو في Validation Error نرجع نفس الصفحة مع الرسائل
             if (!ModelState.IsValid)
                 return View(vm);
+
+            // نضمن إن أي طلب جديد يكون Status = Pending
+            vm.Status = "Pending";
 
             var entity = new Return
             {
                 OrderId = vm.OrderId,
                 Reason = vm.Reason,
-                Status = string.IsNullOrWhiteSpace(vm.Status)
-                              ? "Pending"
-                              : vm.Status
+                Status = vm.Status
             };
 
             _returnManager.Add(entity);

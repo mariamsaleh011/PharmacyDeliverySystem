@@ -12,8 +12,9 @@ namespace PharmacyDeliverySystem.ViewModels.Order
 
     public class CheckoutViewModel
     {
-        // مش هنستخدمه من الـ JS دلوقت، الـ Controller هياخده من الـ Logged-in customer
-        public int CustomerId { get; set; }
+        // نجعل CustomerId اختياري لأن الفارمسي بس اللي يستخدمه
+        public int? CustomerId { get; set; }
+
         public List<CheckoutItemViewModel> Items { get; set; } = new();
     }
 }

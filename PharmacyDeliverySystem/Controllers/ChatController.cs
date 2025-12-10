@@ -1,11 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
+using PharmacyDeliverySystem.Models.Validation;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -13,10 +16,12 @@ namespace PharmacyDeliverySystem.Controllers
     public class ChatController : Controller
     {
         private readonly PharmacyDeliveryContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ChatController(PharmacyDeliveryContext context)
+        public ChatController(PharmacyDeliveryContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         private int GetCustomerId()
@@ -26,7 +31,7 @@ namespace PharmacyDeliverySystem.Controllers
             return int.Parse(claim.Value);
         }
 
-        // ============================ فتح الشات للعميل ============================
+        // ============================ فتح الشات ============================
         public IActionResult Index(int? pharmacyId)
         {
             int customerId = GetCustomerId();
@@ -34,7 +39,6 @@ namespace PharmacyDeliverySystem.Controllers
 
             if (pharmacyId.HasValue)
             {
-                // شات مع صيدلية معيّنة
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
@@ -63,7 +67,6 @@ namespace PharmacyDeliverySystem.Controllers
             }
             else
             {
-                // Inbox عامة للعميل (صيدلية لسه مش متحددة)
                 chat = _context.Chats
                     .Include(c => c.Pharmacy)
                     .Include(c => c.ChatMessages)
@@ -91,31 +94,104 @@ namespace PharmacyDeliverySystem.Controllers
                 }
             }
 
+            // جلب آخر روشتة محفوظة
+            Prescription? lastPrescription = null;
+
+            if (chat.PharmacyId.HasValue)
+            {
+                lastPrescription = _context.Prescriptions
+                    .Where(p => p.CustomerId == customerId && p.PharmId == chat.PharmacyId.Value)
+                    .OrderByDescending(p => p.PreId)
+                    .FirstOrDefault();
+            }
+
+            ViewBag.LastPrescription = lastPrescription;
+
             return View(chat);
         }
 
         // ======================= إرسال رسالة من العميل =======================
         [HttpPost]
-        public IActionResult SendMessage(int chatId, string message, IFormFile? file)
+        public IActionResult SendMessage(int chatId, string? message, IFormFile? file)
         {
             var chat = _context.Chats.Find(chatId);
             if (chat == null) return NotFound();
 
-            if (string.IsNullOrWhiteSpace(message) &&
-                (file == null || file.Length == 0))
+            if (string.IsNullOrWhiteSpace(message) && (file == null || file.Length == 0))
             {
                 return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
             }
 
-            // (مكان حفظ الملف لو حبيت بعدين)
+            // --- حفظ الفايل ---
+            if (file != null && file.Length > 0)
+            {
+                // ✅ مسموح صور + PDF فقط
+                var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
 
+                var allowedExtensions = new[]
+                {
+                    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".pdf"
+                };
+
+                // لو نوع الملف مش من الليستة → رجّع Error وماتكملش
+                if (string.IsNullOrWhiteSpace(ext) || !allowedExtensions.Contains(ext))
+                {
+                    TempData["UploadError"] = "يمكنك رفع صور أو ملفات PDF فقط (روشتة).";
+                    return RedirectToAction("Index", new { pharmacyId = chat.PharmacyId });
+                }
+
+                var uploadsDir = Path.Combine(_env.WebRootPath, "images", "uploads");
+                if (!Directory.Exists(uploadsDir))
+                    Directory.CreateDirectory(uploadsDir);
+
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var fullPath = Path.Combine(uploadsDir, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+
+                // debug log (اختياري)
+                var logPath = Path.Combine(uploadsDir, "upload-log.txt");
+                var debugInfo = $"[{DateTime.Now}] FileName={file.FileName}, Ext={ext}";
+                System.IO.File.AppendAllText(logPath, debugInfo + Environment.NewLine);
+
+                var imagePath = $"/images/uploads/{fileName}";
+                var customerId = GetCustomerId();
+
+                // حفظ الروشتة في الداتا
+                if (chat.PharmacyId.HasValue)
+                {
+                    var prescription = new Prescription
+                    {
+                        CustomerId = customerId,
+                        PharmId = chat.PharmacyId.Value,
+                        Name = "Prescription from chat",
+                        OrderId = null,
+                        Image = imagePath,
+                        Status = PrescriptionStatuses.Uploaded
+                    };
+
+                    _context.Prescriptions.Add(prescription);
+                    _context.SaveChanges();
+                }
+
+                // رسالة انجليزي تلقائية لو مفيش تكست
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    message = "Prescription uploaded successfully 🧾💊";
+                }
+            }
+
+            // --- حفظ رسالة الشات ---
             var msg = new ChatMessage
             {
                 ChatId = chatId,
                 SenderType = "Customer",
-                MessageText = message,
+                MessageText = message ?? "",
                 SentAt = DateTime.Now,
-                IsRead = false   // رسالة العميل لسه متقريتش عند الصيدلي
+                IsRead = false
             };
 
             _context.ChatMessages.Add(msg);

@@ -73,6 +73,9 @@ namespace PharmacyDeliverySystem.Controllers
             if (!ModelState.IsValid)
                 return View(order);
 
+            if (order.CreatedAt == default)
+                order.CreatedAt = DateTime.Now;
+
             _orderManager.CreateOrder(order);
             return RedirectToAction("Index");
         }
@@ -114,11 +117,30 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Index");
         }
 
+        // ===== Update order status + items status =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateOrderStatus(int orderId, string newStatus)
         {
-            _orderManager.UpdateOrderStatus(orderId, newStatus);
+            var order = _context.Orders
+                                .Include(o => o.OrderItems)
+                                .FirstOrDefault(o => o.OrderId == orderId);
+
+            if (order == null)
+                return NotFound();
+
+            if (order.Status != newStatus)
+            {
+                order.Status = newStatus;
+
+                foreach (var item in order.OrderItems)
+                {
+                    item.Status = newStatus;
+                }
+
+                _context.SaveChanges();
+            }
+
             return RedirectToAction("Details", new { id = orderId });
         }
 
@@ -130,8 +152,7 @@ namespace PharmacyDeliverySystem.Controllers
             return RedirectToAction("Details", new { id = orderId });
         }
 
-        // ========== Pharmacy Orders (Dashboard) ==========
-        // /Order/PharmacyOrders
+        // ===== Pharmacy Orders ======
         [Authorize(Roles = "Pharmacy")]
         public IActionResult PharmacyOrders()
         {
@@ -141,33 +162,38 @@ namespace PharmacyDeliverySystem.Controllers
                                  .AsNoTracking()
                                  .ToList();
 
-            // View موجود في: Views/Order/PharmacyOrders.cshtml
             return View("PharmacyOrders", orders);
         }
 
-        // ✅ Mark order as Delivered بدون ما يتعمله DeliveryRun
+        // ===== Mark order as Delivered (Pharmacy) + items =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Pharmacy")]
         public IActionResult MarkAsDelivered(int id)
         {
-            var order = _context.Orders.FirstOrDefault(o => o.OrderId == id);
+            var order = _context.Orders
+                                .Include(o => o.OrderItems)
+                                .FirstOrDefault(o => o.OrderId == id);
+
             if (order == null)
                 return NotFound();
 
             if (order.Status != "Delivered")
             {
                 order.Status = "Delivered";
-                // لو عندك عمود للتسليم تقدر تستخدمه هنا
-                // order.DeliveredAt = DateTime.Now;
+
+                foreach (var item in order.OrderItems)
+                {
+                    item.Status = "Delivered";
+                }
+
                 _context.SaveChanges();
             }
 
-            // يرجع لنفس صفحة PharmacyOrders
             return RedirectToAction(nameof(PharmacyOrders));
         }
 
-        // ========== Checkout من الـ Cart ==========
+        // ========== Checkout ==========
 
         [HttpPost]
         public IActionResult Checkout([FromBody] CheckoutViewModel model)
@@ -177,27 +203,50 @@ namespace PharmacyDeliverySystem.Controllers
                 return BadRequest(new { success = false, message = "Cart is empty." });
             }
 
-            // 1) نجيب الإيميل من الـ Cookie Authentication
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            if (string.IsNullOrEmpty(email))
+            int customerId;
+
+            // لو اللي عامل Checkout هو الفارمسي
+            if (User.IsInRole("Pharmacy"))
             {
-                return Unauthorized(new { success = false, message = "Please login as customer first." });
+                if (!model.CustomerId.HasValue)
+                {
+                    return BadRequest(new { success = false, message = "Customer id is required for pharmacy orders." });
+                }
+
+                var customerFromPharmacy = _context.Customers
+                    .FirstOrDefault(c => c.CustomerId == model.CustomerId.Value);
+
+                if (customerFromPharmacy == null)
+                {
+                    return BadRequest(new { success = false, message = "Customer not found in database." });
+                }
+
+                customerId = customerFromPharmacy.CustomerId;
+            }
+            // غير كده → كاستمر عادي (من الـ Claims)
+            else
+            {
+                var email = User.FindFirstValue(ClaimTypes.Email);
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Unauthorized(new { success = false, message = "Please login as customer first." });
+                }
+
+                var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
+                if (customer == null)
+                {
+                    return BadRequest(new { success = false, message = "Customer not found in database." });
+                }
+
+                customerId = customer.CustomerId;
             }
 
-            // 2) نلاقي الـ Customer في الداتابيز
-            var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
-            if (customer == null)
-            {
-                return BadRequest(new { success = false, message = "Customer not found in database." });
-            }
-
-            // 3) نحسب إجمالي الكمية وإجمالي السعر
             var totalQuantity = model.Items.Sum(i => i.Quantity);
             var total = model.Items.Sum(i => i.Price * i.Quantity);
 
-            // 4) نجيب الـ PharmId من أول منتج في السلة
             int? pharmId = null;
             var firstItem = model.Items.FirstOrDefault();
+
             if (firstItem != null)
             {
                 pharmId = _context.Products
@@ -208,25 +257,22 @@ namespace PharmacyDeliverySystem.Controllers
 
             var invoiceNo = (int)(DateTime.UtcNow.Ticks % int.MaxValue);
 
-            // 5) ننشئ Order جديد مربوط بالـ Customer الحقيقي و الـ Pharmacy
             var order = new Order
             {
-                CustomerId = customer.CustomerId,
+                CustomerId = customerId,
                 PharmId = pharmId,
-
                 Status = "Pending",
                 TotalPrice = total,
                 Price = total,
                 Quantity = totalQuantity.ToString(),
-
                 InvoiceNo = invoiceNo,
-                PdfUrl = string.Empty
+                PdfUrl = "",
+                CreatedAt = DateTime.Now
             };
 
             _orderManager.CreateOrder(order);
             var newOrderId = order.OrderId;
 
-            // 6) نحفظ الـ OrderItems
             foreach (var item in model.Items)
             {
                 var orderItem = new OrderItem
@@ -241,36 +287,31 @@ namespace PharmacyDeliverySystem.Controllers
                 _orderItemManager.CreateOrderItem(orderItem);
             }
 
-            // 7) نرجّع لينك الفاتورة
             var redirectUrl = Url.Action(
-                action: "InvoiceDetails",
-                controller: "QrConfirmation",
-                values: new { orderId = newOrderId });
+                "InvoiceDetails",
+                "QrConfirmation",
+                new { orderId = newOrderId, isPharmacy = User.IsInRole("Pharmacy") }
+            );
 
             return Json(new { success = true, redirectUrl });
         }
 
-        // ========== Customer Area: My Orders & Details ==========
+        // ========== My Orders ==========
 
         public IActionResult MyOrders()
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(email))
-            {
-                return RedirectToAction("Login", "Account");   // عدّل الاسم لو مختلف
-            }
+                return RedirectToAction("Login", "Account");
 
             var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
             if (customer == null)
-            {
                 return Unauthorized();
-            }
 
             var orders = _context.Orders
-                                 .Where(o => o.CustomerId == customer.CustomerId)
-                                 .OrderByDescending(o => o.OrderId)
-                                 .AsNoTracking()
-                                 .ToList();
+                .Where(o => o.CustomerId == customer.CustomerId)
+                .OrderByDescending(o => o.OrderId)
+                .ToList();
 
             return View("MyOrders", orders);
         }
@@ -279,22 +320,17 @@ namespace PharmacyDeliverySystem.Controllers
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(email))
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var customer = _context.Customers.FirstOrDefault(c => c.Email == email);
             if (customer == null)
-            {
                 return Unauthorized();
-            }
 
             var order = _context.Orders
-                                .Include(o => o.OrderItems)
-                                    .ThenInclude(oi => oi.Product)
-                                .Include(o => o.Returns)
-                                .FirstOrDefault(o => o.OrderId == id
-                                                  && o.CustomerId == customer.CustomerId);
+                .Include(o => o.OrderItems)
+                    .ThenInclude(i => i.Product)
+                .Include(o => o.Returns)
+                .FirstOrDefault(o => o.OrderId == id && o.CustomerId == customer.CustomerId);
 
             if (order == null)
                 return NotFound();

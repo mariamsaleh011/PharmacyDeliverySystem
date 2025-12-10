@@ -57,6 +57,26 @@
 
     <hr />
 
+    <p class="mt-3">
+        <a asp-controller="QrConfirmation"
+           asp-action="InvoiceDetails"
+           asp-route-orderId="@Model.OrderId"
+           class="btn btn-primary">
+            View invoice
+        </a>
+
+        <a asp-controller="Return"
+           asp-action="Create"
+           asp-route-orderId="@Model.OrderId"
+           class="btn btn-outline-danger ms-2">
+            Request return
+        </a>
+
+        <a asp-action="MyOrders" class="btn btn-secondary ms-2">
+            Back to my orders
+        </a>
+    </p>
+
     @* عرض حالة الـ Return لو موجود *@
     @{
         var lastReturn = Model.Returns?.OrderByDescending(r => r.ReturnId).FirstOrDefault();
@@ -73,17 +93,4 @@
     {
         <p class="text-light mt-2">No return requested for this order yet.</p>
     }
-
-    <p class="mt-3">
-        <a asp-controller="Return"
-           asp-action="Create"
-           asp-route-orderId="@Model.OrderId"
-           class="btn btn-outline-danger">
-            Request return
-        </a>
-
-        <a asp-action="MyOrders" class="btn btn-secondary ms-2">
-            Back to my orders
-        </a>
-    </p>
 </section>

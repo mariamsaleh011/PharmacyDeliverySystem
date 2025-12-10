@@ -4,12 +4,10 @@
     ViewData["Title"] = "Cart";
     Layout = "_Layout";
 
-    // هل اليوزر عامل Login ولا لأ؟
     bool isLoggedIn = User?.Identity?.IsAuthenticated == true;
 }
 
 @section Head {
-    @* ستايلات عامة + ستايل صفحة الكارت *@
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/cart-page.css" asp-append-version="true" />
 }
@@ -34,14 +32,13 @@
                                 @if (isLoggedIn)
                                 {
                                     <img src="@(string.IsNullOrWhiteSpace(product.ImageUrl)
-                                                                                         ? Url.Content("~/images/icons/product-default.svg")
-                                                                                         : product.ImageUrl)"
+                                                                                     ? Url.Content("~/images/icons/product-default.svg")
+                                                                                     : product.ImageUrl)"
                              alt="@product.Name"
                              class="product-img" />
                                                 }
                                 else
                                 {
-                                    <!-- ما نعرضش صورة المنتج قبل الـ Login -->
                                     <div class="locked-placeholder">
                                         <span class="lock-icon">🔒</span>
                                     </div>
@@ -110,11 +107,28 @@
                     <strong id="cartTotal">0 EGP</strong>
                 </div>
 
+                @* ===== هنا التعديل: إنبوت Customer Id للفارمسي فقط ===== *@
+                @if (User.IsInRole("Pharmacy"))   @* عدّل اسم الرول لو مختلف *@
+                {
+                    <div class="mb-2">
+                        <label for="customerIdInput"
+                               class="form-label"
+                               style="color:#fff">
+                            Customer Id
+                        </label>
+                        <input id="customerIdInput"
+                               type="number"
+                               class="form-control"
+                               placeholder="Enter customer id" />
+                    </div>
+                }
+
                 <button id="checkoutBtn"
                         type="button"
                         onclick="checkout()"
                         data-is-authenticated="@(isLoggedIn ? "true" : "false")"
-                        data-login-url="@Url.Action("Login", "CustomerAuth")">
+                        data-login-url="@Url.Action("Login", "CustomerAuth")"
+                        data-is-pharmacy="@(User.IsInRole("Pharmacy") ? "true" : "false")">
                     Checkout
                 </button>
 

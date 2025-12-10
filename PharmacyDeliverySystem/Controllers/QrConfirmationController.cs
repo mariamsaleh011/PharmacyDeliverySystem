@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using QRCoder;
+using System;
 using System.IO;
 
 namespace PharmacyDeliverySystem.Controllers
@@ -9,22 +12,29 @@ namespace PharmacyDeliverySystem.Controllers
     public class QrConfirmationController : Controller
     {
         private readonly IOrderManager _orderManager;
+        private readonly PharmacyDeliveryContext _context;
 
-        public QrConfirmationController(IOrderManager orderManager)
+        public QrConfirmationController(IOrderManager orderManager,
+                                        PharmacyDeliveryContext context)
         {
             _orderManager = orderManager;
+            _context = context;
         }
 
         // ===== Invoice Details View =====
-        public IActionResult InvoiceDetails(int orderId)
+        public IActionResult InvoiceDetails(int orderId, bool isPharmacy = false)
         {
             // 1) نجيب الأوردر
             var order = _orderManager.GetOrderById(orderId);
-            if (order == null) return NotFound();
+            if (order == null)
+                return NotFound();
 
             // 2) إجمالي الفاتورة
             decimal totalAmount = order.TotalPrice ?? 0m;
             ViewBag.TotalAmount = totalAmount;
+
+            // مين اللي فاتح الفاتورة؟ (فارمسي ولا كاستمر)
+            ViewBag.IsPharmacy = isPharmacy;
 
             // 3) نكوّن نص الـ QR
             string qrText =
@@ -40,7 +50,7 @@ namespace PharmacyDeliverySystem.Controllers
 #pragma warning restore CA1416
 
             ViewBag.QRCodeImage =
-                $"data:image/png;base64,{System.Convert.ToBase64String(stream.ToArray())}";
+                $"data:image/png;base64,{Convert.ToBase64String(stream.ToArray())}";
 
             // نفس الـ View: Views/QrConfirmation/InvoiceDetails.cshtml
             return View(order);
@@ -52,34 +62,56 @@ namespace PharmacyDeliverySystem.Controllers
         [HttpGet]
         public IActionResult ConfirmDelivery(string qrData)
         {
-            if (string.IsNullOrEmpty(qrData))
-                return Json(new { success = false });
+            if (string.IsNullOrWhiteSpace(qrData))
+                return Json(new { success = false, message = "Empty QR data." });
 
             int orderId;
+
             try
             {
                 // نقرأ أول جزء "OrderID:123"
-                var firstPart = qrData.Split(';')[0];  // "OrderID:123"
-                var idPart = firstPart.Split(':')[1];  // "123"
-                orderId = int.Parse(idPart);
+                var parts = qrData.Split(';');
+                if (parts.Length == 0)
+                    return Json(new { success = false, message = "Invalid QR format." });
+
+                var firstPart = parts[0].Trim(); // "OrderID:123"
+                var idParts = firstPart.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                if (idParts.Length < 2)
+                    return Json(new { success = false, message = "Invalid QR format." });
+
+                if (!int.TryParse(idParts[1], out orderId))
+                    return Json(new { success = false, message = "Invalid order id in QR." });
             }
             catch
             {
-                return Json(new { success = false });
+                return Json(new { success = false, message = "Failed to parse QR data." });
             }
 
-            var order = _orderManager.GetOrderById(orderId);
-            if (order == null)
-                return Json(new { success = false });
+            // نجيب الأوردر بالـ Items عشان نحدّثهم
+            var order = _context.Orders
+                                .Include(o => o.OrderItems)
+                                .FirstOrDefault(o => o.OrderId == orderId);
 
-            // نحدّث حالة الأوردر إلى Delivered
-            order.Status = "Delivered";
-            _orderManager.UpdateOrder(order);
+            if (order == null)
+                return Json(new { success = false, message = "Order not found." });
+
+            // نحدّث حالة الأوردر والـ Items إلى Delivered لو لسه مش Delivered
+            if (order.Status != "Delivered")
+            {
+                order.Status = "Delivered";
+
+                foreach (var item in order.OrderItems)
+                {
+                    item.Status = "Delivered";
+                }
+
+                _context.SaveChanges();
+            }
 
             return Json(new
             {
                 success = true,
-                orderId = orderId,
+                orderId,
                 message = "Order marked as Delivered"
             });
         }
@@ -94,17 +126,21 @@ namespace PharmacyDeliverySystem.Controllers
         [HttpPost]
         public IActionResult SubmitRating([FromBody] RatingRequest req)
         {
-            if (req == null || req.Rating < 1 || req.Rating > 5)
-                return Json(new { success = false });
+            // تأكيد إن البادي جاي صح
+            if (req == null)
+                return Json(new { success = false, message = "No data received." });
+
+            if (req.Rating < 1 || req.Rating > 5)
+                return Json(new { success = false, message = "Rating must be between 1 and 5." });
 
             var order = _orderManager.GetOrderById(req.OrderId);
             if (order == null)
-                return Json(new { success = false });
+                return Json(new { success = false, message = "Order not found." });
 
             order.Rating = req.Rating;
             _orderManager.UpdateOrder(order);
 
-            return Json(new { success = true });
+            return Json(new { success = true, message = "Rating saved successfully." });
         }
     }
 }

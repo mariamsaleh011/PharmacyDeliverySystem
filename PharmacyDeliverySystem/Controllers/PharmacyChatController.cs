@@ -123,6 +123,20 @@ namespace PharmacyDeliverySystem.Controllers
                 chat.PharmacyId = pharmacyId.Value;
             }
 
+            // 🔹 هات آخر روشتة للكاستمر ده مع الصيدلية دي
+            Prescription? lastPrescription = null;
+
+            if (chat.PharmacyId.HasValue)
+            {
+                lastPrescription = _context.Prescriptions
+                    .Where(p => p.CustomerId == chat.CustomerId
+                             && p.PharmId == chat.PharmacyId.Value)
+                    .OrderByDescending(p => p.PreId)
+                    .FirstOrDefault();
+            }
+
+            ViewBag.LastPrescription = lastPrescription;
+
             // علّم كل رسائل الكاستمر اللي لسه متقريتش إنها اتقرت
             var unreadFromCustomer = chat.ChatMessages
                 .Where(m => m.SenderType == "Customer" && !m.IsRead)

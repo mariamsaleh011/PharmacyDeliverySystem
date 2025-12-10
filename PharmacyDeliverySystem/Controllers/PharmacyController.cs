@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PharmacyDeliverySystem.Business.Interfaces;
+using PharmacyDeliverySystem.DataAccess;
 using PharmacyDeliverySystem.Models;
 using System.Security.Claims;
+using System.Linq;
 
 namespace PharmacyDeliverySystem.Controllers
 {
@@ -10,10 +12,12 @@ namespace PharmacyDeliverySystem.Controllers
     public class PharmacyController : Controller
     {
         private readonly IPharmacyManager _manager;
+        private readonly PharmacyDeliveryContext _context;
 
-        public PharmacyController(IPharmacyManager manager)
+        public PharmacyController(IPharmacyManager manager, PharmacyDeliveryContext context)
         {
             _manager = manager;
+            _context = context;
         }
 
         // =========================
@@ -130,7 +134,40 @@ namespace PharmacyDeliverySystem.Controllers
             if (chat == null || chat.PharmacyId != pharmacyId)
                 return NotFound();
 
-            return View(chat); // Views/Pharmacy/OpenChat.cshtml
+            // ================================
+            // ❗ إصلاح: جلب الروشتة الصحيحة
+            // ================================
+            Prescription? lastPrescription = null;
+
+            if (chat.CustomerId != null)
+            {
+                lastPrescription = _context.Prescriptions
+                    .Where(p => p.CustomerId == chat.CustomerId
+                             && p.PharmId == pharmacyId)
+                    .OrderByDescending(p => p.PreId)
+                    .FirstOrDefault();
+            }
+
+            ViewBag.LastPrescription = lastPrescription;
+
+            return View(chat);
+        }
+
+        [Authorize(Roles = "Pharmacy")]
+        public IActionResult DebugPrescriptions()
+        {
+            var list = _context.Prescriptions
+                .OrderByDescending(p => p.PreId)
+                .Select(p => new
+                {
+                    p.PreId,
+                    p.CustomerId,
+                    p.PharmId,
+                    p.Image
+                })
+                .ToList();
+
+            return Json(list);
         }
 
         // Send message from pharmacy

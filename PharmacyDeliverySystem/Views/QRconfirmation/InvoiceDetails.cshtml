@@ -6,6 +6,9 @@
 
     decimal totalAmount = ViewBag.TotalAmount ?? 0m;
     bool isDelivered = Model.Status == "Delivered";
+
+    bool isPharmacy = ViewBag.IsPharmacy != null && (bool)ViewBag.IsPharmacy;
+    bool isCustomer = !isPharmacy;
 }
 
 <div class="container my-5">
@@ -78,14 +81,18 @@
                         </div>
                     }
 
-                    <div class="mt-3">
-                        <label class="form-label">Scan QR (upload image)</label>
-                        <input type="file"
-                               id="qrUpload"
-                               accept="image/*"
-                               class="form-control form-control-sm" />
-                        <small id="scanResult" class="form-text"></small>
-                    </div>
+                    @* رفع صورة ال QR للـ customer بس *@
+                    @if (isCustomer)
+                    {
+                        <div class="mt-3">
+                            <label class="form-label">Scan QR (upload image)</label>
+                            <input type="file"
+                                   id="qrUpload"
+                                   accept="image/*"
+                                   class="form-control form-control-sm" />
+                            <small id="scanResult" class="form-text"></small>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -133,30 +140,57 @@
                 <p class="text-muted">No items to display.</p>
             }
 
-            <!-- ===== Rating (Stars) ===== -->
-            <div id="ratingSection" class="mt-4" style="display:@(isDelivered ? "block" : "none")">
-                <h5>Rate this order</h5>
+            <!-- ===== Rating للكاستمر (تفاعلي) ===== -->
+            @if (isCustomer)
+            {
+                <div id="ratingSection" class="mt-4" style="display:@(isDelivered ? "block" : "none")">
+                    <h5>Rate this order</h5>
 
-                <input type="hidden" id="ratingValue" value="@(Model.Rating ?? 0)" />
+                    <input type="hidden" id="ratingValue" value="@(Model.Rating ?? 0)" />
 
-                <div class="star-rating" style="font-size:32px; cursor:pointer; user-select:none;">
-                    @for (int i = 1; i <= 5; i++)
+                    <div class="star-rating" style="font-size:32px; cursor:pointer; user-select:none;">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var color = (Model.Rating.HasValue && Model.Rating >= i) ? "gold" : "#ccc";
+                            <span class="star"
+                                  data-value="@i"
+                                  style="color:@color; margin-right:6px;">
+                                ★
+                            </span>
+                        }
+                    </div>
+
+                    <button id="submitRating"
+                            type="button"
+                            class="btn btn-success btn-sm mt-3">
+                        Submit Rating
+                    </button>
+                </div>
+            }
+
+            <!-- ===== Rating للفارمسي (قراءة فقط) ===== -->
+            @if (isPharmacy)
+            {
+                <div class="mt-4">
+                    <h5>Customer Rating</h5>
+
+                    @if (Model.Rating.HasValue)
                     {
-                        var color = (Model.Rating.HasValue && Model.Rating >= i) ? "gold" : "#ccc";
-                        <span class="star"
-                              data-value="@i"
-                              style="color:@color; margin-right:6px;">
-                            ★
-                        </span>
+                        <div class="star-rating" style="font-size:32px; user-select:none;">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var color = (Model.Rating >= i) ? "gold" : "#ccc";
+                                <span style="color:@color; margin-right:6px;">★</span>
+                            }
+                            <span class="ms-2">(@(Model.Rating ?? 0))/5</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Customer has not rated this order yet.</p>
                     }
                 </div>
-
-                <button id="submitRating"
-                        type="button"
-                        class="btn btn-success btn-sm mt-3">
-                    Submit Rating
-                </button>
-            </div>
+            }
         </div>
 
         <!-- ===== Footer ===== -->
@@ -165,12 +199,21 @@
                 Generated on @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="printInvoice()">
-                    Print
-                </button>
-                <button class="btn btn-primary btn-sm" type="button" onclick="saveInvoice()">
-                    Save as PDF
-                </button>
+                @if (isPharmacy)
+                {
+                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="printInvoice()">
+                        Print
+                    </button>
+                    <button class="btn btn-primary btn-sm" type="button" onclick="saveInvoice()">
+                        Save as PDF
+                    </button>
+                }
+                else if (isCustomer)
+                {
+                    <button class="btn btn-primary btn-sm" type="button" onclick="saveInvoice()">
+                        Download PDF
+                    </button>
+                }
             </div>
         </div>
     </div>
@@ -268,7 +311,7 @@
                         return;
                     }
 
-                 const orderId = parseInt('@Model.OrderId');
+                    const orderId = parseInt('@Model.OrderId');
 
                     fetch('/QrConfirmation/SubmitRating', {
                         method: 'POST',
